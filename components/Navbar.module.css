@@ -1,0 +1,38 @@
+.header {
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-bright);
+  padding: 0 32px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--red);
+  letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.drop {
+  width: 13px;
+  height: 13px;
+  background: var(--red);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: inline-block;
+}
+
+.right {
+  font-size: 11px;
+  color: var(--text-ghost);
+  font-family: var(--font-display);
+  letter-spacing: 0.1em;
+}

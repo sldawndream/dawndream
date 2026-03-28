@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  --bg-deep: #0a0408;
+  --bg-dark: #0d0508;
+  --bg-panel: #110608;
+  --bg-card: #140608;
+  --bg-card2: #1a080c;
+  --border: #2a0a14;
+  --border-mid: #3a1018;
+  --border-accent: #4a1020;
+  --border-bright: #5c1a24;
+  --red: #c0392b;
+  --red-dim: #7a2030;
+  --red-dark: #2a0a14;
+  --amber: #c07830;
+  --teal: #2a9070;
+  --text-bright: #f0d8c8;
+  --text-main: #e0cdb8;
+  --text-mid: #c0a890;
+  --text-muted: #b09880;
+  --text-dim: #9a7860;
+  --text-faint: #7a5a50;
+  --text-ghost: #5a3a30;
+  --font-display: 'Cinzel', serif;
+  --font-body: 'Crimson Text', serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+
+::selection {
+  background: var(--red-dim);
+  color: var(--text-bright);
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--red-dim); border-radius: 3px; }

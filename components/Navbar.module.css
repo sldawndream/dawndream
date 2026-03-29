@@ -36,3 +36,28 @@
   font-family: var(--font-display);
   letter-spacing: 0.1em;
 }
+
+.nav {
+  display: flex;
+  gap: 4px;
+}
+
+.navLink {
+  color: #8a6858;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 5px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: color 0.2s, background 0.2s;
+}
+
+.navLink:hover {
+  color: #c09070;
+}
+
+.active {
+  background: #2a0a10;
+  color: #d09080;
+}

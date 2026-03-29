@@ -277,3 +277,21 @@
   .metaGrid { grid-template-columns: 1fr; }
   .heroTitle { font-size: 26px; }
 }
+
+.housesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.housePill {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #1a0a14;
+  color: #c09080;
+  border: 1px solid #3a1018;
+  font-family: var(--font-display);
+  letter-spacing: 0.06em;
+}

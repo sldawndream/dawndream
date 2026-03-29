@@ -76,7 +76,16 @@ export default function ClansPage({ clans }) {
                   <div className={styles.metaGrid}>
                     {clan.founder && <div className={styles.metaCard}><p className={styles.metaLabel}>Founder</p><p className={styles.metaValue}>{clan.founder}</p></div>}
                     {clan.generation && <div className={styles.metaCard}><p className={styles.metaLabel}>Generation</p><p className={styles.metaValue}>{clan.generation}</p></div>}
-                    {clan.leader && <div className={styles.metaCard}><p className={styles.metaLabel}>Current leader</p><p className={styles.metaValue}>{clan.leader}</p></div>}
+                    {clan.houses && (
+                      <div className={styles.metaCard}>
+                        <p className={styles.metaLabel}>Houses</p>
+                        <div className={styles.housesList}>
+                          {clan.houses.split(',').map((house) => (
+                            <span key={house} className={styles.housePill}>{house.trim()}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     {clan.clanStatus && (
                       <div className={styles.metaCard}>
                         <p className={styles.metaLabel}>Status</p>

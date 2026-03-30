@@ -56,13 +56,15 @@
 .active { display: block; }
 .slideImg {
   width: 100%;
-  height: 520px;
-  object-fit: cover;
-  opacity: 0.85;
+  height: auto;
+  max-height: 90vh;
+  object-fit: contain;
+  opacity: 0.95;
+  background: #060204;
 }
 .slidePlaceholder {
   width: 100%;
-  height: 520px;
+  height: 500px;
   background: #120608;
   display: flex;
   align-items: center;
@@ -189,7 +191,7 @@
   letter-spacing: 0.15em;
 }
 @media (max-width: 768px) {
-  .slideImg, .slidePlaceholder { height: 300px; }
+  .slideImg { max-height: 60vh; }
   .heroTitle { font-size: 26px; }
   .thumbnails { padding: 10px 16px; }
 }

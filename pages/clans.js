@@ -1,25 +1,28 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import Navbar from '../components/Navbar';
-import { getClans } from '../lib/clans';
+import { getClans, getHouses } from '../lib/clans';
 import styles from '../styles/Clans.module.css';
 
 export async function getStaticProps() {
   try {
-    const clans = await getClans();
-    return { props: { clans }, revalidate: 60 };
+    const [clans, houses] = await Promise.all([getClans(), getHouses()]);
+    return { props: { clans, houses }, revalidate: 60 };
   } catch (err) {
     console.error('Clans fetch error:', err);
-    return { props: { clans: [] }, revalidate: 60 };
+    return { props: { clans: [], houses: [] }, revalidate: 60 };
   }
 }
 
-export default function ClansPage({ clans }) {
+export default function ClansPage({ clans, houses }) {
+  function getHousesForClan(clanName) {
+    return houses.filter(h => h.clan.toLowerCase().trim() === clanName.toLowerCase().trim());
+  }
+
   return (
     <>
       <Head>
         <title>Clans & Houses — DawnDream</title>
-        <meta name="description" content="The great houses of DawnDream — bound by blood, divided by pride." />
+        <meta name="description" content="The great clans and houses of DawnDream." />
       </Head>
 
       <Navbar activePage="clans" />
@@ -33,96 +36,83 @@ export default function ClansPage({ clans }) {
       </section>
 
       <div className={styles.body}>
-        <aside className={styles.sidebar}>
-          <p className={styles.sidebarTitle}>The Houses</p>
-          {clans.map((clan) => (
-            <a key={clan.id} href={`#${clan.id}`} className={styles.clanLink}>
-              {clan.name}
-              <span className={styles.clanLinkSub}>{clan.status} · {clan.generation}</span>
-            </a>
-          ))}
-          {clans.length === 0 && (
-            <p style={{ color: '#5a3028', fontSize: '12px', fontStyle: 'italic', padding: '8px 12px' }}>No clans yet</p>
-          )}
-        </aside>
+        <p className={styles.sectionHead}>Active Clans of DawnDream</p>
 
-        <main className={styles.content}>
-          <p className={styles.sectionHead}>Chronicle of the Houses</p>
-          {clans.length === 0 && (
-            <p style={{ color: '#7a5a50', fontStyle: 'italic' }}>No clan entries yet — add them in your Notion database!</p>
-          )}
-          <div className={styles.timeline}>
-            {clans.map((clan, i) => (
-              <div key={clan.id}>
-                <article id={clan.id} className={styles.clanEntry}>
-                  <div className={`${styles.dot} ${clan.major ? styles.dotMajor : ''}`}>
-                    <div className={styles.dotInner} />
-                  </div>
-                  {clan.bannerImage ? (
-                    <img src={clan.bannerImage} alt={clan.name} className={styles.banner} />
-                  ) : (
-                    <div className={styles.bannerPlaceholder}>Clan Banner</div>
-                  )}
-                  <div className={styles.tags}>
-                    <span className={`${styles.tag} ${styles[clan.statusStyle]}`}>{clan.status}</span>
-                  </div>
-                  <h2 className={styles.clanName}>{clan.name}</h2>
-                  {clan.motto && <p className={styles.motto}>{clan.motto}</p>}
-                  <div className={styles.history}>
-                    {clan.history.split('\n').filter(Boolean).map((para, j) => (
-                      <p key={j}>{para}</p>
-                    ))}
-                  </div>
-                  <div className={styles.metaGrid}>
-                    {clan.founder && <div className={styles.metaCard}><p className={styles.metaLabel}>Founder</p><p className={styles.metaValue}>{clan.founder}</p></div>}
-                    {clan.generation && <div className={styles.metaCard}><p className={styles.metaLabel}>Generation</p><p className={styles.metaValue}>{clan.generation}</p></div>}
-                    {clan.houses && (
-                      <div className={styles.metaCard}>
-                        <p className={styles.metaLabel}>Houses</p>
-                        <div className={styles.housesList}>
-                          {clan.houses.split(',').map((house) => (
-                            <span key={house} className={styles.housePill}>{house.trim()}</span>
-                          ))}
-                        </div>
-                      </div>
+        {clans.length === 0 && (
+          <p style={{ color: '#7a5a50', fontStyle: 'italic' }}>No clans yet — add them in your Notion database!</p>
+        )}
+
+        <div className={styles.clansGrid}>
+          {clans.map((clan) => {
+            const clanHouses = getHousesForClan(clan.name);
+            return (
+              <div key={clan.id} className={styles.clanCard}>
+                <details>
+                  <summary className={styles.clanHeader}>
+                    {clan.bannerImage ? (
+                      <img src={clan.bannerImage} alt={clan.name} className={styles.clanBanner} />
+                    ) : (
+                      <div className={styles.clanBannerPlaceholder}>Banner</div>
                     )}
-                    {clan.clanStatus && (
-                      <div className={styles.metaCard}>
-                        <p className={styles.metaLabel}>Status</p>
-                        <p className={styles.metaValue} style={{ color: clan.clanStatus === 'Active' ? '#60a880' : clan.clanStatus === 'Fallen' ? '#9090c0' : '#c07030' }}>{clan.clanStatus}</p>
+                    <div className={styles.clanInfo}>
+                      <div className={styles.clanTop}>
+                        <span className={styles.clanName}>{clan.name}</span>
+                        {clan.founded && <span className={styles.clanFounded}>Founded {clan.founded}</span>}
                       </div>
-                    )}
-                  </div>
-                  {(clan.allies || clan.enemies) && (
-                    <div className={styles.relations}>
-                      {clan.allies && (
-                        <>
-                          <span className={styles.relLabel}>Allies</span>
-                          {clan.allies.split(',').map((a) => (
-                            <span key={a} className={`${styles.relPill} ${styles.ally}`}>{a.trim()}</span>
-                          ))}
-                        </>
-                      )}
-                      {clan.enemies && (
-                        <>
-                          <span className={styles.relLabel} style={{ marginLeft: clan.allies ? '8px' : '0' }}>Enemies</span>
-                          {clan.enemies.split(',').map((e) => (
-                            <span key={e} className={`${styles.relPill} ${styles.enemy}`}>{e.trim()}</span>
-                          ))}
-                        </>
-                      )}
+                      <div className={styles.clanRanks}>
+                        <span className={`${styles.rankPill} ${styles.rankHc} ${!clan.highCommander ? styles.rankEmpty : ''}`}>
+                          ⚔ High Commander: {clan.highCommander || 'None'}
+                        </span>
+                        <span className={`${styles.rankPill} ${styles.rankBg} ${!clan.bloodGeneral ? styles.rankEmpty : ''}`}>
+                          Blood General: {clan.bloodGeneral || 'None'}
+                        </span>
+                        <span className={`${styles.rankPill} ${styles.rankWc} ${!clan.warCaptain ? styles.rankEmpty : ''}`}>
+                          War Captain: {clan.warCaptain || 'None'}
+                        </span>
+                      </div>
+                      {clan.lore && <p className={styles.clanLore}>{clan.lore}</p>}
                     </div>
-                  )}
-                </article>
-                {i < clans.length - 1 && <div className={styles.separator} />}
+                    <div className={styles.expandBtn}>
+                      <div className={styles.expandIcon}>▾</div>
+                      <span className={styles.houseCount}>{clanHouses.length} {clanHouses.length === 1 ? 'House' : 'Houses'}</span>
+                    </div>
+                  </summary>
+
+                  <div className={styles.housesPanel}>
+                    <p className={styles.housesTitle}>Clan Houses</p>
+                    {clanHouses.length === 0 ? (
+                      <p style={{ color: '#5a3028', fontStyle: 'italic', fontSize: '13px' }}>No houses yet — add them in Notion!</p>
+                    ) : (
+                      <div className={styles.housesGrid}>
+                        {clanHouses.map((house) => (
+                          <div key={house.id} className={styles.houseCard}>
+                            <p className={styles.houseName}>{house.name}</p>
+                            <div className={styles.houseRankRow}>
+                              <span className={styles.rankLabel}>High Regent</span>
+                              <span className={`${styles.rankName} ${!house.highRegent ? styles.rankNone : ''}`}>{house.highRegent || 'None'}</span>
+                            </div>
+                            <div className={styles.houseRankRow}>
+                              <span className={styles.rankLabel}>Grand Consul</span>
+                              <span className={`${styles.rankName} ${!house.grandConsul ? styles.rankNone : ''}`}>{house.grandConsul || 'None'}</span>
+                            </div>
+                            <div className={styles.houseRankRow}>
+                              <span className={styles.rankLabel}>Centurion</span>
+                              <span className={`${styles.rankName} ${!house.centurion ? styles.rankNone : ''}`}>{house.centurion || 'None'}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </details>
               </div>
-            ))}
-          </div>
-        </main>
+            );
+          })}
+        </div>
       </div>
 
       <footer className={styles.footer}>
-        DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All lore © DawnDream
+        DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream
       </footer>
     </>
   );

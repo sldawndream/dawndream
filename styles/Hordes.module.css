@@ -1,0 +1,170 @@
+.hero {
+  background: var(--bg-dark);
+  border-bottom: 1px solid var(--border);
+  padding: 52px 32px 44px;
+  text-align: center;
+}
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: #6a3020;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--text-bright);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.heroSub {
+  font-size: 19px;
+  color: #9a7050;
+  font-style: italic;
+  max-width: 520px;
+  margin: 0 auto 20px;
+}
+.heroDivider {
+  width: 120px;
+  height: 1px;
+  background: #5a2800;
+  margin: 0 auto 20px;
+}
+.heroIntro {
+  font-size: 16px;
+  color: var(--text-mid);
+  line-height: 1.85;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.warningBar {
+  background: #1a0800;
+  border-top: 1px solid #5a2800;
+  border-bottom: 1px solid #5a2800;
+  padding: 10px 32px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: #c07030;
+  letter-spacing: 0.12em;
+}
+.body {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 44px 32px;
+}
+.sectionHead {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  color: #5a3020;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+.hordesGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.hordeCard {
+  background: #120608;
+  border: 1px solid #3a1800;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.hordeHeader {
+  padding: 20px 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.hordeBanner {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #5a2800;
+  flex-shrink: 0;
+}
+.hordeBannerPlaceholder {
+  width: 80px;
+  height: 80px;
+  background: #1e0800;
+  border: 1px solid #3a1800;
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: #3a1800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.hordeInfo { flex: 1; }
+.hordeTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.hordeName {
+  font-family: var(--font-display);
+  font-size: 20px;
+  color: #f0d0b8;
+  font-weight: 700;
+}
+.rebelTag {
+  font-family: var(--font-display);
+  font-size: 9px;
+  padding: 2px 9px;
+  border-radius: 3px;
+  background: #1a0800;
+  color: #c07030;
+  border: 1px solid #5a2800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hordeRanks {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.rankPill {
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 3px;
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+}
+.rankWl { background: #1a0800; color: #e89060; border: 1px solid #5a2800; }
+.rankFb { background: #0e0a1a; color: #9090c0; border: 1px solid #302060; }
+.rankRv { background: #0a1a10; color: #60a880; border: 1px solid #1a5030; }
+.rankEmpty { opacity: 0.35; }
+.hordeLore {
+  font-size: 14px;
+  color: #7a5a50;
+  font-style: italic;
+  line-height: 1.6;
+}
+.footer {
+  background: var(--bg-dark);
+  border-top: 1px solid var(--border);
+  padding: 22px 32px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: #4a2820;
+  letter-spacing: 0.15em;
+}
+@media (max-width: 768px) {
+  .body { padding: 24px 16px; }
+  .hordeHeader { flex-wrap: wrap; }
+  .heroTitle { font-size: 26px; }
+}

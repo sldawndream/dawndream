@@ -18,6 +18,9 @@ export default function Navbar({ activePage }) {
         <Link href="/bloodlines" className={`${styles.navLink} ${activePage === 'bloodlines' ? styles.active : ''}`}>
           Bloodlines
         </Link>
+        <Link href="/gallery" className={`${styles.navLink} ${activePage === 'gallery' ? styles.active : ''}`}>
+          Gallery
+        </Link>
       </nav>
       <div className={styles.right}>Second Life RPG System</div>
     </header>

@@ -15,6 +15,9 @@ export default function Navbar({ activePage }) {
         <Link href="/clans" className={`${styles.navLink} ${activePage === 'clans' ? styles.active : ''}`}>
           Clans & Houses
         </Link>
+        <Link href="/hordes" className={`${styles.navLink} ${activePage === 'hordes' ? styles.active : ''}`}>
+          Hordes
+        </Link>
         <Link href="/bloodlines" className={`${styles.navLink} ${activePage === 'bloodlines' ? styles.active : ''}`}>
           Bloodlines
         </Link>

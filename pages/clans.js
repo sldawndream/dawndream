@@ -35,6 +35,10 @@ export default function ClansPage({ clans, houses }) {
         <p className={styles.heroIntro}>Each clan carries its own history, its own wounds, and its own ambitions. To know the houses is to understand the war that never truly ended.</p>
       </section>
 
+      <div className={styles.throneBar}>
+        ✦ These factions stand in absolute allegiance to the Eternal Throne — recognised, protected, and bound by the ancient covenant.
+      </div>
+
       <div className={styles.body}>
         <p className={styles.sectionHead}>Active Clans of DawnDream</p>
 

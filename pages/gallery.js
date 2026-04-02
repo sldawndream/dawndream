@@ -55,6 +55,10 @@ export default function GalleryPage({ photos }) {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!form.author || !form.imageUrl) return;
+    if (form.imageUrl.toLowerCase().includes('imgur.com')) {
+      alert('imgur.com links are not supported. Please use postimages.org instead.');
+      return;
+    }
     setSubmitting(true);
     try {
       await fetch('/api/submit-photo', {
@@ -139,7 +143,7 @@ export default function GalleryPage({ photos }) {
       <div className={styles.submitSection}>
         <div className={styles.submitCard}>
           <p className={styles.submitTitle}>Submit Your Photo</p>
-          <p className={styles.submitSub}>Share a moment from DawnDream. Upload your image to <a href="https://imgur.com" target="_blank" rel="noreferrer" className={styles.link}>imgur.com</a> and paste the direct link below. All submissions are reviewed before publishing.</p>
+          <p className={styles.submitSub}>Share a moment from DawnDream. Upload your image to <a href="https://postimages.org" target="_blank" rel="noreferrer" className={styles.link}>postimages.org</a> (free, no account needed) and paste the direct image link below. All submissions are reviewed before publishing.</p>
           {submitted ? (
             <div className={styles.successMsg}>Your photo has been submitted! The DawnDream team will review it shortly.</div>
           ) : (
@@ -151,13 +155,13 @@ export default function GalleryPage({ photos }) {
                 </div>
                 <div className={styles.formGroup} style={{ flex: 2 }}>
                   <label className={styles.formLabel}>Direct Image URL</label>
-                  <input className={styles.formInput} name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://i.imgur.com/yourimage.jpg" required />
+                  <input className={styles.formInput} name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://i.postimg.cc/yourimage.jpg" required />
                 </div>
                 <button className={styles.submitBtn} type="submit" disabled={submitting}>
                   {submitting ? 'Submitting...' : 'Submit →'}
                 </button>
               </div>
-              <p className={styles.submitNote}>Upload your image to imgur.com first, then copy the direct link (ending in .jpg or .png)</p>
+              <p className={styles.submitNote}>Go to postimages.org → upload your image → right-click the image → Copy image address. The link should end in .jpg or .png</p>
             </form>
           )}
         </div>

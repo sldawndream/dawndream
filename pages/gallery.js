@@ -4,13 +4,13 @@ import Navbar from '../components/Navbar';
 import { getGallery } from '../lib/gallery';
 import styles from '../styles/Gallery.module.css';
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     const photos = await getGallery();
-    return { props: { photos }, revalidate: 60 };
+    return { props: { photos } };
   } catch (err) {
     console.error('Gallery fetch error:', err);
-    return { props: { photos: [] }, revalidate: 60 };
+    return { props: { photos: [] } };
   }
 }
 
@@ -26,10 +26,14 @@ function shuffle(arr) {
 export default function GalleryPage({ photos }) {
   const [shuffled, setShuffled] = useState([]);
   const [current, setCurrent] = useState(0);
+  const [form, setForm] = useState({ author: '', imageUrl: '' });
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    setShuffled(shuffle(photos));
-    setCurrent(Math.floor(Math.random() * photos.length));
+    const s = shuffle(photos);
+    setShuffled(s);
+    setCurrent(Math.floor(Math.random() * Math.max(photos.length, 1)));
   }, []);
 
   useEffect(() => {
@@ -44,7 +48,27 @@ export default function GalleryPage({ photos }) {
     setCurrent((n + shuffled.length) % shuffled.length);
   }
 
-  if (shuffled.length === 0 && photos.length > 0) return null;
+  function handleChange(e) {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!form.author || !form.imageUrl) return;
+    setSubmitting(true);
+    try {
+      await fetch('/api/submit-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      setSubmitted(true);
+      setForm({ author: '', imageUrl: '' });
+    } catch (err) {
+      console.error(err);
+    }
+    setSubmitting(false);
+  }
 
   return (
     <>
@@ -65,7 +89,7 @@ export default function GalleryPage({ photos }) {
 
       {shuffled.length === 0 ? (
         <div className={styles.empty}>
-          <p>No photos yet — add them in your Notion database!</p>
+          <p>No photos yet — be the first to submit!</p>
         </div>
       ) : (
         <>
@@ -111,6 +135,33 @@ export default function GalleryPage({ photos }) {
           </div>
         </>
       )}
+
+      <div className={styles.submitSection}>
+        <div className={styles.submitCard}>
+          <p className={styles.submitTitle}>Submit Your Photo</p>
+          <p className={styles.submitSub}>Share a moment from DawnDream. Upload your image to <a href="https://imgur.com" target="_blank" rel="noreferrer" className={styles.link}>imgur.com</a> and paste the direct link below. All submissions are reviewed before publishing.</p>
+          {submitted ? (
+            <div className={styles.successMsg}>Your photo has been submitted! The DawnDream team will review it shortly.</div>
+          ) : (
+            <form onSubmit={handleSubmit} className={styles.submitForm}>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Your Avatar Name</label>
+                  <input className={styles.formInput} name="author" value={form.author} onChange={handleChange} placeholder="Your avatar name..." required />
+                </div>
+                <div className={styles.formGroup} style={{ flex: 2 }}>
+                  <label className={styles.formLabel}>Direct Image URL</label>
+                  <input className={styles.formInput} name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://i.imgur.com/yourimage.jpg" required />
+                </div>
+                <button className={styles.submitBtn} type="submit" disabled={submitting}>
+                  {submitting ? 'Submitting...' : 'Submit →'}
+                </button>
+              </div>
+              <p className={styles.submitNote}>Upload your image to imgur.com first, then copy the direct link (ending in .jpg or .png)</p>
+            </form>
+          )}
+        </div>
+      </div>
 
       <footer className={styles.footer}>
         DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream

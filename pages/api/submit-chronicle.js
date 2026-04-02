@@ -6,8 +6,18 @@ export default async function handler(req, res) {
 
   const preview = story.length > 300 ? story.substring(0, 300) + '...' : story;
 
+  function chunkText(text, size = 1900) {
+    const chunks = [];
+    let i = 0;
+    while (i < text.length) {
+      chunks.push({ text: { content: text.slice(i, i + size) } });
+      i += size;
+    }
+    return chunks;
+  }
+
   try {
-    await fetch('https://api.notion.com/v1/pages', {
+    const response = await fetch('https://api.notion.com/v1/pages', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${process.env.NOTION_TOKEN}`,
@@ -17,19 +27,27 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         parent: { database_id: process.env.NOTION_CHRONICLES_DATABASE_ID },
         properties: {
-          Name: { title: [{ text: { content: title } }] },
-          Author: { rich_text: [{ text: { content: author } }] },
-          Category: { select: { name: category || 'Horror' } },
-          Preview: { rich_text: [{ text: { content: preview } }] },
-          Story: { rich_text: [{ text: { content: story } }] },
+          Name: { title: [{ text: { content: title.slice(0, 2000) } }] },
+          Author: { rich_text: [{ text: { content: author.slice(0, 2000) } }] },
+          Category: { select: { name: category || 'Other' } },
+          Preview: { rich_text: [{ text: { content: preview.slice(0, 2000) } }] },
+          Story: { rich_text: chunkText(story) },
           Published: { checkbox: false },
           Order: { number: Date.now() },
         },
       }),
     });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error('Notion error:', JSON.stringify(data));
+      return res.status(500).json({ error: 'Notion submission failed', details: data });
+    }
+
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error('Submit error:', err);
     res.status(500).json({ error: 'Submission failed' });
   }
 }

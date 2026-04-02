@@ -4,13 +4,13 @@ import Navbar from '../components/Navbar';
 import { getChronicles } from '../lib/chronicles';
 import styles from '../styles/Chronicles.module.css';
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     const chronicles = await getChronicles();
-    return { props: { chronicles }, revalidate: 60 };
+    return { props: { chronicles } };
   } catch (err) {
     console.error('Chronicles fetch error:', err);
-    return { props: { chronicles: [] }, revalidate: 60 };
+    return { props: { chronicles: [] } };
   }
 }
 

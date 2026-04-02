@@ -3,17 +3,14 @@ import Navbar from '../components/Navbar';
 import { getLoreEntries, getEras } from '../lib/notion';
 import styles from '../styles/Lore.module.css';
 
-export async function getStaticProps() {
+export async function getServerSideProps() {
   try {
     const entries = await getLoreEntries();
     const eras = await getEras();
-    return {
-      props: { entries, eras },
-      revalidate: 60,
-    };
+    return { props: { entries, eras } };
   } catch (err) {
     console.error('Notion fetch error:', err);
-    return { props: { entries: [], eras: [] }, revalidate: 60 };
+    return { props: { entries: [], eras: [] } };
   }
 }
 

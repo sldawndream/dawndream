@@ -21,6 +21,8 @@
 .catRomance { background: #1a0014; color: #c060a0; border: 1px solid #5a1050; }
 .catMystery { background: #0e0a1a; color: #9090c0; border: 1px solid #302060; }
 .catAdventure { background: #0a1a10; color: #60a880; border: 1px solid #1a5030; }
+.catBackstory { background: #1a1000; color: #c0a030; border: 1px solid #5a4010; }
+.catOther { background: #0e0e0e; color: #888880; border: 1px solid #303030; }
 .storyMeta { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 .storyAuthor { font-family: var(--font-display); font-size: 11px; color: #7a5040; letter-spacing: 0.08em; }
 .storyPreview { font-size: 15px; color: #9a7860; line-height: 1.8; font-style: italic; margin-bottom: 14px; }

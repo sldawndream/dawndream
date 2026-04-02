@@ -20,6 +20,8 @@ const categoryStyles = {
   Romance: styles.catRomance,
   Mystery: styles.catMystery,
   Adventure: styles.catAdventure,
+  Backstory: styles.catBackstory,
+  Other: styles.catOther,
 };
 
 export default function ChroniclesPage({ chronicles }) {
@@ -123,6 +125,8 @@ export default function ChroniclesPage({ chronicles }) {
                     <option>Romance</option>
                     <option>Mystery</option>
                     <option>Adventure</option>
+                    <option>Backstory</option>
+                    <option>Other</option>
                   </select>
                 </div>
                 <div className={styles.formGroup}>

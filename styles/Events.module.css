@@ -1,0 +1,51 @@
+.hero { background: var(--bg-dark); border-bottom: 1px solid var(--border); padding: 52px 32px 44px; text-align: center; }
+.eyebrow { font-family: var(--font-display); font-size: 10px; letter-spacing: 0.3em; color: #6a3030; margin-bottom: 14px; text-transform: uppercase; }
+.heroTitle { font-family: var(--font-display); font-size: 36px; color: var(--text-bright); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 12px; }
+.heroSub { font-size: 19px; color: var(--text-dim); font-style: italic; max-width: 520px; margin: 0 auto 20px; }
+.heroDivider { width: 120px; height: 1px; background: var(--border-accent); margin: 0 auto 20px; }
+.heroIntro { font-size: 16px; color: var(--text-mid); line-height: 1.85; max-width: 600px; margin: 0 auto; }
+.body { max-width: 980px; margin: 0 auto; padding: 40px 32px; }
+.sectionHead { font-family: var(--font-display); font-size: 9px; letter-spacing: 0.25em; color: #5a2828; margin-bottom: 20px; text-transform: uppercase; }
+.calWrap { background: #120608; border: 1px solid #2a0a14; border-radius: 10px; overflow: hidden; margin-bottom: 40px; }
+.calHeader { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid #1e0a10; }
+.calMonth { font-family: var(--font-display); font-size: 16px; color: #f0d0b8; letter-spacing: 0.08em; }
+.calNav { display: flex; gap: 8px; }
+.calBtn { background: #1e080e; border: 1px solid #3a1018; border-radius: 4px; color: #c09080; font-family: var(--font-display); font-size: 11px; padding: 4px 12px; cursor: pointer; transition: background 0.2s; }
+.calBtn:hover { background: #2a0a14; }
+.calGrid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.calDow { text-align: center; padding: 10px 4px; font-family: var(--font-display); font-size: 9px; color: #5a2828; letter-spacing: 0.12em; text-transform: uppercase; border-bottom: 1px solid #1e0a10; }
+.calDay { min-height: 64px; padding: 6px 8px; border-right: 1px solid #160608; border-bottom: 1px solid #160608; }
+.calDay:nth-child(7n) { border-right: none; }
+.empty { background: #0d0408; }
+.today .dayNum { background: #c0392b; color: #f0d0b8; border-radius: 50%; }
+.dayNum { font-family: var(--font-display); font-size: 11px; color: #5a3028; margin-bottom: 4px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+.calEvent { background: #2a0a14; border-left: 2px solid #c0392b; border-radius: 2px; padding: 2px 5px; font-size: 9px; color: #e8a090; font-family: var(--font-display); letter-spacing: 0.04em; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.calEventSocial { border-left-color: #2a9070; background: #0a1a10; color: #60a880; }
+.calEventPvp { border-left-color: #c07030; background: #1a0a00; color: #c07030; }
+.eventsGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.eventCard { background: #120608; border: 1px solid #2a0a14; border-radius: 10px; overflow: hidden; }
+.pastCard { opacity: 0.6; }
+.eventBanner { width: 100%; height: 140px; object-fit: cover; border-bottom: 1px solid #2a0a14; }
+.pastBanner { filter: grayscale(40%); }
+.eventBannerPlaceholder { width: 100%; height: 140px; background: #1a0608; border-bottom: 1px solid #2a0a14; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 9px; color: #2a0a14; letter-spacing: 0.15em; text-transform: uppercase; }
+.eventBody { padding: 16px 18px; }
+.eventTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.eventName { font-family: var(--font-display); font-size: 15px; color: #f0d0b8; font-weight: 600; line-height: 1.3; }
+.eventType { font-family: var(--font-display); font-size: 9px; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.1em; text-transform: uppercase; flex-shrink: 0; }
+.typeStory { background: #2a0a14; color: #c09080; border: 1px solid #5a1a24; }
+.typeSocial { background: #0a1a10; color: #60a880; border: 1px solid #1a5030; }
+.typePvp { background: #1a0a00; color: #c07030; border: 1px solid #5a3010; }
+.typeOther { background: #0e0a1a; color: #9090c0; border: 1px solid #302060; }
+.pastTag { font-family: var(--font-display); font-size: 9px; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.1em; text-transform: uppercase; background: #1a1a1a; color: #5a5a5a; border: 1px solid #2a2a2a; flex-shrink: 0; }
+.eventDate { font-family: var(--font-display); font-size: 11px; color: #c0392b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.dateDot { width: 5px; height: 5px; border-radius: 50%; background: #c0392b; display: inline-block; flex-shrink: 0; }
+.eventDesc { font-size: 14px; color: #8a6858; line-height: 1.7; font-style: italic; margin-bottom: 10px; }
+.eventLocation { font-size: 12px; color: #5a3028; font-family: var(--font-display); letter-spacing: 0.06em; display: flex; align-items: center; gap: 5px; }
+.locIcon { width: 8px; height: 8px; border-radius: 50%; border: 1px solid #5a2828; display: inline-block; flex-shrink: 0; }
+.footer { background: var(--bg-dark); border-top: 1px solid var(--border); padding: 22px 32px; text-align: center; font-family: var(--font-display); font-size: 10px; color: #4a2820; letter-spacing: 0.15em; }
+@media (max-width: 768px) {
+  .body { padding: 24px 16px; }
+  .eventsGrid { grid-template-columns: 1fr; }
+  .heroTitle { font-size: 26px; }
+  .calDay { min-height: 44px; }
+}

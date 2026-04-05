@@ -87,9 +87,14 @@ export default function ChroniclesPage({ chronicles }) {
                 <div className={styles.storyMeta}>
                   <span className={styles.storyAuthor}>By {story.author}</span>
                 </div>
-                <p className={styles.storyPreview}>
-                  {expanded === story.id ? story.story : story.preview}
-                </p>
+                <div className={styles.storyPreview}>
+                  {expanded === story.id
+                    ? story.story.split('\n').filter(p => p.trim()).map((para, i) => (
+                        <p key={i} style={{ marginBottom: '1em' }}>{para}</p>
+                      ))
+                    : <p>{story.preview}</p>
+                  }
+                </div>
                 <button className={styles.readMore} onClick={() => setExpanded(expanded === story.id ? null : story.id)}>
                   {expanded === story.id ? 'Close Story ↑' : 'Read Full Story →'}
                 </button>

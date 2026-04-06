@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import { getGallery } from '../lib/gallery';
 import styles from '../styles/Gallery.module.css';
@@ -26,50 +26,60 @@ function shuffle(arr) {
 export default function GalleryPage({ photos }) {
   const [shuffled, setShuffled] = useState([]);
   const [current, setCurrent] = useState(0);
-  const [form, setForm] = useState({ author: '', imageUrl: '' });
+  const [form, setForm] = useState({ author: '' });
+  const [preview, setPreview] = useState(null);
+  const [imageData, setImageData] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const fileRef = useRef();
 
   useEffect(() => {
     const s = shuffle(photos);
     setShuffled(s);
-    setCurrent(Math.floor(Math.random() * Math.max(photos.length, 1)));
+    if (s.length > 0) setCurrent(Math.floor(Math.random() * s.length));
   }, []);
 
   useEffect(() => {
     if (shuffled.length === 0) return;
-    const timer = setInterval(() => {
-      setCurrent((c) => (c + 1) % shuffled.length);
-    }, 5000);
+    const timer = setInterval(() => setCurrent((c) => (c + 1) % shuffled.length), 5000);
     return () => clearInterval(timer);
   }, [shuffled.length]);
 
-  function goTo(n) {
-    setCurrent((n + shuffled.length) % shuffled.length);
-  }
+  function goTo(n) { setCurrent((n + shuffled.length) % shuffled.length); }
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  function handleFileChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { setError('Image must be under 10MB'); return; }
+    setError('');
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setPreview(ev.target.result);
+      setImageData(ev.target.result);
+    };
+    reader.readAsDataURL(file);
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.author || !form.imageUrl) return;
-    if (form.imageUrl.toLowerCase().includes('imgur.com')) {
-      alert('imgur.com links are not supported. Please use postimages.org instead.');
-      return;
-    }
+    if (!form.author || !imageData) { setError('Please fill in your name and select an image'); return; }
     setSubmitting(true);
+    setError('');
     try {
-      await fetch('/api/submit-photo', {
+      const res = await fetch('/api/submit-photo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ author: form.author, imageData }),
       });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed');
       setSubmitted(true);
-      setForm({ author: '', imageUrl: '' });
+      setForm({ author: '' });
+      setPreview(null);
+      setImageData(null);
     } catch (err) {
-      console.error(err);
+      setError('Submission failed — please try again.');
     }
     setSubmitting(false);
   }
@@ -80,9 +90,7 @@ export default function GalleryPage({ photos }) {
         <title>Gallery — DawnDream</title>
         <meta name="description" content="Community gallery — moments captured by the DawnDream community." />
       </Head>
-
       <Navbar activePage="gallery" />
-
       <section className={styles.hero}>
         <p className={styles.eyebrow}>The DawnDream Community</p>
         <h1 className={styles.heroTitle}>Gallery</h1>
@@ -92,9 +100,7 @@ export default function GalleryPage({ photos }) {
       </section>
 
       {shuffled.length === 0 ? (
-        <div className={styles.empty}>
-          <p>No photos yet — be the first to submit!</p>
-        </div>
+        <div className={styles.empty}><p>No photos yet — be the first to submit!</p></div>
       ) : (
         <>
           <div className={styles.slideshow}>
@@ -103,13 +109,10 @@ export default function GalleryPage({ photos }) {
                 {photo.image ? (
                   <img src={photo.image} alt={`Photo by ${photo.author}`} className={styles.slideImg} />
                 ) : (
-                  <div className={styles.slidePlaceholder}>No image uploaded</div>
+                  <div className={styles.slidePlaceholder}>No image</div>
                 )}
                 <div className={styles.slideOverlay}>
-                  <div className={styles.slideAuthor}>
-                    <span className={styles.authorDot}></span>
-                    Captured by {photo.author}
-                  </div>
+                  <div className={styles.slideAuthor}><span className={styles.authorDot}></span>Captured by {photo.author}</div>
                 </div>
                 <div className={styles.slideCounter}>{i + 1} / {shuffled.length}</div>
               </div>
@@ -119,21 +122,15 @@ export default function GalleryPage({ photos }) {
               <button className={styles.ctrlBtn} onClick={() => goTo(current + 1)}>&#8250;</button>
             </div>
           </div>
-
           <div className={styles.dots}>
             {shuffled.map((_, i) => (
               <div key={i} className={`${styles.dot} ${i === current ? styles.dotActive : ''}`} onClick={() => goTo(i)} />
             ))}
           </div>
-
           <div className={styles.thumbnails}>
             {shuffled.map((photo, i) => (
               <div key={photo.id} className={`${styles.thumb} ${i === current ? styles.thumbActive : ''}`} onClick={() => goTo(i)}>
-                {photo.image ? (
-                  <img src={photo.image} alt={`Thumb ${i + 1}`} />
-                ) : (
-                  <span>{i + 1}</span>
-                )}
+                {photo.image ? <img src={photo.image} alt={`Thumb ${i + 1}`} /> : <span>{i + 1}</span>}
               </div>
             ))}
           </div>
@@ -143,7 +140,7 @@ export default function GalleryPage({ photos }) {
       <div className={styles.submitSection}>
         <div className={styles.submitCard}>
           <p className={styles.submitTitle}>Submit Your Photo</p>
-          <p className={styles.submitSub}>Share a moment from DawnDream. Upload your image to <a href="https://postimages.org" target="_blank" rel="noreferrer" className={styles.link}>postimages.org</a> (free, no account needed) and paste the direct image link below. All submissions are reviewed before publishing.</p>
+          <p className={styles.submitSub}>Share a moment from DawnDream. Upload directly from your device — no external links needed. All submissions are reviewed before publishing.</p>
           {submitted ? (
             <div className={styles.successMsg}>Your photo has been submitted! The DawnDream team will review it shortly.</div>
           ) : (
@@ -151,17 +148,29 @@ export default function GalleryPage({ photos }) {
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Your Avatar Name</label>
-                  <input className={styles.formInput} name="author" value={form.author} onChange={handleChange} placeholder="Your avatar name..." required />
+                  <input className={styles.formInput} value={form.author} onChange={e => setForm({ author: e.target.value })} placeholder="Your avatar name..." required />
                 </div>
-                <div className={styles.formGroup} style={{ flex: 2 }}>
-                  <label className={styles.formLabel}>Direct Image URL</label>
-                  <input className={styles.formInput} name="imageUrl" value={form.imageUrl} onChange={handleChange} placeholder="https://i.postimg.cc/yourimage.jpg" required />
-                </div>
-                <button className={styles.submitBtn} type="submit" disabled={submitting}>
-                  {submitting ? 'Submitting...' : 'Submit →'}
-                </button>
               </div>
-              <p className={styles.submitNote}>Go to postimages.org → upload your image → right-click the image → Copy image address. The link should end in .jpg or .png</p>
+              <div className={styles.formGroup} style={{ marginTop: '12px' }}>
+                <label className={styles.formLabel}>Your Photo</label>
+                <div className={styles.uploadArea} onClick={() => fileRef.current.click()}>
+                  {preview ? (
+                    <img src={preview} alt="Preview" className={styles.uploadPreview} />
+                  ) : (
+                    <div className={styles.uploadPlaceholder}>
+                      <span className={styles.uploadIcon}>+</span>
+                      <span>Click to select your image</span>
+                      <span className={styles.uploadHint}>JPG, PNG — max 10MB</span>
+                    </div>
+                  )}
+                </div>
+                <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+              </div>
+              {error && <p className={styles.errorMsg}>{error}</p>}
+              <button className={styles.submitBtn} type="submit" disabled={submitting}>
+                {submitting ? 'Uploading...' : 'Submit Photo →'}
+              </button>
+              <p className={styles.submitNote}>Submissions are reviewed by the DawnDream team before appearing in the gallery.</p>
             </form>
           )}
         </div>

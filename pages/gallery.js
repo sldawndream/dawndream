@@ -41,7 +41,7 @@ export default function GalleryPage({ photos }) {
 
   useEffect(() => {
     if (shuffled.length === 0) return;
-    const timer = setInterval(() => setCurrent((c) => (c + 1) % shuffled.length), 5000);
+    const timer = setInterval(() => setCurrent((c) => (c + 1) % shuffled.length), 3000);
     return () => clearInterval(timer);
   }, [shuffled.length]);
 

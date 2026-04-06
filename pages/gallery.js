@@ -9,7 +9,6 @@ export async function getServerSideProps() {
     const photos = await getGallery();
     return { props: { photos } };
   } catch (err) {
-    console.error('Gallery fetch error:', err);
     return { props: { photos: [] } };
   }
 }
@@ -26,9 +25,9 @@ function shuffle(arr) {
 export default function GalleryPage({ photos }) {
   const [shuffled, setShuffled] = useState([]);
   const [current, setCurrent] = useState(0);
-  const [form, setForm] = useState({ author: '' });
+  const [author, setAuthor] = useState('');
   const [preview, setPreview] = useState(null);
-  const [imageData, setImageData] = useState(null);
+  const [file, setFile] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -49,36 +48,56 @@ export default function GalleryPage({ photos }) {
   function goTo(n) { setCurrent((n + shuffled.length) % shuffled.length); }
 
   function handleFileChange(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 10 * 1024 * 1024) { setError('Image must be under 10MB'); return; }
+    const f = e.target.files[0];
+    if (!f) return;
     setError('');
+    setFile(f);
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      setPreview(ev.target.result);
-      setImageData(ev.target.result);
-    };
-    reader.readAsDataURL(file);
+    reader.onload = (ev) => setPreview(ev.target.result);
+    reader.readAsDataURL(f);
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.author || !imageData) { setError('Please fill in your name and select an image'); return; }
+    if (!author || !file) { setError('Please fill in your name and select an image'); return; }
     setSubmitting(true);
     setError('');
+
     try {
-      const res = await fetch('/api/submit-photo', {
+      const sigRes = await fetch('/api/cloudinary-sign', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ author: form.author, imageData }),
+        body: JSON.stringify({ folder: 'dawndream-gallery' }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed');
+      const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('api_key', apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+      formData.append('folder', 'dawndream-gallery');
+
+      const cloudRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        { method: 'POST', body: formData }
+      );
+      const cloudData = await cloudRes.json();
+
+      if (!cloudRes.ok || !cloudData.secure_url) throw new Error('Upload failed');
+
+      await fetch('/api/submit-photo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author, imageUrl: cloudData.secure_url }),
+      });
+
       setSubmitted(true);
-      setForm({ author: '' });
+      setAuthor('');
       setPreview(null);
-      setImageData(null);
+      setFile(null);
     } catch (err) {
+      console.error(err);
       setError('Submission failed — please try again.');
     }
     setSubmitting(false);
@@ -140,16 +159,14 @@ export default function GalleryPage({ photos }) {
       <div className={styles.submitSection}>
         <div className={styles.submitCard}>
           <p className={styles.submitTitle}>Submit Your Photo</p>
-          <p className={styles.submitSub}>Share a moment from DawnDream. Upload directly from your device — no external links needed. All submissions are reviewed before publishing.</p>
+          <p className={styles.submitSub}>Share a moment from DawnDream. Upload directly from your device — no size limit. All submissions are reviewed before publishing.</p>
           {submitted ? (
             <div className={styles.successMsg}>Your photo has been submitted! The DawnDream team will review it shortly.</div>
           ) : (
             <form onSubmit={handleSubmit} className={styles.submitForm}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label className={styles.formLabel}>Your Avatar Name</label>
-                  <input className={styles.formInput} value={form.author} onChange={e => setForm({ author: e.target.value })} placeholder="Your avatar name..." required />
-                </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Your Avatar Name</label>
+                <input className={styles.formInput} value={author} onChange={e => setAuthor(e.target.value)} placeholder="Your avatar name..." required />
               </div>
               <div className={styles.formGroup} style={{ marginTop: '12px' }}>
                 <label className={styles.formLabel}>Your Photo</label>
@@ -160,7 +177,7 @@ export default function GalleryPage({ photos }) {
                     <div className={styles.uploadPlaceholder}>
                       <span className={styles.uploadIcon}>+</span>
                       <span>Click to select your image</span>
-                      <span className={styles.uploadHint}>JPG, PNG — max 10MB</span>
+                      <span className={styles.uploadHint}>JPG, PNG, GIF — no size limit</span>
                     </div>
                   )}
                 </div>
@@ -168,7 +185,7 @@ export default function GalleryPage({ photos }) {
               </div>
               {error && <p className={styles.errorMsg}>{error}</p>}
               <button className={styles.submitBtn} type="submit" disabled={submitting}>
-                {submitting ? 'Uploading...' : 'Submit Photo →'}
+                {submitting ? 'Uploading... please wait' : 'Submit Photo →'}
               </button>
               <p className={styles.submitNote}>Submissions are reviewed by the DawnDream team before appearing in the gallery.</p>
             </form>

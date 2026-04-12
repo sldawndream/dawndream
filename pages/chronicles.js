@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { getChronicles } from '../lib/chronicles';
 import styles from '../styles/Chronicles.module.css';
@@ -24,11 +24,50 @@ const categoryStyles = {
   Other: styles.catOther,
 };
 
+function getReaderId() {
+  if (typeof window === 'undefined') return null;
+  let id = localStorage.getItem('dd_reader_id');
+  if (!id) {
+    id = 'reader_' + Math.random().toString(36).substr(2, 16) + Date.now();
+    localStorage.setItem('dd_reader_id', id);
+  }
+  return id;
+}
+
 export default function ChroniclesPage({ chronicles }) {
   const [expanded, setExpanded] = useState(null);
+  const [readCounts, setReadCounts] = useState({});
   const [form, setForm] = useState({ title: '', author: '', category: '', story: '' });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/get-reads')
+      .then(r => r.json())
+      .then(data => setReadCounts(data.counts || {}))
+      .catch(() => {});
+  }, []);
+
+  async function handleExpand(storyId) {
+    if (expanded === storyId) {
+      setExpanded(null);
+      return;
+    }
+    setExpanded(storyId);
+    const readerId = getReaderId();
+    if (!readerId) return;
+    try {
+      const res = await fetch('/api/track-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chronicleId: storyId, readerId }),
+      });
+      const data = await res.json();
+      if (data.count !== undefined) {
+        setReadCounts(prev => ({ ...prev, [storyId]: data.count }));
+      }
+    } catch {}
+  }
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -81,11 +120,15 @@ export default function ChroniclesPage({ chronicles }) {
                 <div className={styles.storyTop}>
                   <span className={styles.storyTitle}>{story.title}</span>
                   {story.category && (
-                    <span className={`${styles.catPill} ${categoryStyles[story.category] || styles.catHorror}`}>{story.category}</span>
+                    <span className={`${styles.catPill} ${categoryStyles[story.category] || styles.catOther}`}>{story.category}</span>
                   )}
                 </div>
                 <div className={styles.storyMeta}>
                   <span className={styles.storyAuthor}>By {story.author}</span>
+                  <span className={styles.metaDot}></span>
+                  <span className={styles.readCount}>
+                    👁 {readCounts[story.id] || 0} {readCounts[story.id] === 1 ? 'read' : 'reads'}
+                  </span>
                 </div>
                 <div className={styles.storyPreview}>
                   {expanded === story.id
@@ -95,7 +138,12 @@ export default function ChroniclesPage({ chronicles }) {
                     : <p>{story.preview}</p>
                   }
                 </div>
-                <button className={styles.readMore} onClick={() => setExpanded(expanded === story.id ? null : story.id)}>
+                {expanded === story.id && (
+                  <div className={styles.expandedReads}>
+                    👁 {readCounts[story.id] || 0} {readCounts[story.id] === 1 ? 'unique read' : 'unique reads'}
+                  </div>
+                )}
+                <button className={styles.readMore} onClick={() => handleExpand(story.id)}>
                   {expanded === story.id ? 'Close Story ↑' : 'Read Full Story →'}
                 </button>
               </div>

@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 import styles from './Navbar.module.css';
 
-export default function Navbar({ activePage }) {
+export default function Navbar({ activePage, player }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
 
   const links = [
     { href: '/', label: 'Lore & History', page: 'lore' },
@@ -14,6 +16,11 @@ export default function Navbar({ activePage }) {
     { href: '/events', label: 'Events', page: 'events' },
     { href: '/gallery', label: 'Gallery', page: 'gallery' },
   ];
+
+  async function handleLogout() {
+    await fetch('/api/logout', { method: 'POST' });
+    router.push('/login');
+  }
 
   return (
     <header className={styles.header}>
@@ -30,7 +37,17 @@ export default function Navbar({ activePage }) {
         ))}
       </nav>
 
-      <div className={styles.right}>Second Life RPG System</div>
+      <div className={styles.rightArea}>
+        {player ? (
+          <div className={styles.userArea}>
+            <span className={styles.userName}>{player.avatarName}</span>
+            {player.role === 'admin' && <Link href="/admin" className={styles.adminLink}>Admin</Link>}
+            <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
+          </div>
+        ) : (
+          <Link href="/login" className={styles.loginLink}>Login</Link>
+        )}
+      </div>
 
       <button className={styles.hamburger} onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
         <span className={`${styles.bar} ${menuOpen ? styles.barOpen1 : ''}`}></span>
@@ -45,6 +62,14 @@ export default function Navbar({ activePage }) {
               {link.label}
             </Link>
           ))}
+          {player ? (
+            <>
+              {player.role === 'admin' && <Link href="/admin" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Admin Panel</Link>}
+              <button className={styles.mobileLogout} onClick={handleLogout}>Logout ({player.avatarName})</button>
+            </>
+          ) : (
+            <Link href="/login" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Login / Register</Link>
+          )}
           <div className={styles.mobileFooter}>Second Life RPG System</div>
         </div>
       )}

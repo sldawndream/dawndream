@@ -1,0 +1,90 @@
+.wrapper {
+  position: relative;
+  min-height: 60vh;
+}
+.blurred {
+  filter: blur(8px);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.4;
+}
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  min-height: 400px;
+}
+.overlayCard {
+  background: #120608;
+  border: 1px solid #4a1020;
+  border-radius: 12px;
+  padding: 40px 48px;
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+}
+.overlayLogo {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: #b02020;
+  letter-spacing: 0.12em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.drop {
+  width: 11px;
+  height: 11px;
+  background: #b02020;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: inline-block;
+}
+.overlayTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: #f0d0b8;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.overlaySub {
+  font-size: 15px;
+  color: #7a5a50;
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 24px;
+}
+.loginBtn {
+  display: block;
+  background: #2a0a14;
+  border: 1px solid #7a2030;
+  border-radius: 4px;
+  padding: 12px 24px;
+  color: #e8a090;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  margin-bottom: 14px;
+  transition: background 0.2s;
+}
+.loginBtn:hover { background: #3a0f1e; }
+.overlayNote {
+  font-size: 13px;
+  color: #5a3028;
+  font-style: italic;
+}
+.registerLink {
+  color: #c0392b;
+  text-decoration: none;
+}
+.registerLink:hover { text-decoration: underline; }

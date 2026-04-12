@@ -1,0 +1,26 @@
+.page { max-width: 680px; margin: 0 auto; padding: 40px 32px; min-height: calc(100vh - 56px - 52px); }
+.profileCard { background: #120608; border: 1px solid #2a0a14; border-radius: 12px; overflow: hidden; }
+.profileHeader { padding: 32px 32px 24px; border-bottom: 1px solid #1e0a10; display: flex; align-items: center; gap: 24px; }
+.avatarWrap { flex-shrink: 0; }
+.avatarImg { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #5a1a24; }
+.avatarPlaceholder { width: 80px; height: 80px; border-radius: 50%; background: #2a0a14; border: 2px solid #5a1a24; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 28px; color: #c0392b; }
+.profileInfo {}
+.profileName { font-family: var(--font-display); font-size: 22px; color: #f0d0b8; font-weight: 700; margin-bottom: 4px; }
+.profileAvatar { font-size: 13px; color: #7a5a50; font-style: italic; margin-bottom: 8px; }
+.roleBadge { font-family: var(--font-display); font-size: 9px; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.12em; text-transform: uppercase; background: #0a1a10; color: #60a880; border: 1px solid #1a5030; }
+.adminBadge { background: #0e0c00; color: #c0a030; border: 1px solid #5a4010; }
+.memberSince { font-size: 12px; color: #5a3028; margin-top: 6px; font-style: italic; }
+.settingsForm { padding: 28px 32px; }
+.sectionTitle { font-family: var(--font-display); font-size: 13px; color: #c09080; letter-spacing: 0.1em; margin-bottom: 18px; padding-bottom: 8px; border-bottom: 1px solid #1e0a10; }
+.formGroup { margin-bottom: 16px; }
+.formLabel { font-family: var(--font-display); font-size: 9px; color: #5a2828; letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 5px; }
+.formInput { width: 100%; background: #0d0408; border: 1px solid #2a0a14; border-radius: 4px; padding: 10px 12px; color: #e0cdb8; font-family: var(--font-body); font-size: 14px; }
+.formInput:focus { outline: none; border-color: #5a1a24; }
+.formHint { font-size: 11px; color: #5a3028; font-style: italic; margin-top: 4px; }
+.saveBtn { background: #2a0a14; border: 1px solid #7a2030; border-radius: 4px; padding: 12px 28px; color: #e8a090; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+.saveBtn:hover { background: #3a0f1e; }
+.saveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.successMsg { background: #0a1a10; border: 1px solid #1a5030; border-radius: 4px; padding: 10px 12px; font-size: 13px; color: #60a880; margin-bottom: 16px; }
+.errorMsg { background: #2a0a14; border: 1px solid #5a1a24; border-radius: 4px; padding: 10px 12px; font-size: 13px; color: #c09080; margin-bottom: 16px; }
+.footer { background: var(--bg-dark); border-top: 1px solid var(--border); padding: 22px 32px; text-align: center; font-family: var(--font-display); font-size: 10px; color: #4a2820; letter-spacing: 0.15em; }
+@media (max-width: 600px) { .page { padding: 24px 16px; } .profileHeader { flex-direction: column; text-align: center; } .settingsForm { padding: 24px 20px; } }

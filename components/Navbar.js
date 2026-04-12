@@ -1,11 +1,19 @@
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from './Navbar.module.css';
 
-export default function Navbar({ activePage, player }) {
+export default function Navbar({ activePage }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [player, setPlayer] = useState(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetch('/api/session')
+      .then(r => r.json())
+      .then(data => setPlayer(data.player))
+      .catch(() => {});
+  }, [router.pathname]);
 
   const links = [
     { href: '/', label: 'Lore & History', page: 'lore' },
@@ -19,6 +27,7 @@ export default function Navbar({ activePage, player }) {
 
   async function handleLogout() {
     await fetch('/api/logout', { method: 'POST' });
+    setPlayer(null);
     router.push('/login');
   }
 

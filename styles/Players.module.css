@@ -1,0 +1,387 @@
+/* ── Hero ── */
+.hero {
+  background: var(--bg-dark);
+  border-bottom: 1px solid var(--border);
+  padding: 52px 32px 44px;
+  text-align: center;
+}
+.eyebrow {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: #6a3030;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--text-bright);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.heroSub {
+  font-size: 19px;
+  color: var(--text-dim);
+  font-style: italic;
+  max-width: 520px;
+  margin: 0 auto 20px;
+}
+.heroDivider {
+  width: 120px;
+  height: 1px;
+  background: var(--border-accent);
+  margin: 0 auto 20px;
+}
+.heroIntro {
+  font-size: 16px;
+  color: var(--text-mid);
+  line-height: 1.85;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* ── Body ── */
+.body {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 32px 56px;
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.searchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  font-size: 14px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.searchInput {
+  width: 100%;
+  background: #0d0408;
+  border: 1px solid #2a0a14;
+  border-radius: 6px;
+  padding: 11px 40px 11px 38px;
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+.searchInput:focus {
+  outline: none;
+  border-color: #5a1a24;
+}
+.searchInput::placeholder {
+  color: #4a2820;
+  font-style: italic;
+}
+.clearBtn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #5a2828;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.clearBtn:hover { color: #c0392b; }
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.roleFilters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.roleBtn {
+  background: #0d0408;
+  border: 1px solid #2a0a14;
+  border-radius: 4px;
+  padding: 7px 14px;
+  color: #7a5040;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.roleBtn:hover {
+  background: #1e080e;
+  color: #c09080;
+  border-color: #3a1018;
+}
+.roleBtnActive {
+  background: #2a0a14;
+  color: #e8a090;
+  border-color: #7a2030;
+}
+.sortSelect {
+  margin-left: auto;
+  background: #0d0408;
+  border: 1px solid #2a0a14;
+  border-radius: 4px;
+  padding: 7px 12px;
+  color: #9a7860;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a2828'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.sortSelect:focus { outline: none; border-color: #5a1a24; }
+.sortSelect option { background: #0d0408; }
+
+/* ── Result count ── */
+.resultCount {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: #5a2828;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.searchTerm {
+  color: #7a4040;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+/* ── Grid ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+/* ── Card ── */
+.card {
+  position: relative;
+  background: #120608;
+  border: 1px solid #2a0a14;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  transition: border-color 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+.card:hover {
+  border-color: #5c1a24;
+  transform: translateY(-2px);
+}
+.card:hover .cardGlow {
+  opacity: 1;
+}
+.card:hover .viewProfile {
+  color: #e8a090;
+}
+.cardGlow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #c0392b, transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.avatarWrap {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 24px 24px 0;
+}
+.avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #3a1018;
+}
+.avatarPlaceholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #1e0810;
+  border: 2px solid #3a1018;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: #7a2030;
+}
+.adminCrown {
+  position: absolute;
+  top: 20px;
+  right: calc(50% - 52px);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.cardBody {
+  flex: 1;
+  padding: 14px 20px 10px;
+  text-align: center;
+}
+.cardName {
+  font-family: var(--font-display);
+  font-size: 15px;
+  color: #f0d0b8;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+}
+.cardHandle {
+  font-size: 12px;
+  color: #5a3028;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+.cardMeta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.rolePill {
+  font-family: var(--font-display);
+  font-size: 8px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.rolePillAdmin {
+  background: #1a1200;
+  color: #c0a030;
+  border: 1px solid #5a4010;
+}
+.rolePillPlayer {
+  background: #0a1a10;
+  color: #60a880;
+  border: 1px solid #1a5030;
+}
+.joinYear {
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: #4a2820;
+  letter-spacing: 0.06em;
+}
+.cardBio {
+  font-size: 12px;
+  color: #7a5a50;
+  font-style: italic;
+  line-height: 1.65;
+  text-align: center;
+}
+
+.cardFooter {
+  padding: 10px 20px 14px;
+  text-align: center;
+  border-top: 1px solid #1a0608;
+}
+.viewProfile {
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: #5a2828;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+/* ── Empty state ── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 32px;
+  text-align: center;
+}
+.emptyIcon {
+  font-size: 40px;
+  opacity: 0.2;
+}
+.emptyTitle {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: #5a2828;
+  letter-spacing: 0.1em;
+}
+.emptySub {
+  font-size: 14px;
+  color: #4a2820;
+  font-style: italic;
+  max-width: 360px;
+  line-height: 1.7;
+}
+.emptyReset {
+  margin-top: 4px;
+  background: #1e080e;
+  border: 1px solid #3a1018;
+  border-radius: 4px;
+  padding: 8px 20px;
+  color: #9a5040;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.emptyReset:hover { background: #2a0a14; }
+
+/* ── Footer ── */
+.footer {
+  background: var(--bg-dark);
+  border-top: 1px solid var(--border);
+  padding: 22px 32px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: #4a2820;
+  letter-spacing: 0.15em;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .body { padding: 24px 16px 40px; }
+  .heroTitle { font-size: 26px; }
+  .grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .sortSelect { margin-left: 0; }
+  .filters { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+}

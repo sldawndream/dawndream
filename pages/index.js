@@ -26,7 +26,7 @@ export default function LorePage({ entries, eras }) {
 
       <section className={styles.hero}>
         <p className={styles.eyebrow}>The Sacred Texts of DawnDream</p>
-        <h1 className={styles.heroTitle}>Origins of the Bloodlines</h1>
+        <h1 className={styles.heroTitle}>Origins of the DawnDream</h1>
         <p className={styles.heroSub}>From the first darkness, they were born — and the world has never been the same.</p>
         <div className={styles.heroDivider} />
         <p className={styles.heroIntro}>What follows are the recorded chronicles of DawnDream — the ancient covenant, the great wars, the betrayals, and the bloodlines that shape every soul who walks beneath the eternal night.</p>

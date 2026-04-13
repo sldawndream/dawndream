@@ -25,23 +25,31 @@ export default function AdminPage({ players, adminName }) {
   const [loadingAction, setLoadingAction] = useState(null);
   const [filter, setFilter] = useState('pending');
   const [search, setSearch] = useState('');
-  const [chronicles, setChronicles] = useState([]);
-  const [gallery, setGallery] = useState([]);
-  const [contentLoading, setContentLoading] = useState(false);
 
-  async function loadContent(type) {
-    setContentLoading(true);
-    const res = await fetch(`/api/admin-notion?type=${type}`);
+  const [chroniclesTab, setChroniclesTab] = useState('pending');
+  const [chronicles, setChronicles] = useState([]);
+  const [chroniclesLoading, setChroniclesLoading] = useState(false);
+
+  const [galleryTab, setGalleryTab] = useState('pending');
+  const [gallery, setGallery] = useState([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+
+  async function loadContent(type, status) {
+    if (type === 'chronicles') setChroniclesLoading(true);
+    if (type === 'gallery') setGalleryLoading(true);
+    const res = await fetch(`/api/admin-notion?type=${type}&status=${status}`);
     const data = await res.json();
-    if (type === 'chronicles') setChronicles(data.items || []);
-    if (type === 'gallery') setGallery(data.items || []);
-    setContentLoading(false);
+    if (type === 'chronicles') { setChronicles(data.items || []); setChroniclesLoading(false); }
+    if (type === 'gallery') { setGallery(data.items || []); setGalleryLoading(false); }
   }
 
   useEffect(() => {
-    if (section === 'chronicles') loadContent('chronicles');
-    if (section === 'gallery') loadContent('gallery');
-  }, [section]);
+    if (section === 'chronicles') loadContent('chronicles', chroniclesTab);
+  }, [section, chroniclesTab]);
+
+  useEffect(() => {
+    if (section === 'gallery') loadContent('gallery', galleryTab);
+  }, [section, galleryTab]);
 
   async function handlePlayerAction(playerId, action) {
     setLoadingAction(playerId + action);
@@ -79,8 +87,6 @@ export default function AdminPage({ players, adminName }) {
   });
 
   const pendingCount = list.filter(p => p.status === 'pending').length;
-  const pendingChronicles = chronicles.length;
-  const pendingGallery = gallery.length;
 
   return (
     <>
@@ -94,16 +100,13 @@ export default function AdminPage({ players, adminName }) {
 
         <div className={styles.sections}>
           <button className={`${styles.sectionBtn} ${section === 'players' ? styles.sectionActive : ''}`} onClick={() => setSection('players')}>
-            Players
-            {pendingCount > 0 && <span className={styles.badge}>{pendingCount}</span>}
+            Players {pendingCount > 0 && <span className={styles.notifBadge}>{pendingCount}</span>}
           </button>
           <button className={`${styles.sectionBtn} ${section === 'chronicles' ? styles.sectionActive : ''}`} onClick={() => setSection('chronicles')}>
             Chronicles
-            {pendingChronicles > 0 && <span className={styles.badge}>{pendingChronicles}</span>}
           </button>
           <button className={`${styles.sectionBtn} ${section === 'gallery' ? styles.sectionActive : ''}`} onClick={() => setSection('gallery')}>
             Gallery
-            {pendingGallery > 0 && <span className={styles.badge}>{pendingGallery}</span>}
           </button>
         </div>
 
@@ -161,65 +164,109 @@ export default function AdminPage({ players, adminName }) {
         )}
 
         {section === 'chronicles' && (
-          <div className={styles.contentSection}>
-            <p className={styles.sectionDesc}>Chronicles submitted by players — approve to publish on the site or reject to archive.</p>
-            {contentLoading && <p className={styles.empty}>Loading...</p>}
-            {!contentLoading && chronicles.length === 0 && <p className={styles.empty}>No chronicles pending review!</p>}
-            {!contentLoading && chronicles.map(item => (
-              <div key={item.id} className={styles.contentCard}>
-                <div className={styles.contentHeader}>
-                  <div className={styles.contentMeta}>
-                    <span className={styles.contentTitle}>{item.title}</span>
-                    <div className={styles.contentSub}>
-                      <span className={styles.contentAuthor}>By {item.author}</span>
-                      {item.category && <span className={styles.contentCat}>{item.category}</span>}
+          <>
+            <div className={styles.subTabs}>
+              <button className={`${styles.subTab} ${chroniclesTab === 'pending' ? styles.subTabActive : ''}`} onClick={() => setChroniclesTab('pending')}>
+                Pending Review
+              </button>
+              <button className={`${styles.subTab} ${chroniclesTab === 'published' ? styles.subTabActive : ''}`} onClick={() => setChroniclesTab('published')}>
+                Published
+              </button>
+            </div>
+            <div className={styles.contentSection}>
+              {chroniclesTab === 'pending' && <p className={styles.sectionDesc}>Chronicles submitted by players — review and publish or reject.</p>}
+              {chroniclesTab === 'published' && <p className={styles.sectionDesc}>Currently live chronicles — unpublish to hide or delete to remove permanently.</p>}
+              {chroniclesLoading && <p className={styles.empty}>Loading...</p>}
+              {!chroniclesLoading && chronicles.length === 0 && (
+                <p className={styles.empty}>{chroniclesTab === 'pending' ? 'No chronicles pending review!' : 'No published chronicles yet.'}</p>
+              )}
+              {!chroniclesLoading && chronicles.map(item => (
+                <div key={item.id} className={styles.contentCard}>
+                  <div className={styles.contentHeader}>
+                    <div className={styles.contentMeta}>
+                      <span className={styles.contentTitle}>{item.title}</span>
+                      <div className={styles.contentSub}>
+                        <span className={styles.contentAuthor}>By {item.author}</span>
+                        {item.category && <span className={styles.contentCat}>{item.category}</span>}
+                      </div>
                     </div>
-                  </div>
-                  <div className={styles.actions}>
-                    <button className={styles.approveBtn} onClick={() => handleNotionAction(item.id, 'approve', 'chronicles')} disabled={loadingAction === item.id + 'approve'}>{loadingAction === item.id + 'approve' ? '...' : 'Publish'}</button>
-                    <button className={styles.rejectBtn} onClick={() => handleNotionAction(item.id, 'reject', 'chronicles')} disabled={loadingAction === item.id + 'reject'}>{loadingAction === item.id + 'reject' ? '...' : 'Reject'}</button>
-                  </div>
-                </div>
-                {item.preview && (
-                  <p className={styles.contentPreview}>{item.preview}</p>
-                )}
-                {item.story && (
-                  <details className={styles.storyDetails}>
-                    <summary className={styles.storySummary}>Read full story</summary>
-                    <div className={styles.storyText}>
-                      {item.story.split('\n').filter(p => p.trim()).map((para, i) => <p key={i}>{para}</p>)}
-                    </div>
-                  </details>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {section === 'gallery' && (
-          <div className={styles.contentSection}>
-            <p className={styles.sectionDesc}>Photos submitted by players — approve to add to the gallery or reject to remove.</p>
-            {contentLoading && <p className={styles.empty}>Loading...</p>}
-            {!contentLoading && gallery.length === 0 && <p className={styles.empty}>No photos pending review!</p>}
-            <div className={styles.galleryGrid}>
-              {!contentLoading && gallery.map(item => (
-                <div key={item.id} className={styles.galleryCard}>
-                  {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={`By ${item.author}`} className={styles.galleryImg} />
-                  ) : (
-                    <div className={styles.galleryPlaceholder}>No image</div>
-                  )}
-                  <div className={styles.galleryFooter}>
-                    <span className={styles.galleryAuthor}>By {item.author}</span>
                     <div className={styles.actions}>
-                      <button className={styles.approveBtn} onClick={() => handleNotionAction(item.id, 'approve', 'gallery')} disabled={loadingAction === item.id + 'approve'}>{loadingAction === item.id + 'approve' ? '...' : 'Publish'}</button>
-                      <button className={styles.rejectBtn} onClick={() => handleNotionAction(item.id, 'reject', 'gallery')} disabled={loadingAction === item.id + 'reject'}>{loadingAction === item.id + 'reject' ? '...' : 'Reject'}</button>
+                      {chroniclesTab === 'pending' && (
+                        <>
+                          <button className={styles.approveBtn} onClick={() => handleNotionAction(item.id, 'approve', 'chronicles')} disabled={loadingAction === item.id + 'approve'}>{loadingAction === item.id + 'approve' ? '...' : 'Publish'}</button>
+                          <button className={styles.rejectBtn} onClick={() => handleNotionAction(item.id, 'reject', 'chronicles')} disabled={loadingAction === item.id + 'reject'}>{loadingAction === item.id + 'reject' ? '...' : 'Reject'}</button>
+                        </>
+                      )}
+                      {chroniclesTab === 'published' && (
+                        <>
+                          <button className={styles.warnBtn} onClick={() => handleNotionAction(item.id, 'unpublish', 'chronicles')} disabled={loadingAction === item.id + 'unpublish'}>{loadingAction === item.id + 'unpublish' ? '...' : 'Unpublish'}</button>
+                          <button className={styles.deleteBtn} onClick={() => { if(confirm('Delete this chronicle permanently?')) handleNotionAction(item.id, 'delete', 'chronicles'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
+                        </>
+                      )}
                     </div>
                   </div>
+                  {item.preview && <p className={styles.contentPreview}>{item.preview}</p>}
+                  {item.story && (
+                    <details className={styles.storyDetails}>
+                      <summary className={styles.storySummary}>Read full story</summary>
+                      <div className={styles.storyText}>
+                        {item.story.split('\n').filter(p => p.trim()).map((para, i) => <p key={i}>{para}</p>)}
+                      </div>
+                    </details>
+                  )}
                 </div>
               ))}
             </div>
-          </div>
+          </>
+        )}
+
+        {section === 'gallery' && (
+          <>
+            <div className={styles.subTabs}>
+              <button className={`${styles.subTab} ${galleryTab === 'pending' ? styles.subTabActive : ''}`} onClick={() => setGalleryTab('pending')}>
+                Pending Review
+              </button>
+              <button className={`${styles.subTab} ${galleryTab === 'published' ? styles.subTabActive : ''}`} onClick={() => setGalleryTab('published')}>
+                Published
+              </button>
+            </div>
+            <div className={styles.contentSection}>
+              {galleryTab === 'pending' && <p className={styles.sectionDesc}>Photos submitted by players — approve to add to the gallery or reject to remove.</p>}
+              {galleryTab === 'published' && <p className={styles.sectionDesc}>Currently live gallery photos — unpublish to hide or delete to remove permanently.</p>}
+              {galleryLoading && <p className={styles.empty}>Loading...</p>}
+              {!galleryLoading && gallery.length === 0 && (
+                <p className={styles.empty}>{galleryTab === 'pending' ? 'No photos pending review!' : 'No published photos yet.'}</p>
+              )}
+              <div className={styles.galleryGrid}>
+                {!galleryLoading && gallery.map(item => (
+                  <div key={item.id} className={styles.galleryCard}>
+                    {item.imageUrl ? (
+                      <img src={item.imageUrl} alt={`By ${item.author}`} className={styles.galleryImg} />
+                    ) : (
+                      <div className={styles.galleryPlaceholder}>No image</div>
+                    )}
+                    <div className={styles.galleryFooter}>
+                      <span className={styles.galleryAuthor}>By {item.author}</span>
+                      <div className={styles.actions}>
+                        {galleryTab === 'pending' && (
+                          <>
+                            <button className={styles.approveBtn} onClick={() => handleNotionAction(item.id, 'approve', 'gallery')} disabled={loadingAction === item.id + 'approve'}>{loadingAction === item.id + 'approve' ? '...' : 'Publish'}</button>
+                            <button className={styles.rejectBtn} onClick={() => handleNotionAction(item.id, 'reject', 'gallery')} disabled={loadingAction === item.id + 'reject'}>{loadingAction === item.id + 'reject' ? '...' : 'Reject'}</button>
+                          </>
+                        )}
+                        {galleryTab === 'published' && (
+                          <>
+                            <button className={styles.warnBtn} onClick={() => handleNotionAction(item.id, 'unpublish', 'gallery')} disabled={loadingAction === item.id + 'unpublish'}>{loadingAction === item.id + 'unpublish' ? '...' : 'Unpublish'}</button>
+                            <button className={styles.deleteBtn} onClick={() => { if(confirm('Delete this photo permanently?')) handleNotionAction(item.id, 'delete', 'gallery'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
       </div>
       <footer className={styles.footer}>DawnDream Vampire System &nbsp;·&nbsp; Admin Panel</footer>

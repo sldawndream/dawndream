@@ -1,0 +1,24 @@
+.page { min-height: calc(100vh - 56px - 52px); background: var(--bg-deep); }
+.profileHero { position: relative; background: #0d0508; border-bottom: 1px solid #2a0a14; overflow: hidden; }
+.heroBg { position: absolute; inset: 0; background: radial-gradient(ellipse at top left, #2a0a14 0%, transparent 60%); pointer-events: none; }
+.heroContent { position: relative; max-width: 900px; margin: 0 auto; padding: 40px 32px; display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+.avatarWrap { flex-shrink: 0; }
+.avatarImg { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #5a1a24; box-shadow: 0 0 24px rgba(192,57,43,0.3); }
+.avatarPlaceholder { width: 100px; height: 100px; border-radius: 50%; background: #2a0a14; border: 3px solid #5a1a24; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 36px; color: #c0392b; box-shadow: 0 0 24px rgba(192,57,43,0.3); }
+.heroInfo { flex: 1; }
+.heroName { font-family: var(--font-display); font-size: 28px; color: #f0d0b8; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.04em; }
+.heroAvatar { font-size: 14px; color: #7a5a50; font-style: italic; margin-bottom: 10px; }
+.heroBadges { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.roleBadge { font-family: var(--font-display); font-size: 9px; padding: 3px 10px; border-radius: 3px; letter-spacing: 0.12em; text-transform: uppercase; background: #0a1a10; color: #60a880; border: 1px solid #1a5030; }
+.adminBadge { background: #0e0c00; color: #c0a030; border: 1px solid #5a4010; }
+.memberBadge { font-family: var(--font-display); font-size: 10px; color: #5a3028; letter-spacing: 0.06em; }
+.profileBody { max-width: 900px; margin: 0 auto; padding: 36px 32px; display: flex; flex-direction: column; gap: 24px; }
+.profileSection { background: #120608; border: 1px solid #2a0a14; border-radius: 10px; padding: 24px 28px; }
+.sectionEyebrow { font-family: var(--font-display); font-size: 9px; letter-spacing: 0.25em; color: #5a2828; text-transform: uppercase; margin-bottom: 14px; }
+.bioText { font-size: 16px; color: #c0a890; line-height: 1.8; }
+.loreText { font-size: 15px; color: #9a7860; line-height: 1.9; font-style: italic; }
+.loreText p { margin-bottom: 1em; }
+.loreText p:last-child { margin-bottom: 0; }
+.emptyText { font-size: 14px; color: #5a3028; font-style: italic; }
+.footer { background: var(--bg-dark); border-top: 1px solid var(--border); padding: 22px 32px; text-align: center; font-family: var(--font-display); font-size: 10px; color: #4a2820; letter-spacing: 0.15em; }
+@media (max-width: 768px) { .heroContent { padding: 28px 20px; } .profileBody { padding: 24px 16px; } }

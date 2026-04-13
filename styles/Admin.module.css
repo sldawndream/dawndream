@@ -1,23 +1,41 @@
 .body { max-width: 900px; margin: 0 auto; padding: 40px 32px; }
-.header { margin-bottom: 28px; }
+.header { margin-bottom: 24px; }
 .title { font-family: var(--font-display); font-size: 28px; color: #f0d0b8; font-weight: 700; margin-bottom: 4px; }
 .sub { font-size: 14px; color: #7a5a50; font-style: italic; }
-.filters { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+
+.searchBar { position: relative; margin-bottom: 16px; }
+.searchInput { width: 100%; background: #120608; border: 1px solid #2a0a14; border-radius: 6px; padding: 11px 40px 11px 16px; color: #e0cdb8; font-family: var(--font-body); font-size: 14px; transition: border-color 0.2s; }
+.searchInput:focus { outline: none; border-color: #5a1a24; }
+.searchInput::placeholder { color: #4a2820; }
+.searchClear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #5a3028; font-size: 12px; cursor: pointer; padding: 4px; transition: color 0.2s; }
+.searchClear:hover { color: #c09080; }
+
+.filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
 .filterBtn { background: #1a0608; border: 1px solid #2a0a14; border-radius: 4px; padding: 6px 14px; color: #7a5040; font-family: var(--font-display); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
 .filterBtn:hover { background: #2a0a14; color: #c09080; }
 .filterActive { background: #2a0a14; color: #e8a090; border-color: #5a1a24; }
+
 .playerList { display: flex; flex-direction: column; gap: 10px; }
 .empty { color: #5a3028; font-style: italic; font-size: 14px; padding: 20px 0; }
+
 .playerCard { background: #120608; border: 1px solid #2a0a14; border-radius: 8px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.playerInfo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.playerInfo { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.playerTop { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .playerName { font-family: var(--font-display); font-size: 14px; color: #f0d0b8; }
+.playerNameLink { font-family: var(--font-display); font-size: 14px; color: #c0392b; text-decoration: none; transition: color 0.2s; }
+.playerNameLink:hover { color: #e8a090; text-decoration: underline; }
+.playerMeta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.playerDate { font-size: 11px; color: #5a3028; font-style: italic; }
+.playerEmail { font-size: 11px; color: #5a3028; font-style: italic; }
+.playerUuid { font-family: monospace; font-size: 10px; color: #3a2020; letter-spacing: 0.02em; }
+
 .statusBadge { font-family: var(--font-display); font-size: 9px; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.1em; text-transform: uppercase; }
 .pending { background: #1a0a00; color: #c07030; border: 1px solid #5a3010; }
 .approved { background: #0a1a10; color: #60a880; border: 1px solid #1a5030; }
 .rejected { background: #0e0a1a; color: #9090c0; border: 1px solid #302060; }
 .banned { background: #2a0a14; color: #c09080; border: 1px solid #5a1a24; }
 .adminBadge { font-family: var(--font-display); font-size: 9px; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.1em; text-transform: uppercase; background: #0e0c00; color: #c0a030; border: 1px solid #5a4010; }
-.playerDate { font-size: 12px; color: #5a3028; font-style: italic; }
+
 .actions { display: flex; gap: 6px; flex-shrink: 0; }
 .approveBtn { background: #0a1a10; border: 1px solid #1a5030; border-radius: 4px; padding: 5px 12px; color: #60a880; font-family: var(--font-display); font-size: 10px; letter-spacing: 0.1em; cursor: pointer; transition: background 0.2s; }
 .approveBtn:hover { background: #0f2a18; }

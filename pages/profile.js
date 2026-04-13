@@ -97,11 +97,6 @@ export default function ProfilePage({ player }) {
       <Navbar activePage="profile" />
 
       <div className={styles.page}>
-        <div className={styles.banner}>
-          <div className={styles.bannerPattern} />
-          <div className={styles.bannerGlow} />
-        </div>
-
         <div className={styles.profileHeader}>
           <div className={styles.avatarRing}>
             {previewImage ? (

@@ -144,3 +144,11 @@
 @media (max-width: 480px) {
   .card { padding: 28px 24px; }
 }
+
+.hint {
+  font-size: 11px;
+  color: #5a3028;
+  font-style: italic;
+  margin-top: 5px;
+  line-height: 1.5;
+}

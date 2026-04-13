@@ -1,4 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
 import { getPlayerFromRequest } from '../../lib/auth';
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
@@ -19,7 +18,7 @@ async function notionQuery(databaseId, filter) {
   return res.json();
 }
 
-async function notionPatch(pageId, published) {
+async function notionPatch(pageId, properties) {
   await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
     method: 'PATCH',
     headers: {
@@ -27,9 +26,19 @@ async function notionPatch(pageId, published) {
       'Notion-Version': '2022-06-28',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      properties: { Published: { checkbox: published } },
-    }),
+    body: JSON.stringify({ properties }),
+  });
+}
+
+async function notionArchive(pageId) {
+  await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${NOTION_TOKEN}`,
+      'Notion-Version': '2022-06-28',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ archived: true }),
   });
 }
 
@@ -59,32 +68,33 @@ export default async function handler(req, res) {
   if (!player || player.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
 
   if (req.method === 'GET') {
-    const { type } = req.query;
+    const { type, status } = req.query;
+    const published = status === 'published';
 
     if (type === 'chronicles') {
       const data = await notionQuery(process.env.NOTION_CHRONICLES_DATABASE_ID, {
-        property: 'Published', checkbox: { equals: false }
+        property: 'Published', checkbox: { equals: published }
       });
-      const items = data.results.map(p => ({
+      const items = data.results?.map(p => ({
         id: p.id,
         title: getTitle(p.properties.Name),
         author: getText(p.properties.Author),
         category: getText(p.properties.Category),
         preview: getText(p.properties.Preview),
         story: getText(p.properties.Story),
-      }));
+      })) || [];
       return res.status(200).json({ items });
     }
 
     if (type === 'gallery') {
       const data = await notionQuery(process.env.NOTION_GALLERY_DATABASE_ID, {
-        property: 'Published', checkbox: { equals: false }
+        property: 'Published', checkbox: { equals: published }
       });
-      const items = data.results.map(p => ({
+      const items = data.results?.map(p => ({
         id: p.id,
         author: getTitle(p.properties.Name),
         imageUrl: getURL(p.properties.ImageURL) || getImage(p.cover),
-      }));
+      })) || [];
       return res.status(200).json({ items });
     }
 
@@ -93,20 +103,16 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     const { pageId, action } = req.body;
-    if (!pageId || !['approve', 'reject'].includes(action)) return res.status(400).json({ error: 'Invalid request' });
+    if (!pageId || !['approve', 'reject', 'unpublish', 'delete'].includes(action)) {
+      return res.status(400).json({ error: 'Invalid request' });
+    }
 
     if (action === 'approve') {
-      await notionPatch(pageId, true);
-    } else {
-      await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${NOTION_TOKEN}`,
-          'Notion-Version': '2022-06-28',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ archived: true }),
-      });
+      await notionPatch(pageId, { Published: { checkbox: true } });
+    } else if (action === 'unpublish') {
+      await notionPatch(pageId, { Published: { checkbox: false } });
+    } else if (action === 'reject' || action === 'delete') {
+      await notionArchive(pageId);
     }
 
     return res.status(200).json({ success: true });

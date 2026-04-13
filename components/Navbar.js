@@ -23,6 +23,7 @@ export default function Navbar({ activePage }) {
     { href: '/chronicles', label: 'Chronicles', page: 'chronicles' },
     { href: '/events', label: 'Events', page: 'events' },
     { href: '/gallery', label: 'Gallery', page: 'gallery' },
+    { href: '/players', label: 'The Coven', page: 'players' },
   ];
 
   async function handleLogout() {

@@ -7,7 +7,7 @@ import styles from '../styles/Login.module.css';
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState('login');
-  const [form, setForm] = useState({ avatarName: '', email: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ avatarName: '', email: '', slUuid: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,7 +23,7 @@ export default function LoginPage() {
       const res = await fetch(`/api/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ avatarName: form.avatarName, password: form.password, email: form.email }),
+        body: JSON.stringify({ avatarName: form.avatarName, password: form.password, email: form.email, slUuid: form.slUuid }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Something went wrong'); }
@@ -57,6 +57,13 @@ export default function LoginPage() {
                 <div className={styles.formGroup}>
                   <label className={styles.formLabel}>Email Address</label>
                   <input className={styles.formInput} name="email" type="email" value={form.email} onChange={handleChange} placeholder="Your email address..." required />
+                </div>
+              )}
+              {mode === 'register' && (
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Second Life UUID</label>
+                  <input className={styles.formInput} name="slUuid" value={form.slUuid} onChange={handleChange} placeholder="e.g. 3c3a30f1-f918-49d9-b503-8742ff56e0f3" required />
+                  <p className={styles.hint}>Find this in your SL profile — right click your avatar → Profile → copy the Key shown</p>
                 </div>
               )}
               <div className={styles.formGroup}>

@@ -1,7 +1,8 @@
 import Head from 'next/head';
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
-import { getPlayerFromRequest, getAllPlayers } from '../lib/auth';
+import { getPlayerFromRequest } from '../lib/auth';
+import { createClient } from '@supabase/supabase-js';
 import styles from '../styles/Admin.module.css';
 
 export async function getServerSideProps({ req }) {
@@ -9,8 +10,9 @@ export async function getServerSideProps({ req }) {
   if (!player || player.role !== 'admin') {
     return { redirect: { destination: '/login', permanent: false } };
   }
-  const players = await getAllPlayers();
-  return { props: { players, adminName: player.avatar_name } };
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+  const { data: players } = await supabase.from('players').select('id,avatar_name,status,role,created_at,approved_at,sl_uuid').order('created_at', { ascending: false });
+  return { props: { players: players || [], adminName: player.avatar_name } };
 }
 
 export default function AdminPage({ players, adminName }) {
@@ -58,6 +60,7 @@ export default function AdminPage({ players, adminName }) {
                 <span className={`${styles.statusBadge} ${styles[player.status]}`}>{player.status}</span>
                 {player.role === 'admin' && <span className={styles.adminBadge}>Admin</span>}
                 <span className={styles.playerDate}>Registered {new Date(player.created_at).toLocaleDateString('en-GB')}</span>
+                {player.sl_uuid && <span className={styles.playerDate} style={{fontFamily:'monospace',fontSize:'10px',opacity:0.6}}>{player.sl_uuid}</span>}
               </div>
               <div className={styles.actions}>
                 {player.status === 'pending' && (

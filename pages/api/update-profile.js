@@ -8,16 +8,17 @@ function hashPassword(password) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
   const player = await getPlayerFromRequest(req);
   if (!player) return res.status(401).json({ error: 'Not logged in' });
 
-  const { displayName, profileImage, newPassword, currentPassword } = req.body;
+  const { displayName, profileImage, bio, lore, newPassword, currentPassword } = req.body;
   const updates = {};
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
   if (displayName !== undefined) updates.display_name = displayName.slice(0, 50);
   if (profileImage !== undefined) updates.profile_image = profileImage;
+  if (bio !== undefined) updates.bio = bio.slice(0, 500);
+  if (lore !== undefined) updates.lore = lore.slice(0, 5000);
 
   if (newPassword) {
     if (!currentPassword) return res.status(400).json({ error: 'Current password required' });
@@ -28,7 +29,6 @@ export default async function handler(req, res) {
   }
 
   if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'Nothing to update' });
-
   await supabase.from('players').update(updates).eq('id', player.id);
   res.status(200).json({ success: true });
 }

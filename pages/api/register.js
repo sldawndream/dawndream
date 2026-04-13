@@ -1,23 +1,12 @@
 import crypto from 'crypto';
+import { Resend } from 'resend';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-const RESEND_KEY = process.env.RESEND_API_KEY;
-
 const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password + process.env.PASSWORD_SALT).digest('hex');
-}
-
-async function sendEmail(to, subject, html) {
-  if (!RESEND_KEY) return;
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: 'DawnDream <noreply@dawndreamsl.com>', to, subject, html }),
-  });
 }
 
 export default async function handler(req, res) {
@@ -56,29 +45,32 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Registration failed' });
     }
 
-    await sendEmail(
-      ADMIN_EMAIL,
-      'New DawnDream Registration — Pending Approval',
-      `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0a0408;color:#e0cdb8;padding:32px;border-radius:8px;">
+    const resend = new Resend(process.env.RESEND_API_KEY);
+
+    await resend.emails.send({
+      from: 'DawnDream <noreply@dawndreamsl.com>',
+      to: process.env.ADMIN_EMAIL,
+      subject: 'New DawnDream Registration — Pending Approval',
+      html: `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0a0408;color:#e0cdb8;padding:32px;border-radius:8px;">
         <h2 style="color:#c0392b;font-family:serif;">New Registration</h2>
         <p><strong>Avatar Name:</strong> ${avatarName}</p>
         <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Status:</strong> Pending approval</p>
         <a href="https://dawndreamsl.com/admin" style="display:inline-block;background:#2a0a14;color:#e8a090;padding:10px 20px;border-radius:4px;text-decoration:none;margin-top:16px;">Review in Admin Panel</a>
-      </div>`
-    );
+      </div>`,
+    });
 
-    await sendEmail(
-      email,
-      'DawnDream — Registration Received',
-      `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0a0408;color:#e0cdb8;padding:32px;border-radius:8px;">
+    await resend.emails.send({
+      from: 'DawnDream <noreply@dawndreamsl.com>',
+      to: email,
+      subject: 'DawnDream — Registration Received',
+      html: `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0a0408;color:#e0cdb8;padding:32px;border-radius:8px;">
         <h2 style="color:#c0392b;font-family:serif;">Welcome to DawnDream</h2>
         <p>Hello <strong>${avatarName}</strong>,</p>
         <p>Your registration has been received and is pending approval by our admin team.</p>
         <p>You will receive another email once your account has been approved.</p>
         <p style="color:#7a5a50;font-style:italic;margin-top:24px;">The eternal night awaits.</p>
-      </div>`
-    );
+      </div>`,
+    });
 
     res.status(200).json({ success: true });
   } catch (err) {

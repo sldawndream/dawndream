@@ -1,14 +1,6 @@
 import crypto from 'crypto';
 import { serialize } from 'cookie';
-
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-
-const headers = {
-  apikey: SUPABASE_KEY,
-  Authorization: `Bearer ${SUPABASE_KEY}`,
-  'Content-Type': 'application/json',
-};
+import { createClient } from '@supabase/supabase-js';
 
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password + process.env.PASSWORD_SALT).digest('hex');
@@ -20,27 +12,21 @@ export default async function handler(req, res) {
   const { avatarName, password } = req.body;
   if (!avatarName || !password) return res.status(400).json({ error: 'Missing fields' });
 
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+
   try {
     const passwordHash = hashPassword(password);
-    const playerRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/players?avatar_name=eq.${encodeURIComponent(avatarName)}&password_hash=eq.${passwordHash}&select=id,avatar_name,status,role`,
-      { headers }
-    );
-    const players = await playerRes.json();
+    const { data: players } = await supabase.from('players').select('id, avatar_name, status, role').eq('avatar_name', avatarName).eq('password_hash', passwordHash);
 
-    if (!players.length) return res.status(401).json({ error: 'Invalid avatar name or password' });
+    if (!players || !players.length) return res.status(401).json({ error: 'Invalid avatar name or password' });
 
     const player = players[0];
-    if (player.status === 'pending') return res.status(403).json({ error: 'Your account is pending approval. You will be notified once approved.' });
+    if (player.status === 'pending') return res.status(403).json({ error: 'Your account is pending approval.' });
     if (player.status === 'rejected') return res.status(403).json({ error: 'Your registration was not approved.' });
     if (player.status === 'banned') return res.status(403).json({ error: 'Your account has been banned.' });
 
     const token = crypto.randomBytes(32).toString('hex');
-    await fetch(`${SUPABASE_URL}/rest/v1/player_sessions`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ player_id: player.id, token }),
-    });
+    await supabase.from('player_sessions').insert({ player_id: player.id, token });
 
     res.setHeader('Set-Cookie', serialize('dd_session', token, {
       httpOnly: true,

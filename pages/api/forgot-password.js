@@ -1,24 +1,22 @@
 import crypto from 'crypto';
 import { Resend } from 'resend';
-
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
+import { createClient } from '@supabase/supabase-js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email required' });
 
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+
   try {
-    const playerRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/players?email=eq.${encodeURIComponent(email)}&select=id,avatar_name,email,status`,
-      { headers }
-    );
-    const players = await playerRes.json();
+    const { data: players } = await supabase
+      .from('players')
+      .select('id, avatar_name, email, status')
+      .eq('email', email);
 
     res.status(200).json({ success: true });
-    if (!players.length) return;
+    if (!players || !players.length) return;
 
     const player = players[0];
     if (player.status !== 'approved') return;
@@ -26,11 +24,10 @@ export default async function handler(req, res) {
     const token = crypto.randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + 1000 * 60 * 60).toISOString();
 
-    await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${player.id}`, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify({ reset_token: token, reset_expires: expires }),
-    });
+    await supabase
+      .from('players')
+      .update({ reset_token: token, reset_expires: expires })
+      .eq('id', player.id);
 
     const resetUrl = `https://dawndreamsl.com/reset-password?token=${token}`;
     const resend = new Resend(process.env.RESEND_API_KEY);

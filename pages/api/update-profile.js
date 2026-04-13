@@ -1,9 +1,6 @@
 import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 import { getPlayerFromRequest } from '../../lib/auth';
-
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' };
 
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password + process.env.PASSWORD_SALT).digest('hex');
@@ -17,30 +14,21 @@ export default async function handler(req, res) {
 
   const { displayName, profileImage, newPassword, currentPassword } = req.body;
   const updates = {};
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-  if (displayName) updates.display_name = displayName.slice(0, 50);
-  if (profileImage) updates.profile_image = profileImage;
+  if (displayName !== undefined) updates.display_name = displayName.slice(0, 50);
+  if (profileImage !== undefined) updates.profile_image = profileImage;
 
   if (newPassword) {
     if (!currentPassword) return res.status(400).json({ error: 'Current password required' });
-    const currentHash = hashPassword(currentPassword);
-    const checkRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/players?id=eq.${player.id}&password_hash=eq.${currentHash}&select=id`,
-      { headers }
-    );
-    const check = await checkRes.json();
-    if (!check.length) return res.status(400).json({ error: 'Current password is incorrect' });
+    const { data: check } = await supabase.from('players').select('id').eq('id', player.id).eq('password_hash', hashPassword(currentPassword));
+    if (!check || !check.length) return res.status(400).json({ error: 'Current password is incorrect' });
     if (newPassword.length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters' });
     updates.password_hash = hashPassword(newPassword);
   }
 
   if (Object.keys(updates).length === 0) return res.status(400).json({ error: 'Nothing to update' });
 
-  await fetch(`${SUPABASE_URL}/rest/v1/players?id=eq.${player.id}`, {
-    method: 'PATCH',
-    headers,
-    body: JSON.stringify(updates),
-  });
-
+  await supabase.from('players').update(updates).eq('id', player.id);
   res.status(200).json({ success: true });
 }

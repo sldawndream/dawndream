@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Navbar from '../components/Navbar';
 import { getChronicles } from '../lib/chronicles';
 import styles from '../styles/Chronicles.module.css';
@@ -40,6 +40,83 @@ export default function ChroniclesPage({ chronicles }) {
   const [form, setForm] = useState({ title: '', author: '', category: '', story: '' });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // ── Text-to-speech state ──
+  const [speakingId, setSpeakingId] = useState(null);   // which chronicle is playing
+  const [isPaused, setIsPaused]     = useState(false);  // paused vs playing
+  const [speechReady, setSpeechReady] = useState(false); // browser supports it
+  const utteranceRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      setSpeechReady(true);
+    }
+  }, []);
+
+  // Stop speech on page unload / navigation
+  useEffect(() => {
+    return () => { window.speechSynthesis?.cancel(); };
+  }, []);
+
+  function stopSpeech() {
+    window.speechSynthesis.cancel();
+    setSpeakingId(null);
+    setIsPaused(false);
+    utteranceRef.current = null;
+  }
+
+  function speakChronicle(story) {
+    if (!speechReady) return;
+
+    // If already speaking this one — toggle pause/resume
+    if (speakingId === story.id) {
+      if (isPaused) {
+        window.speechSynthesis.resume();
+        setIsPaused(false);
+      } else {
+        window.speechSynthesis.pause();
+        setIsPaused(true);
+      }
+      return;
+    }
+
+    // Stop any current speech first
+    window.speechSynthesis.cancel();
+
+    // Build the text — title + author + story
+    const fullText = `${story.title}. Written by ${story.author}. ${story.story}`;
+
+    const utter = new SpeechSynthesisUtterance(fullText);
+
+    // Pick the best available voice — prefer a deep/dramatic English one
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v =>
+      /daniel|george|arthur|oliver|en.gb|en-gb/i.test(v.name + v.lang)
+    ) || voices.find(v =>
+      /en/i.test(v.lang) && v.localService
+    ) || voices[0];
+
+    if (preferred) utter.voice = preferred;
+    utter.rate  = 0.88;   // slightly slower — more dramatic
+    utter.pitch = 0.85;   // slightly deeper
+    utter.volume = 1;
+
+    utter.onend = () => {
+      setSpeakingId(null);
+      setIsPaused(false);
+      utteranceRef.current = null;
+    };
+    utter.onerror = () => {
+      setSpeakingId(null);
+      setIsPaused(false);
+      utteranceRef.current = null;
+    };
+
+    utteranceRef.current = utter;
+    setSpeakingId(story.id);
+    setIsPaused(false);
+    window.speechSynthesis.speak(utter);
+  }
 
   useEffect(() => {
     fetch('/api/get-reads')
@@ -143,9 +220,40 @@ export default function ChroniclesPage({ chronicles }) {
                     👁 {readCounts[story.id] || 0} {readCounts[story.id] === 1 ? 'unique read' : 'unique reads'}
                   </div>
                 )}
-                <button className={styles.readMore} onClick={() => handleExpand(story.id)}>
-                  {expanded === story.id ? 'Close Story ↑' : 'Read Full Story →'}
-                </button>
+
+                {/* ── Audio player bar (shown when this chronicle is speaking) ── */}
+                {speakingId === story.id && (
+                  <div className={styles.playerBar}>
+                    <div className={styles.playerWaves}>
+                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
+                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
+                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
+                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
+                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
+                    </div>
+                    <span className={styles.playerLabel}>
+                      {isPaused ? 'Paused' : 'Narrating…'}
+                    </span>
+                    <button className={styles.playerStop} onClick={stopSpeech} title="Stop">■ Stop</button>
+                  </div>
+                )}
+
+                <div className={styles.cardActions}>
+                  <button className={styles.readMore} onClick={() => handleExpand(story.id)}>
+                    {expanded === story.id ? 'Close Story ↑' : 'Read Full Story →'}
+                  </button>
+                  {speechReady && (
+                    <button
+                      className={`${styles.listenBtn} ${speakingId === story.id ? styles.listenBtnActive : ''}`}
+                      onClick={() => speakChronicle(story)}
+                      title={speakingId === story.id ? (isPaused ? 'Resume narration' : 'Pause narration') : 'Listen to this chronicle'}
+                    >
+                      {speakingId === story.id
+                        ? (isPaused ? '▶ Resume' : '⏸ Pause')
+                        : '🔊 Listen'}
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

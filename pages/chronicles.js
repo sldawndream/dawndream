@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { getChronicles } from '../lib/chronicles';
 import styles from '../styles/Chronicles.module.css';
@@ -40,111 +40,6 @@ export default function ChroniclesPage({ chronicles }) {
   const [form, setForm] = useState({ title: '', author: '', category: '', story: '' });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  // ── ElevenLabs TTS state ──
-  const [speakingId, setSpeakingId]   = useState(null);  // which chronicle is active
-  const [isPaused, setIsPaused]       = useState(false);
-  const [isLoading, setIsLoading]     = useState(false); // waiting for API response
-  const audioRef                      = useRef(null);    // current Audio object
-
-  // Clean up audio on unmount / navigation
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
-
-  function stopSpeech() {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-    setSpeakingId(null);
-    setIsPaused(false);
-    setIsLoading(false);
-  }
-
-  async function speakChronicle(story) {
-    // Pause / resume if this chronicle is already loaded
-    if (speakingId === story.id && audioRef.current) {
-      if (isPaused) {
-        audioRef.current.play();
-        setIsPaused(false);
-      } else {
-        audioRef.current.pause();
-        setIsPaused(true);
-      }
-      return;
-    }
-
-    // Stop whatever is currently playing
-    stopSpeech();
-
-    // Track as a read
-    const readerId = getReaderId();
-    if (readerId) {
-      fetch('/api/track-read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chronicleId: story.id, readerId }),
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (data.count !== undefined) {
-            setReadCounts(prev => ({ ...prev, [story.id]: data.count }));
-          }
-        })
-        .catch(() => {});
-    }
-
-    setIsLoading(true);
-    setSpeakingId(story.id);
-
-    try {
-      // Craft the text with a dramatic intro pause for atmosphere
-      const fullText = `${story.title}... written by ${story.author}. \n\n${story.story}`;
-
-      const res = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: fullText }),
-      });
-
-      if (!res.ok) throw new Error('TTS failed');
-
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audioRef.current = audio;
-
-      audio.onended = () => {
-        URL.revokeObjectURL(url);
-        setSpeakingId(null);
-        setIsPaused(false);
-        setIsLoading(false);
-        audioRef.current = null;
-      };
-      audio.onerror = () => {
-        URL.revokeObjectURL(url);
-        setSpeakingId(null);
-        setIsPaused(false);
-        setIsLoading(false);
-        audioRef.current = null;
-      };
-
-      setIsLoading(false);
-      setIsPaused(false);
-      audio.play();
-
-    } catch (err) {
-      console.error('TTS error:', err);
-      setSpeakingId(null);
-      setIsLoading(false);
-    }
-  }
 
   useEffect(() => {
     fetch('/api/get-reads')
@@ -248,43 +143,9 @@ export default function ChroniclesPage({ chronicles }) {
                     👁 {readCounts[story.id] || 0} {readCounts[story.id] === 1 ? 'unique read' : 'unique reads'}
                   </div>
                 )}
-
-                {/* ── Audio player bar (shown when this chronicle is speaking) ── */}
-                {speakingId === story.id && (
-                  <div className={styles.playerBar}>
-                    <div className={styles.playerWaves}>
-                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
-                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
-                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
-                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
-                      <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
-                    </div>
-                    <span className={styles.playerLabel}>
-                      {isLoading ? 'Summoning the voice…' : isPaused ? 'Paused' : 'Narrating…'}
-                    </span>
-                    <button className={styles.playerStop} onClick={stopSpeech} title="Stop">■ Stop</button>
-                  </div>
-                )}
-
-                <div className={styles.cardActions}>
-                  <button className={styles.readMore} onClick={() => handleExpand(story.id)}>
-                    {expanded === story.id ? 'Close Story ↑' : 'Read Full Story →'}
-                  </button>
-                  {speechReady && (
-                    <button
-                      className={`${styles.listenBtn} ${speakingId === story.id ? styles.listenBtnActive : ''}`}
-                      onClick={() => speakChronicle(story)}
-                      disabled={isLoading && speakingId !== story.id}
-                      title={speakingId === story.id ? (isPaused ? 'Resume narration' : 'Pause narration') : 'Listen to this chronicle'}
-                    >
-                      {speakingId === story.id && isLoading
-                        ? '⏳ Summoning voice…'
-                        : speakingId === story.id
-                          ? (isPaused ? '▶ Resume' : '⏸ Pause')
-                          : '🔊 Listen'}
-                    </button>
-                  )}
-                </div>
+                <button className={styles.readMore} onClick={() => handleExpand(story.id)}>
+                  {expanded === story.id ? 'Close Story ↑' : 'Read Full Story →'}
+                </button>
               </div>
             ))}
           </div>

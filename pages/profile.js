@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import { getPlayerFromRequest } from '../lib/auth';
 import { createClient } from '@supabase/supabase-js';
@@ -51,8 +51,52 @@ export default function ProfilePage({ player }) {
   const [bio, setBio] = useState(player.bio || '');
   const [lore, setLore] = useState(player.lore || '');
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const fileRef = useRef();
+
   const stats = getMockStats();
   const unlockedAchievements = []; // TODO: fetch from DB
+
+  function handleFileChange(e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    setImageFile(f);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setPreviewImage(ev.target.result);
+      setForm(prev => ({ ...prev, profileImage: '' })); // clear old URL while new upload pending
+    };
+    reader.readAsDataURL(f);
+  }
+
+  async function uploadImageToCloudinary() {
+    if (!imageFile) return form.profileImage; // no new file — keep existing URL
+    setImageUploading(true);
+    try {
+      const sigRes = await fetch('/api/cloudinary-sign', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folder: 'dawndream-avatars' }),
+      });
+      const { signature, timestamp, cloudName, apiKey } = await sigRes.json();
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      formData.append('api_key', apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+      formData.append('folder', 'dawndream-avatars');
+      const cloudRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        { method: 'POST', body: formData }
+      );
+      const cloudData = await cloudRes.json();
+      if (!cloudRes.ok || !cloudData.secure_url) throw new Error('Upload failed');
+      return cloudData.secure_url;
+    } finally {
+      setImageUploading(false);
+    }
+  }
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -65,12 +109,15 @@ export default function ProfilePage({ player }) {
     if (form.newPassword && form.newPassword !== form.confirmPassword) { setError('New passwords do not match'); return; }
     setLoading(true);
     try {
+      // Upload new avatar image first if one was selected
+      const finalImageUrl = await uploadImageToCloudinary();
+
       const res = await fetch('/api/update-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           displayName: form.displayName,
-          profileImage: form.profileImage,
+          profileImage: finalImageUrl,
           bio: form.bio,
           lore: form.lore,
           currentPassword: form.currentPassword || undefined,
@@ -81,11 +128,12 @@ export default function ProfilePage({ player }) {
       if (!res.ok) { setError(data.error); }
       else {
         setSuccess('Profile updated!');
-        setPreviewImage(form.profileImage);
+        setPreviewImage(finalImageUrl || form.profileImage);
+        setForm(f => ({ ...f, profileImage: finalImageUrl || f.profileImage, currentPassword: '', newPassword: '', confirmPassword: '' }));
         setDisplayName(form.displayName || player.avatar_name);
         setBio(form.bio);
         setLore(form.lore);
-        setForm(f => ({ ...f, currentPassword: '', newPassword: '', confirmPassword: '' }));
+        setImageFile(null);
       }
     } catch { setError('Update failed — please try again'); }
     setLoading(false);
@@ -273,10 +321,32 @@ export default function ProfilePage({ player }) {
                     <p className={styles.formHint}>Leave blank to use your avatar name</p>
                   </div>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Profile Image URL</label>
-                    <input className={styles.formInput} name="profileImage" value={form.profileImage} onChange={e => { handleChange(e); setPreviewImage(e.target.value); }} placeholder="https://..." />
-                    <p className={styles.formHint}>Upload to Cloudinary and paste the direct link</p>
-                    {form.profileImage && <img src={form.profileImage} alt="Preview" className={styles.imgPreview} onError={e => e.target.style.display='none'} />}
+                    <label className={styles.formLabel}>Profile Picture</label>
+                    <div
+                      className={styles.avatarUploadArea}
+                      onClick={() => fileRef.current.click()}
+                      title="Click to upload a new profile picture"
+                    >
+                      {previewImage ? (
+                        <>
+                          <img src={previewImage} alt="Preview" className={styles.avatarUploadPreview} onError={e => e.target.style.display='none'} />
+                          <div className={styles.avatarUploadOverlay}><span>Change Photo</span></div>
+                        </>
+                      ) : (
+                        <div className={styles.avatarUploadPlaceholder}>
+                          <span className={styles.avatarUploadIcon}>+</span>
+                          <span>Click to upload photo</span>
+                          <span className={styles.avatarUploadHint}>JPG, PNG, GIF</span>
+                        </div>
+                      )}
+                    </div>
+                    <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+                    {imageFile && !imageUploading && (
+                      <p className={styles.formHint}>📎 {imageFile.name} — will upload when you save</p>
+                    )}
+                    {imageUploading && (
+                      <p className={styles.formHint} style={{ color: '#c0a030' }}>⏳ Uploading image… please wait</p>
+                    )}
                   </div>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>About Me</label>

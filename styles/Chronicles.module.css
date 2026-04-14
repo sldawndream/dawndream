@@ -50,3 +50,98 @@
   .heroTitle { font-size: 26px; }
   .submitCard { position: static; }
 }
+
+/* ── Card action row ── */
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Listen button ── */
+.listenBtn {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: #7a8070;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid #2a3020;
+  padding: 5px 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  background: none;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.listenBtn:hover {
+  background: #0e1408;
+  color: #a0b090;
+  border-color: #3a4828;
+}
+.listenBtnActive {
+  background: #0e1408;
+  color: #c0d0a0;
+  border-color: #4a6030;
+}
+
+/* ── Active player bar ── */
+.playerBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #0a0e06;
+  border: 1px solid #2a3820;
+  border-radius: 5px;
+  padding: 8px 14px;
+  margin-bottom: 10px;
+}
+.playerLabel {
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: #7a9060;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  flex: 1;
+}
+.playerStop {
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: #906050;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid #3a1a14;
+  border-radius: 3px;
+  padding: 3px 10px;
+  background: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.playerStop:hover { background: #1e0808; color: #c08070; }
+
+/* ── Sound wave bars animation ── */
+.playerWaves {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+}
+.wave {
+  display: block;
+  width: 3px;
+  border-radius: 2px;
+  background: #6a9050;
+  animation: waveAnim 0.8s ease-in-out infinite alternate;
+}
+.wave:nth-child(1) { height: 5px;  animation-delay: 0s;    }
+.wave:nth-child(2) { height: 12px; animation-delay: 0.15s; }
+.wave:nth-child(3) { height: 16px; animation-delay: 0.3s;  }
+.wave:nth-child(4) { height: 10px; animation-delay: 0.45s; }
+.wave:nth-child(5) { height: 6px;  animation-delay: 0.6s;  }
+.wavePaused {
+  animation: none !important;
+  opacity: 0.3;
+}
+@keyframes waveAnim {
+  from { transform: scaleY(0.4); opacity: 0.6; }
+  to   { transform: scaleY(1);   opacity: 1;   }
+}

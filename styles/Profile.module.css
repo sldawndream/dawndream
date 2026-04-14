@@ -99,3 +99,71 @@
   .passwordGrid { grid-template-columns: 1fr; }
   .settingsWrap { padding: 24px 16px; }
 }
+
+/* ── Avatar upload area (replaces URL input) ── */
+.avatarUploadArea {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 2px dashed #3a1018;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s;
+  background: #0d0408;
+}
+.avatarUploadArea:hover {
+  border-color: #7a2030;
+}
+.avatarUploadArea:hover .avatarUploadOverlay {
+  opacity: 1;
+}
+.avatarUploadPreview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+.avatarUploadOverlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(10, 3, 8, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: #e8a090;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.avatarUploadPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: #5a2828;
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 8px;
+}
+.avatarUploadIcon {
+  font-size: 22px;
+  color: #4a1a1a;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+.avatarUploadHint {
+  font-size: 8px;
+  color: #3a1010;
+  letter-spacing: 0.05em;
+}

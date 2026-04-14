@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { getChronicles } from '../lib/chronicles';
 import styles from '../styles/Chronicles.module.css';
@@ -41,12 +41,6 @@ export default function ChroniclesPage({ chronicles }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // ── ElevenLabs TTS state ──
-  const [speakingId, setSpeakingId] = useState(null);
-  const [isPaused, setIsPaused]     = useState(false);
-  const [isLoading, setIsLoading]   = useState(false);
-  const audioRef                    = useRef(null);
-
   useEffect(() => {
     fetch('/api/get-reads')
       .then(r => r.json())
@@ -54,18 +48,11 @@ export default function ChroniclesPage({ chronicles }) {
       .catch(() => {});
   }, []);
 
-  // Clean up audio on unmount
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
-
   async function handleExpand(storyId) {
-    if (expanded === storyId) { setExpanded(null); return; }
+    if (expanded === storyId) {
+      setExpanded(null);
+      return;
+    }
     setExpanded(storyId);
     const readerId = getReaderId();
     if (!readerId) return;
@@ -80,92 +67,6 @@ export default function ChroniclesPage({ chronicles }) {
         setReadCounts(prev => ({ ...prev, [storyId]: data.count }));
       }
     } catch {}
-  }
-
-  function stopSpeech() {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-    setSpeakingId(null);
-    setIsPaused(false);
-    setIsLoading(false);
-  }
-
-  async function speakChronicle(story) {
-    // Toggle pause/resume if same chronicle
-    if (speakingId === story.id && audioRef.current) {
-      if (isPaused) {
-        audioRef.current.play();
-        setIsPaused(false);
-      } else {
-        audioRef.current.pause();
-        setIsPaused(true);
-      }
-      return;
-    }
-
-    // Stop current audio
-    stopSpeech();
-
-    // Track as a read
-    const readerId = getReaderId();
-    if (readerId) {
-      fetch('/api/track-read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chronicleId: story.id, readerId }),
-      })
-        .then(r => r.json())
-        .then(data => {
-          if (data.count !== undefined) {
-            setReadCounts(prev => ({ ...prev, [story.id]: data.count }));
-          }
-        })
-        .catch(() => {});
-    }
-
-    setIsLoading(true);
-    setSpeakingId(story.id);
-
-    try {
-      const fullText = `${story.title}... written by ${story.author}. \n\n${story.story}`;
-      const res = await fetch('/api/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: fullText }),
-      });
-
-      if (!res.ok) throw new Error('TTS failed');
-
-      const blob = await res.blob();
-      const url  = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audioRef.current = audio;
-
-      audio.onended = () => {
-        URL.revokeObjectURL(url);
-        setSpeakingId(null);
-        setIsPaused(false);
-        setIsLoading(false);
-        audioRef.current = null;
-      };
-      audio.onerror = () => {
-        URL.revokeObjectURL(url);
-        setSpeakingId(null);
-        setIsPaused(false);
-        setIsLoading(false);
-        audioRef.current = null;
-      };
-
-      setIsLoading(false);
-      audio.play();
-
-    } catch (err) {
-      console.error('TTS error:', err);
-      setSpeakingId(null);
-      setIsLoading(false);
-    }
   }
 
   function handleChange(e) {
@@ -242,40 +143,9 @@ export default function ChroniclesPage({ chronicles }) {
                     👁 {readCounts[story.id] || 0} {readCounts[story.id] === 1 ? 'unique read' : 'unique reads'}
                   </div>
                 )}
-
-                {/* Audio player bar */}
-                {speakingId === story.id && (
-                  <div className={styles.playerBar}>
-                    <div className={styles.playerWaves}>
-                      <span className={`${styles.wave} ${isPaused || isLoading ? styles.wavePaused : ''}`} />
-                      <span className={`${styles.wave} ${isPaused || isLoading ? styles.wavePaused : ''}`} />
-                      <span className={`${styles.wave} ${isPaused || isLoading ? styles.wavePaused : ''}`} />
-                      <span className={`${styles.wave} ${isPaused || isLoading ? styles.wavePaused : ''}`} />
-                      <span className={`${styles.wave} ${isPaused || isLoading ? styles.wavePaused : ''}`} />
-                    </div>
-                    <span className={styles.playerLabel}>
-                      {isLoading ? 'Summoning the voice…' : isPaused ? 'Paused' : 'Narrating…'}
-                    </span>
-                    <button className={styles.playerStop} onClick={stopSpeech}>■ Stop</button>
-                  </div>
-                )}
-
-                <div className={styles.cardActions}>
-                  <button className={styles.readMore} onClick={() => handleExpand(story.id)}>
-                    {expanded === story.id ? 'Close Story ↑' : 'Read Full Story →'}
-                  </button>
-                  <button
-                    className={`${styles.listenBtn} ${speakingId === story.id ? styles.listenBtnActive : ''}`}
-                    onClick={() => speakChronicle(story)}
-                    disabled={isLoading && speakingId !== story.id}
-                  >
-                    {speakingId === story.id && isLoading
-                      ? '⏳ Summoning voice…'
-                      : speakingId === story.id
-                        ? (isPaused ? '▶ Resume' : '⏸ Pause')
-                        : '🔊 Listen'}
-                  </button>
-                </div>
+                <button className={styles.readMore} onClick={() => handleExpand(story.id)}>
+                  {expanded === story.id ? 'Close Story ↑' : 'Read Full Story →'}
+                </button>
               </div>
             ))}
           </div>

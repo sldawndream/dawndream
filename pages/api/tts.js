@@ -1,15 +1,9 @@
-// ElevenLabs TTS — Voice: Rachel (cinematic, feminine, gothic)
-// Next.js 14 Pages Router compatible
+const VOICE_ID = '21m00Tcm4TlvDq8ikWAM';
 
-const VOICE_ID = '21m00Tcm4TlvDq8ikWAM'; // Rachel
-
-// Required for binary audio response in Next.js Pages Router
 export const config = {
   api: {
     responseLimit: false,
-    bodyParser: {
-      sizeLimit: '1mb',
-    },
+    bodyParser: { sizeLimit: '1mb' },
   },
 };
 
@@ -17,7 +11,10 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { text } = req.body;
-  if (!text || typeof text !== 'string') return res.status(400).json({ error: 'Text required' });
+  if (!text) return res.status(400).json({ error: 'Text required' });
+
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'Missing API key' });
 
   const safeText = text.slice(0, 5000);
 
@@ -27,7 +24,7 @@ export default async function handler(req, res) {
       {
         method: 'POST',
         headers: {
-          'xi-api-key': process.env.ELEVENLABS_API_KEY,
+          'xi-api-key': apiKey,
           'Content-Type': 'application/json',
           'Accept': 'audio/mpeg',
         },
@@ -46,8 +43,13 @@ export default async function handler(req, res) {
 
     if (!elevenRes.ok) {
       const errText = await elevenRes.text();
-      console.error('ElevenLabs error:', elevenRes.status, errText);
-      return res.status(502).json({ error: 'Voice generation failed' });
+      console.error('ElevenLabs status:', elevenRes.status);
+      console.error('ElevenLabs response:', errText);
+      return res.status(502).json({ 
+        error: 'Voice generation failed', 
+        status: elevenRes.status,
+        detail: errText 
+      });
     }
 
     const buffer = Buffer.from(await elevenRes.arrayBuffer());
@@ -57,7 +59,7 @@ export default async function handler(req, res) {
     res.status(200).end(buffer);
 
   } catch (err) {
-    console.error('TTS error:', err);
-    res.status(500).json({ error: 'Voice generation failed' });
+    console.error('TTS fetch error:', err.message);
+    res.status(500).json({ error: err.message });
   }
 }

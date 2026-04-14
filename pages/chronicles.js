@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import { getChronicles } from '../lib/chronicles';
 import styles from '../styles/Chronicles.module.css';
@@ -41,81 +41,109 @@ export default function ChroniclesPage({ chronicles }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // ── Text-to-speech state ──
-  const [speakingId, setSpeakingId] = useState(null);   // which chronicle is playing
-  const [isPaused, setIsPaused]     = useState(false);  // paused vs playing
-  const [speechReady, setSpeechReady] = useState(false); // browser supports it
-  const utteranceRef = useRef(null);
+  // ── ElevenLabs TTS state ──
+  const [speakingId, setSpeakingId]   = useState(null);  // which chronicle is active
+  const [isPaused, setIsPaused]       = useState(false);
+  const [isLoading, setIsLoading]     = useState(false); // waiting for API response
+  const audioRef                      = useRef(null);    // current Audio object
 
+  // Clean up audio on unmount / navigation
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      setSpeechReady(true);
-    }
-  }, []);
-
-  // Stop speech on page unload / navigation
-  useEffect(() => {
-    return () => { window.speechSynthesis?.cancel(); };
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
   }, []);
 
   function stopSpeech() {
-    window.speechSynthesis.cancel();
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     setSpeakingId(null);
     setIsPaused(false);
-    utteranceRef.current = null;
+    setIsLoading(false);
   }
 
-  function speakChronicle(story) {
-    if (!speechReady) return;
-
-    // If already speaking this one — toggle pause/resume
-    if (speakingId === story.id) {
+  async function speakChronicle(story) {
+    // Pause / resume if this chronicle is already loaded
+    if (speakingId === story.id && audioRef.current) {
       if (isPaused) {
-        window.speechSynthesis.resume();
+        audioRef.current.play();
         setIsPaused(false);
       } else {
-        window.speechSynthesis.pause();
+        audioRef.current.pause();
         setIsPaused(true);
       }
       return;
     }
 
-    // Stop any current speech first
-    window.speechSynthesis.cancel();
+    // Stop whatever is currently playing
+    stopSpeech();
 
-    // Build the text — title + author + story
-    const fullText = `${story.title}. Written by ${story.author}. ${story.story}`;
+    // Track as a read
+    const readerId = getReaderId();
+    if (readerId) {
+      fetch('/api/track-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chronicleId: story.id, readerId }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.count !== undefined) {
+            setReadCounts(prev => ({ ...prev, [story.id]: data.count }));
+          }
+        })
+        .catch(() => {});
+    }
 
-    const utter = new SpeechSynthesisUtterance(fullText);
-
-    // Pick the best available voice — prefer a deep/dramatic English one
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v =>
-      /daniel|george|arthur|oliver|en.gb|en-gb/i.test(v.name + v.lang)
-    ) || voices.find(v =>
-      /en/i.test(v.lang) && v.localService
-    ) || voices[0];
-
-    if (preferred) utter.voice = preferred;
-    utter.rate  = 0.88;   // slightly slower — more dramatic
-    utter.pitch = 0.85;   // slightly deeper
-    utter.volume = 1;
-
-    utter.onend = () => {
-      setSpeakingId(null);
-      setIsPaused(false);
-      utteranceRef.current = null;
-    };
-    utter.onerror = () => {
-      setSpeakingId(null);
-      setIsPaused(false);
-      utteranceRef.current = null;
-    };
-
-    utteranceRef.current = utter;
+    setIsLoading(true);
     setSpeakingId(story.id);
-    setIsPaused(false);
-    window.speechSynthesis.speak(utter);
+
+    try {
+      // Craft the text with a dramatic intro pause for atmosphere
+      const fullText = `${story.title}... written by ${story.author}. \n\n${story.story}`;
+
+      const res = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: fullText }),
+      });
+
+      if (!res.ok) throw new Error('TTS failed');
+
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+
+      audio.onended = () => {
+        URL.revokeObjectURL(url);
+        setSpeakingId(null);
+        setIsPaused(false);
+        setIsLoading(false);
+        audioRef.current = null;
+      };
+      audio.onerror = () => {
+        URL.revokeObjectURL(url);
+        setSpeakingId(null);
+        setIsPaused(false);
+        setIsLoading(false);
+        audioRef.current = null;
+      };
+
+      setIsLoading(false);
+      setIsPaused(false);
+      audio.play();
+
+    } catch (err) {
+      console.error('TTS error:', err);
+      setSpeakingId(null);
+      setIsLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -232,7 +260,7 @@ export default function ChroniclesPage({ chronicles }) {
                       <span className={`${styles.wave} ${isPaused ? styles.wavePaused : ''}`} />
                     </div>
                     <span className={styles.playerLabel}>
-                      {isPaused ? 'Paused' : 'Narrating…'}
+                      {isLoading ? 'Summoning the voice…' : isPaused ? 'Paused' : 'Narrating…'}
                     </span>
                     <button className={styles.playerStop} onClick={stopSpeech} title="Stop">■ Stop</button>
                   </div>
@@ -246,11 +274,14 @@ export default function ChroniclesPage({ chronicles }) {
                     <button
                       className={`${styles.listenBtn} ${speakingId === story.id ? styles.listenBtnActive : ''}`}
                       onClick={() => speakChronicle(story)}
+                      disabled={isLoading && speakingId !== story.id}
                       title={speakingId === story.id ? (isPaused ? 'Resume narration' : 'Pause narration') : 'Listen to this chronicle'}
                     >
-                      {speakingId === story.id
-                        ? (isPaused ? '▶ Resume' : '⏸ Pause')
-                        : '🔊 Listen'}
+                      {speakingId === story.id && isLoading
+                        ? '⏳ Summoning voice…'
+                        : speakingId === story.id
+                          ? (isPaused ? '▶ Resume' : '⏸ Pause')
+                          : '🔊 Listen'}
                     </button>
                   )}
                 </div>

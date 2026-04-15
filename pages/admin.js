@@ -34,6 +34,11 @@ export default function AdminPage({ players, adminName }) {
   const [gallery, setGallery] = useState([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
 
+  const [eternalPressTab, setEternalPressTab] = useState('pending');
+  const [eternalPress, setEternalPress] = useState([]);
+  const [eternalPressLoading, setEternalPressLoading] = useState(false);
+  const [roleLoadingId, setRoleLoadingId] = useState(null);
+
   async function loadContent(type, status) {
     if (type === 'chronicles') setChroniclesLoading(true);
     if (type === 'gallery') setGalleryLoading(true);
@@ -50,6 +55,40 @@ export default function AdminPage({ players, adminName }) {
   useEffect(() => {
     if (section === 'gallery') loadContent('gallery', galleryTab);
   }, [section, galleryTab]);
+
+  useEffect(() => {
+    if (section === 'eternal-press') loadEternalPress(eternalPressTab);
+  }, [section, eternalPressTab]);
+
+  async function loadEternalPress(status) {
+    setEternalPressLoading(true);
+    const res = await fetch(`/api/eternal-press-articles?status=${status}`);
+    const data = await res.json();
+    setEternalPress(data.articles || []);
+    setEternalPressLoading(false);
+  }
+
+  async function handleEternalPressAction(articleId, action) {
+    setLoadingAction(articleId + action);
+    await fetch('/api/eternal-press-action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ articleId, action }),
+    });
+    await loadEternalPress(eternalPressTab);
+    setLoadingAction(null);
+  }
+
+  async function handleSetRole(playerId, role) {
+    setRoleLoadingId(playerId);
+    await fetch('/api/set-role', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ playerId, role }),
+    });
+    setList(prev => prev.map(p => p.id === playerId ? { ...p, role } : p));
+    setRoleLoadingId(null);
+  }
 
   async function handlePlayerAction(playerId, action) {
     setLoadingAction(playerId + action);
@@ -107,6 +146,12 @@ export default function AdminPage({ players, adminName }) {
           </button>
           <button className={`${styles.sectionBtn} ${section === 'gallery' ? styles.sectionActive : ''}`} onClick={() => setSection('gallery')}>
             Gallery
+          </button>
+          <button className={`${styles.sectionBtn} ${section === 'eternal-press' ? styles.sectionActive : ''}`} onClick={() => setSection('eternal-press')}>
+            EternalPress
+          </button>
+          <button className={`${styles.sectionBtn} ${section === 'roles' ? styles.sectionActive : ''}`} onClick={() => setSection('roles')}>
+            Roles
           </button>
         </div>
 
@@ -265,6 +310,124 @@ export default function AdminPage({ players, adminName }) {
                   </div>
                 ))}
               </div>
+            </div>
+          </>
+        )}
+        {section === 'eternal-press' && (
+          <>
+            <div className={styles.subTabs}>
+              <button className={`${styles.subTab} ${eternalPressTab === 'pending' ? styles.subTabActive : ''}`} onClick={() => setEternalPressTab('pending')}>
+                Pending Review
+              </button>
+              <button className={`${styles.subTab} ${eternalPressTab === 'published' ? styles.subTabActive : ''}`} onClick={() => setEternalPressTab('published')}>
+                Published
+              </button>
+              <button className={`${styles.subTab} ${eternalPressTab === 'rejected' ? styles.subTabActive : ''}`} onClick={() => setEternalPressTab('rejected')}>
+                Rejected
+              </button>
+            </div>
+            <div className={styles.contentSection}>
+              {eternalPressTab === 'pending' && <p className={styles.sectionDesc}>Articles submitted by reporters — publish to make live or reject to send back.</p>}
+              {eternalPressTab === 'published' && <p className={styles.sectionDesc}>Live articles — feature to pin as the top story, or delete to remove permanently.</p>}
+              {eternalPressTab === 'rejected' && <p className={styles.sectionDesc}>Rejected articles — can be re-published or deleted.</p>}
+              {eternalPressLoading && <p className={styles.empty}>Loading...</p>}
+              {!eternalPressLoading && eternalPress.length === 0 && (
+                <p className={styles.empty}>No articles in this tab.</p>
+              )}
+              {!eternalPressLoading && eternalPress.map(item => (
+                <div key={item.id} className={styles.contentCard}>
+                  <div className={styles.contentHeader}>
+                    <div className={styles.contentMeta}>
+                      <span className={styles.contentTitle}>{item.title}</span>
+                      <div className={styles.contentSub}>
+                        <span className={styles.contentAuthor}>By {item.author_name}</span>
+                        <span className={styles.contentCat}>{item.category}</span>
+                        <span className={styles.contentAuthor}>{new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        {item.featured && <span className={styles.contentCat} style={{ background: '#1a1200', color: '#c0a030', borderColor: '#5a4010' }}>★ Featured</span>}
+                      </div>
+                    </div>
+                    <div className={styles.actions}>
+                      {eternalPressTab === 'pending' && (
+                        <>
+                          <button className={styles.approveBtn} onClick={() => handleEternalPressAction(item.id, 'publish')} disabled={loadingAction === item.id + 'publish'}>{loadingAction === item.id + 'publish' ? '...' : 'Publish'}</button>
+                          <button className={styles.rejectBtn} onClick={() => handleEternalPressAction(item.id, 'reject')} disabled={loadingAction === item.id + 'reject'}>{loadingAction === item.id + 'reject' ? '...' : 'Reject'}</button>
+                        </>
+                      )}
+                      {eternalPressTab === 'published' && (
+                        <>
+                          {!item.featured
+                            ? <button className={styles.approveBtn} onClick={() => handleEternalPressAction(item.id, 'feature')} disabled={loadingAction === item.id + 'feature'}>{loadingAction === item.id + 'feature' ? '...' : '★ Feature'}</button>
+                            : <button className={styles.warnBtn} onClick={() => handleEternalPressAction(item.id, 'unfeature')} disabled={loadingAction === item.id + 'unfeature'}>{loadingAction === item.id + 'unfeature' ? '...' : 'Unfeature'}</button>
+                          }
+                          <button className={styles.deleteBtn} onClick={() => { if (confirm('Delete this article permanently?')) handleEternalPressAction(item.id, 'delete'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
+                        </>
+                      )}
+                      {eternalPressTab === 'rejected' && (
+                        <>
+                          <button className={styles.approveBtn} onClick={() => handleEternalPressAction(item.id, 'publish')} disabled={loadingAction === item.id + 'publish'}>{loadingAction === item.id + 'publish' ? '...' : 'Publish'}</button>
+                          <button className={styles.deleteBtn} onClick={() => { if (confirm('Delete permanently?')) handleEternalPressAction(item.id, 'delete'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {item.excerpt && <p className={styles.contentPreview}>{item.excerpt}</p>}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {section === 'roles' && (
+          <>
+            <p className={styles.sectionDesc} style={{ marginBottom: '16px' }}>
+              Assign roles to approved players. <strong>Reporter</strong> — can write and submit EternalPress articles. <strong>Admin</strong> — full access to the admin panel.
+            </p>
+            <div className={styles.playerList}>
+              {list.filter(p => p.status === 'approved').map(p => (
+                <div key={p.id} className={styles.playerCard}>
+                  <div className={styles.playerInfo}>
+                    <div className={styles.playerTop}>
+                      <span className={styles.playerName}>{p.avatar_name}</span>
+                      <span className={`${styles.statusBadge} ${p.role === 'admin' ? styles.adminBadge : p.role === 'reporter' ? styles.reporterBadge : styles.approved}`}>
+                        {p.role}
+                      </span>
+                    </div>
+                    <div className={styles.playerMeta}>
+                      <span className={styles.playerEmail}>{p.email}</span>
+                    </div>
+                  </div>
+                  <div className={styles.actions}>
+                    {p.role !== 'reporter' && (
+                      <button
+                        className={styles.approveBtn}
+                        onClick={() => handleSetRole(p.id, 'reporter')}
+                        disabled={roleLoadingId === p.id}
+                        title="Assign Reporter role — can write EternalPress articles"
+                      >
+                        {roleLoadingId === p.id ? '...' : '✒ Make Reporter'}
+                      </button>
+                    )}
+                    {p.role === 'reporter' && (
+                      <button
+                        className={styles.rejectBtn}
+                        onClick={() => handleSetRole(p.id, 'player')}
+                        disabled={roleLoadingId === p.id}
+                      >
+                        {roleLoadingId === p.id ? '...' : 'Remove Reporter'}
+                      </button>
+                    )}
+                    {p.role !== 'admin' && (
+                      <button
+                        className={styles.banBtn}
+                        onClick={() => { if (confirm(`Make ${p.avatar_name} an admin? They will have full admin panel access.`)) handleSetRole(p.id, 'admin'); }}
+                        disabled={roleLoadingId === p.id}
+                      >
+                        {roleLoadingId === p.id ? '...' : 'Make Admin'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </>
         )}

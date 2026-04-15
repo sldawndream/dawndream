@@ -18,19 +18,19 @@ export default async function handler(req, res) {
   }
 
   if (action === 'delete') {
-    await supabase.from('eternal-press_articles').delete().eq('id', articleId);
+    await supabase.from('eternal_press_articles').delete().eq('id', articleId);
     return res.status(200).json({ success: true });
   }
 
   if (action === 'feature') {
     // Unfeature all others first, then feature this one
-    await supabase.from('eternal-press_articles').update({ featured: false }).eq('featured', true);
-    await supabase.from('eternal-press_articles').update({ featured: true }).eq('id', articleId);
+    await supabase.from('eternal_press_articles').update({ featured: false }).eq('featured', true);
+    await supabase.from('eternal_press_articles').update({ featured: true }).eq('id', articleId);
     return res.status(200).json({ success: true });
   }
 
   if (action === 'unfeature') {
-    await supabase.from('eternal-press_articles').update({ featured: false }).eq('id', articleId);
+    await supabase.from('eternal_press_articles').update({ featured: false }).eq('id', articleId);
     return res.status(200).json({ success: true });
   }
 
@@ -39,6 +39,6 @@ export default async function handler(req, res) {
     reject: { status: 'rejected', approved_by: admins[0].avatar_name },
   };
 
-  await supabase.from('eternal-press_articles').update(updates[action]).eq('id', articleId);
+  await supabase.from('eternal_press_articles').update(updates[action]).eq('id', articleId);
   res.status(200).json({ success: true });
 }

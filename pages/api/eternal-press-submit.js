@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   const authorName = player.display_name || player.avatar_name;
 
-  const { error } = await supabase.from('eternal-press_articles').insert({
+  const { error } = await supabase.from('eternal_press_articles').insert({
     title: title.trim().slice(0, 200),
     category: category || 'General',
     body: body.trim().slice(0, 20000),

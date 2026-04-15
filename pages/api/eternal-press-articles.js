@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   const safeStatus = validStatuses.includes(status) ? status : 'pending';
 
   const { data: articles } = await supabase
-    .from('eternal-press_articles')
+    .from('eternal_press_articles')
     .select('id,title,category,excerpt,author_name,status,featured,created_at,published_at,issue_number')
     .eq('status', safeStatus)
     .order('created_at', { ascending: false });

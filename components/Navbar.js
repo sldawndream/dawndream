@@ -24,6 +24,7 @@ export default function Navbar({ activePage }) {
     { href: '/events', label: 'Events', page: 'events' },
     { href: '/gallery', label: 'Gallery', page: 'gallery' },
     { href: '/players', label: 'The Coven', page: 'players' },
+    { href: '/eternal-press', label: 'The Eternal Press', page: 'eternal-press' },
   ];
 
   async function handleLogout() {

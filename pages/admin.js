@@ -55,6 +55,8 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
   const [eternalPress, setEternalPress] = useState([]);
   const [eternalPressLoading, setEternalPressLoading] = useState(false);
   const [roleLoadingId, setRoleLoadingId] = useState(null);
+  const [rolesSearch, setRolesSearch] = useState('');
+  const [rolesFilter, setRolesFilter] = useState('all');
 
   async function loadContent(type, status) {
     if (type === 'chronicles') setChroniclesLoading(true);
@@ -416,43 +418,81 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
             <p className={styles.sectionDesc} style={{ marginBottom: '16px' }}>
               Assign the <strong>Reporter</strong> role to approved players — reporters can write and publish articles to The Eternal Press.
             </p>
-            <div className={styles.playerList}>
-              {list.filter(p => p.status === 'approved').map(p => (
-                <div key={p.id} className={styles.playerCard}>
-                  <div className={styles.playerInfo}>
-                    <div className={styles.playerTop}>
-                      <span className={styles.playerName}>{p.avatar_name}</span>
-                      <span className={`${styles.statusBadge} ${p.role === 'admin' ? styles.adminBadge : p.role === 'reporter' ? styles.reporterBadge : styles.approved}`}>
-                        {p.role}
-                      </span>
-                    </div>
-                    <div className={styles.playerMeta}>
-                      <span className={styles.playerEmail}>{p.email}</span>
-                    </div>
-                  </div>
-                  <div className={styles.actions}>
-                    {p.role !== 'reporter' && (
-                      <button
-                        className={styles.approveBtn}
-                        onClick={() => handleSetRole(p.id, 'reporter')}
-                        disabled={roleLoadingId === p.id}
-                        title="Assign Reporter role — can write Eternal Press articles"
-                      >
-                        {roleLoadingId === p.id ? '...' : '✒ Make Reporter'}
-                      </button>
-                    )}
-                    {p.role === 'reporter' && (
-                      <button
-                        className={styles.rejectBtn}
-                        onClick={() => handleSetRole(p.id, 'player')}
-                        disabled={roleLoadingId === p.id}
-                      >
-                        {roleLoadingId === p.id ? '...' : 'Remove Reporter'}
-                      </button>
-                    )}
-                  </div>
-                </div>
+            <div className={styles.searchBar} style={{ marginBottom: '12px' }}>
+              <input
+                className={styles.searchInput}
+                type="text"
+                value={rolesSearch}
+                onChange={e => setRolesSearch(e.target.value)}
+                placeholder="Search by avatar name or email..."
+              />
+              {rolesSearch && <button className={styles.searchClear} onClick={() => setRolesSearch('')}>✕</button>}
+            </div>
+            <div className={styles.filters} style={{ marginBottom: '16px' }}>
+              {['all', 'player', 'reporter'].map(f => (
+                <button
+                  key={f}
+                  className={`${styles.filterBtn} ${rolesFilter === f ? styles.filterActive : ''}`}
+                  onClick={() => setRolesFilter(f)}
+                >
+                  {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}s ({list.filter(p => p.status === 'approved' && (f === 'all' || p.role === f)).length})
+                </button>
               ))}
+            </div>
+            <div className={styles.playerList}>
+              {list
+                .filter(p => p.status === 'approved')
+                .filter(p => rolesFilter === 'all' || p.role === rolesFilter)
+                .filter(p => {
+                  const q = rolesSearch.toLowerCase().trim();
+                  return !q || p.avatar_name?.toLowerCase().includes(q) || p.email?.toLowerCase().includes(q);
+                })
+                .map(p => (
+                  <div key={p.id} className={styles.playerCard}>
+                    <div className={styles.playerInfo}>
+                      <div className={styles.playerTop}>
+                        <span className={styles.playerName}>{p.avatar_name}</span>
+                        <span className={`${styles.statusBadge} ${p.role === 'admin' ? styles.adminBadge : p.role === 'reporter' ? styles.reporterBadge : styles.approved}`}>
+                          {p.role}
+                        </span>
+                      </div>
+                      <div className={styles.playerMeta}>
+                        <span className={styles.playerEmail}>{p.email}</span>
+                      </div>
+                    </div>
+                    <div className={styles.actions}>
+                      {p.role !== 'reporter' && p.role !== 'admin' && (
+                        <button
+                          className={styles.approveBtn}
+                          onClick={() => handleSetRole(p.id, 'reporter')}
+                          disabled={roleLoadingId === p.id}
+                          title="Assign Reporter role — can write Eternal Press articles"
+                        >
+                          {roleLoadingId === p.id ? '...' : '✒ Make Reporter'}
+                        </button>
+                      )}
+                      {p.role === 'reporter' && (
+                        <button
+                          className={styles.rejectBtn}
+                          onClick={() => handleSetRole(p.id, 'player')}
+                          disabled={roleLoadingId === p.id}
+                        >
+                          {roleLoadingId === p.id ? '...' : 'Remove Reporter'}
+                        </button>
+                      )}
+                      {p.role === 'admin' && (
+                        <span className={styles.playerDate} style={{ fontStyle: 'italic' }}>Admin — managed via database</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              {list.filter(p => p.status === 'approved').filter(p => {
+                const q = rolesSearch.toLowerCase().trim();
+                return (!q || p.avatar_name?.toLowerCase().includes(q) || p.email?.toLowerCase().includes(q)) &&
+                  (rolesFilter === 'all' || p.role === rolesFilter);
+              }).length === 0 && (
+                <p className={styles.empty}>{rolesSearch ? `No players found matching "${rolesSearch}"` : 'No players in this category.'}</p>
+              )}
             </div>
           </>
         )}

@@ -97,21 +97,24 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
 
   async function loadEternalPress(status) {
     setEternalPressLoading(true);
-    const res = await fetch(`/api/eternal-press-articles?status=${status}`);
+    const res = await fetch(`/api/eternal-press-list?scope=all`);
     const data = await res.json();
-    setEternalPress(data.articles || []);
+    // Filter by published status for display
+    const articles = (data.articles || []).filter(a =>
+      status === 'published' ? a.published : !a.published
+    );
+    setEternalPress(articles);
     setEternalPressLoading(false);
-    if (status === 'pending') setEpPendingCount((data.articles || []).length);
   }
 
   async function handleEternalPressAction(articleId, action) {
     setLoadingAction(articleId + action);
-    await fetch('/api/eternal-press-action', {
+    await fetch('/api/eternal-press-manage', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ articleId, action }),
     });
-    await loadEternalPress(eternalPressTab);
+    await loadEternalPress('published');
     setLoadingAction(null);
   }
 
@@ -372,9 +375,9 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
                     <div className={styles.contentMeta}>
                       <span className={styles.contentTitle}>{item.title}</span>
                       <div className={styles.contentSub}>
-                        <span className={styles.contentAuthor}>By {item.author_name}</span>
+                        <span className={styles.contentAuthor}>By {item.author}</span>
                         <span className={styles.contentCat}>{item.category}</span>
-                        <span className={styles.contentAuthor}>{new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        {item.issueDate && <span className={styles.contentAuthor}>{item.issueDate}</span>}
                         {item.featured && <span className={styles.contentCat} style={{ background: '#1a1200', color: '#c0a030', borderColor: '#5a4010' }}>★ Featured</span>}
                       </div>
                     </div>

@@ -249,7 +249,7 @@ export default function EternalPressEditorPage({ player }) {
             ✒ {editingId ? 'Editing Article' : 'Write New'}
           </button>
           <button className={`${styles.tabBtn} ${tab === 'mine' ? styles.tabActive : ''}`} onClick={() => setTab('mine')}>
-            My Articles
+            {isAdmin ? 'Manage Articles' : 'My Articles'}
           </button>
           {isAdmin && (
             <button className={`${styles.tabBtn} ${tab === 'all' ? styles.tabActive : ''}`} onClick={() => setTab('all')}>
@@ -349,7 +349,9 @@ export default function EternalPressEditorPage({ player }) {
         {/* My Articles tab */}
         {tab === 'mine' && (
           <div className={styles.manageSection}>
-            <p className={styles.manageSectionDesc}>Your published and unpublished articles. Edit, unpublish or delete any of them.</p>
+            <p className={styles.manageSectionDesc}>
+              {isAdmin ? 'All Eternal Press articles — edit, unpublish or delete any of them.' : 'Your published and unpublished articles. Edit, unpublish or delete any of them.'}
+            </p>
             {articlesLoading && <p className={styles.manageEmpty}>Loading your articles…</p>}
             {!articlesLoading && myArticles.length === 0 && (
               <p className={styles.manageEmpty}>You haven't written any articles yet. Switch to Write New to get started.</p>

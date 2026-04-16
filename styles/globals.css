@@ -15,13 +15,13 @@
   --red-dark: #2a0a14;
   --amber: #c07830;
   --teal: #2a9070;
-  --text-bright: #f0d8c8;
-  --text-main: #e0cdb8;
-  --text-mid: #c0a890;
-  --text-muted: #b09880;
-  --text-dim: #9a7860;
-  --text-faint: #7a5a50;
-  --text-ghost: #5a3a30;
+  --text-bright: #faf0e8;
+  --text-main: #f0ddc8;
+  --text-mid: #d0b8a0;
+  --text-muted: #c0a888;
+  --text-dim: #c0a080;
+  --text-faint: #a87868;
+  --text-ghost: #8a5848;
   --font-display: 'Cinzel', serif;
   --font-body: 'Crimson Text', serif;
 }

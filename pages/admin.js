@@ -92,8 +92,8 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
   }, [section, galleryTab]);
 
   useEffect(() => {
-    if (section === 'eternal-press') loadEternalPress(eternalPressTab);
-  }, [section, eternalPressTab]);
+    if (section === 'eternal-press') loadEternalPress('published');
+  }, [section]);
 
   async function loadEternalPress(status) {
     setEternalPressLoading(true);
@@ -193,7 +193,7 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
             Gallery {galleryPendingCount > 0 && <span className={styles.notifBadge}>{galleryPendingCount}</span>}
           </button>
           <button className={`${styles.sectionBtn} ${section === 'eternal-press' ? styles.sectionActive : ''}`} onClick={() => setSection('eternal-press')}>
-            Eternal Press {epPendingCount > 0 && <span className={styles.notifBadge}>{epPendingCount}</span>}
+            Eternal Press
           </button>
           <button className={`${styles.sectionBtn} ${section === 'roles' ? styles.sectionActive : ''}`} onClick={() => setSection('roles')}>
             Roles
@@ -360,24 +360,11 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
         )}
         {section === 'eternal-press' && (
           <>
-            <div className={styles.subTabs}>
-              <button className={`${styles.subTab} ${eternalPressTab === 'pending' ? styles.subTabActive : ''}`} onClick={() => setEternalPressTab('pending')}>
-                Pending Review
-              </button>
-              <button className={`${styles.subTab} ${eternalPressTab === 'published' ? styles.subTabActive : ''}`} onClick={() => setEternalPressTab('published')}>
-                Published
-              </button>
-              <button className={`${styles.subTab} ${eternalPressTab === 'rejected' ? styles.subTabActive : ''}`} onClick={() => setEternalPressTab('rejected')}>
-                Rejected
-              </button>
-            </div>
+            <p className={styles.sectionDesc}>Live articles on The Eternal Press — feature to pin as the top story, or delete to remove permanently.</p>
             <div className={styles.contentSection}>
-              {eternalPressTab === 'pending' && <p className={styles.sectionDesc}>Articles submitted by reporters — publish to make live or reject to send back.</p>}
-              {eternalPressTab === 'published' && <p className={styles.sectionDesc}>Live articles — feature to pin as the top story, or delete to remove permanently.</p>}
-              {eternalPressTab === 'rejected' && <p className={styles.sectionDesc}>Rejected articles — can be re-published or deleted.</p>}
               {eternalPressLoading && <p className={styles.empty}>Loading...</p>}
               {!eternalPressLoading && eternalPress.length === 0 && (
-                <p className={styles.empty}>No articles in this tab.</p>
+                <p className={styles.empty}>No articles published yet.</p>
               )}
               {!eternalPressLoading && eternalPress.map(item => (
                 <div key={item.id} className={styles.contentCard}>
@@ -392,27 +379,11 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
                       </div>
                     </div>
                     <div className={styles.actions}>
-                      {eternalPressTab === 'pending' && (
-                        <>
-                          <button className={styles.approveBtn} onClick={() => handleEternalPressAction(item.id, 'publish')} disabled={loadingAction === item.id + 'publish'}>{loadingAction === item.id + 'publish' ? '...' : 'Publish'}</button>
-                          <button className={styles.rejectBtn} onClick={() => handleEternalPressAction(item.id, 'reject')} disabled={loadingAction === item.id + 'reject'}>{loadingAction === item.id + 'reject' ? '...' : 'Reject'}</button>
-                        </>
-                      )}
-                      {eternalPressTab === 'published' && (
-                        <>
-                          {!item.featured
-                            ? <button className={styles.approveBtn} onClick={() => handleEternalPressAction(item.id, 'feature')} disabled={loadingAction === item.id + 'feature'}>{loadingAction === item.id + 'feature' ? '...' : '★ Feature'}</button>
-                            : <button className={styles.warnBtn} onClick={() => handleEternalPressAction(item.id, 'unfeature')} disabled={loadingAction === item.id + 'unfeature'}>{loadingAction === item.id + 'unfeature' ? '...' : 'Unfeature'}</button>
-                          }
-                          <button className={styles.deleteBtn} onClick={() => { if (confirm('Delete this article permanently?')) handleEternalPressAction(item.id, 'delete'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
-                        </>
-                      )}
-                      {eternalPressTab === 'rejected' && (
-                        <>
-                          <button className={styles.approveBtn} onClick={() => handleEternalPressAction(item.id, 'publish')} disabled={loadingAction === item.id + 'publish'}>{loadingAction === item.id + 'publish' ? '...' : 'Publish'}</button>
-                          <button className={styles.deleteBtn} onClick={() => { if (confirm('Delete permanently?')) handleEternalPressAction(item.id, 'delete'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
-                        </>
-                      )}
+                      {!item.featured
+                        ? <button className={styles.approveBtn} onClick={() => handleEternalPressAction(item.id, 'feature')} disabled={loadingAction === item.id + 'feature'}>{loadingAction === item.id + 'feature' ? '...' : '★ Feature'}</button>
+                        : <button className={styles.warnBtn} onClick={() => handleEternalPressAction(item.id, 'unfeature')} disabled={loadingAction === item.id + 'unfeature'}>{loadingAction === item.id + 'unfeature' ? '...' : 'Unfeature'}</button>
+                      }
+                      <button className={styles.deleteBtn} onClick={() => { if (confirm('Delete this article permanently?')) handleEternalPressAction(item.id, 'delete'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
                     </div>
                   </div>
                   {item.excerpt && <p className={styles.contentPreview}>{item.excerpt}</p>}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import { getPlayerFromRequest } from '../lib/auth';
 import { createClient } from '@supabase/supabase-js';
+import { getEternalPressArticles } from '../lib/eternal-press';
 import styles from '../styles/EternalPress.module.css';
 
 export async function getServerSideProps({ req }) {
@@ -13,33 +14,31 @@ export async function getServerSideProps({ req }) {
   }
 
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-  const { data: articles } = await supabase
-    .from('eternal-press_articles')
-    .select('id,title,category,excerpt,body,cover_image,author_name,featured,issue_number,issue_date,published_at')
-    .eq('status', 'published')
-    .order('published_at', { ascending: false });
-
-  // Get current player role
   const { data: players } = await supabase
     .from('players')
     .select('role')
     .eq('id', session.id);
-
   const role = players?.[0]?.role || 'player';
 
-  return { props: { articles: articles || [], role } };
+  try {
+    const articles = await getEternalPressArticles();
+    return { props: { articles, role } };
+  } catch (err) {
+    console.error('Eternal Press fetch error:', err);
+    return { props: { articles: [], role } };
+  }
 }
 
 const CATEGORIES = ['All', 'Breaking', 'War', 'Politics', 'Society', 'Mystery', 'Announcement', 'General'];
 
 const categoryStyles = {
-  Breaking: styles.catBreaking,
-  War: styles.catWar,
-  Politics: styles.catPolitics,
-  Society: styles.catSociety,
-  Mystery: styles.catMystery,
+  Breaking:     styles.catBreaking,
+  War:          styles.catWar,
+  Politics:     styles.catPolitics,
+  Society:      styles.catSociety,
+  Mystery:      styles.catMystery,
   Announcement: styles.catAnnouncement,
-  General: styles.catGeneral,
+  General:      styles.catGeneral,
 };
 
 export default function EternalPressPage({ articles, role }) {
@@ -48,11 +47,10 @@ export default function EternalPressPage({ articles, role }) {
 
   const featured = articles.find(a => a.featured) || articles[0];
   const rest = articles.filter(a => a.id !== featured?.id);
-
   const filtered = filter === 'All' ? rest : rest.filter(a => a.category === filter);
 
-  const latestIssue = articles[0]?.issue_number
-    ? `Issue ${articles[0].issue_number} · ${articles[0].issue_date}`
+  const latestIssue = articles[0]?.issueNumber
+    ? `Issue ${articles[0].issueNumber}${articles[0].issueDate ? ' · ' + articles[0].issueDate : ''}`
     : null;
 
   const canWrite = role === 'reporter' || role === 'admin';
@@ -88,16 +86,13 @@ export default function EternalPressPage({ articles, role }) {
       </section>
 
       <div className={styles.body}>
-
-        {/* Featured article */}
         {featured && (
           <>
             <p className={styles.sectionHead}>Featured</p>
             <div className={styles.featuredCard}>
-              {featured.cover_image && (
-                <img src={featured.cover_image} alt={featured.title} className={styles.featuredImg} />
-              )}
-              {!featured.cover_image && (
+              {featured.coverImage ? (
+                <img src={featured.coverImage} alt={featured.title} className={styles.featuredImg} />
+              ) : (
                 <div className={styles.featuredImgPlaceholder}>The Eternal Press</div>
               )}
               <div className={styles.featuredBody}>
@@ -106,9 +101,8 @@ export default function EternalPressPage({ articles, role }) {
                 </span>
                 <h2 className={styles.featuredTitle}>{featured.title}</h2>
                 <div className={styles.articleMeta}>
-                  <span>By {featured.author_name}</span>
-                  <span className={styles.metaDot} />
-                  <span>{featured.published_at ? new Date(featured.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}</span>
+                  <span>By {featured.author}</span>
+                  {featured.issueDate && <><span className={styles.metaDot} /><span>{featured.issueDate}</span></>}
                 </div>
                 <p className={styles.articleExcerpt}>{featured.excerpt || featured.body.slice(0, 200) + '…'}</p>
                 {expanded === featured.id ? (
@@ -126,7 +120,6 @@ export default function EternalPressPage({ articles, role }) {
           </>
         )}
 
-        {/* Category filter */}
         {rest.length > 0 && (
           <>
             <div className={styles.filterRow}>
@@ -143,12 +136,11 @@ export default function EternalPressPage({ articles, role }) {
                 ))}
               </div>
             </div>
-
             <div className={styles.grid}>
               {filtered.map(article => (
                 <div key={article.id} className={styles.articleCard}>
-                  {article.cover_image && (
-                    <img src={article.cover_image} alt={article.title} className={styles.cardImg} />
+                  {article.coverImage && (
+                    <img src={article.coverImage} alt={article.title} className={styles.cardImg} />
                   )}
                   <div className={styles.cardBody}>
                     <span className={`${styles.catPill} ${categoryStyles[article.category] || styles.catGeneral}`}>
@@ -156,12 +148,10 @@ export default function EternalPressPage({ articles, role }) {
                     </span>
                     <h3 className={styles.cardTitle}>{article.title}</h3>
                     <div className={styles.articleMeta}>
-                      <span>By {article.author_name}</span>
-                      <span className={styles.metaDot} />
-                      <span>{article.published_at ? new Date(article.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' }) : ''}</span>
+                      <span>By {article.author}</span>
+                      {article.issueDate && <><span className={styles.metaDot} /><span>{article.issueDate}</span></>}
                     </div>
                     <p className={styles.cardExcerpt}>{article.excerpt || article.body.slice(0, 120) + '…'}</p>
-
                     {expanded === article.id ? (
                       <div className={styles.articleBody}>
                         {article.body.split('\n').filter(p => p.trim()).map((p, i) => <p key={i}>{p}</p>)}
@@ -176,11 +166,8 @@ export default function EternalPressPage({ articles, role }) {
                 </div>
               ))}
             </div>
-
             {filtered.length === 0 && (
-              <div className={styles.empty}>
-                <p>No articles in this category yet.</p>
-              </div>
+              <div className={styles.empty}><p>No articles in this category yet.</p></div>
             )}
           </>
         )}

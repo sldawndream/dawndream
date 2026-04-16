@@ -68,8 +68,8 @@ export default async function handler(req, res) {
       };
     });
 
-    // Reporters only see their own articles, admins see all when scope=all
-    if (!isAdmin || scope !== 'all') {
+    // Admins see all articles on both tabs, reporters only see their own
+    if (!isAdmin) {
       articles = articles.filter(a => a.author === authorName);
     }
 

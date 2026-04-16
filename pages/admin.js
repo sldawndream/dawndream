@@ -117,12 +117,21 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
 
   async function handleSetRole(playerId, role) {
     setRoleLoadingId(playerId);
-    await fetch('/api/set-role', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ playerId, role }),
-    });
-    setList(prev => prev.map(p => p.id === playerId ? { ...p, role } : p));
+    try {
+      const res = await fetch('/api/set-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId, role }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(`Failed to update role: ${data.error}`);
+      } else {
+        setList(prev => prev.map(p => p.id === playerId ? { ...p, role } : p));
+      }
+    } catch (err) {
+      alert('Failed to update role — please try again');
+    }
     setRoleLoadingId(null);
   }
 

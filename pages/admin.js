@@ -16,15 +16,32 @@ export async function getServerSideProps({ req }) {
     .from('players')
     .select('id,avatar_name,status,role,created_at,approved_at,sl_uuid,email')
     .order('created_at', { ascending: false });
-  return { props: { players: players || [], adminName: player.avatar_name } };
+
+  // Pending count for Eternal Press tab badge
+  const { count: epPending } = await supabase
+    .from('eternal_press_articles')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending');
+
+  return {
+    props: {
+      players: players || [],
+      adminName: player.avatar_name,
+      initialEpPending: epPending || 0,
+    }
+  };
 }
 
-export default function AdminPage({ players, adminName }) {
+export default function AdminPage({ players, adminName, initialEpPending }) {
   const [section, setSection] = useState('players');
   const [list, setList] = useState(players);
   const [loadingAction, setLoadingAction] = useState(null);
   const [filter, setFilter] = useState('pending');
   const [search, setSearch] = useState('');
+
+  const [chroniclesPendingCount, setChroniclesPendingCount] = useState(0);
+  const [galleryPendingCount, setGalleryPendingCount] = useState(0);
+  const [epPendingCount, setEpPendingCount] = useState(initialEpPending || 0);
 
   const [chroniclesTab, setChroniclesTab] = useState('pending');
   const [chronicles, setChronicles] = useState([]);
@@ -44,9 +61,25 @@ export default function AdminPage({ players, adminName }) {
     if (type === 'gallery') setGalleryLoading(true);
     const res = await fetch(`/api/admin-notion?type=${type}&status=${status}`);
     const data = await res.json();
-    if (type === 'chronicles') { setChronicles(data.items || []); setChroniclesLoading(false); }
-    if (type === 'gallery') { setGallery(data.items || []); setGalleryLoading(false); }
+    if (type === 'chronicles') {
+      setChronicles(data.items || []);
+      setChroniclesLoading(false);
+      if (status === 'pending') setChroniclesPendingCount((data.items || []).length);
+    }
+    if (type === 'gallery') {
+      setGallery(data.items || []);
+      setGalleryLoading(false);
+      if (status === 'pending') setGalleryPendingCount((data.items || []).length);
+    }
   }
+
+  // Load pending counts on mount for badge display
+  useEffect(() => {
+    fetch('/api/admin-notion?type=chronicles&status=pending')
+      .then(r => r.json()).then(d => setChroniclesPendingCount((d.items || []).length)).catch(() => {});
+    fetch('/api/admin-notion?type=gallery&status=pending')
+      .then(r => r.json()).then(d => setGalleryPendingCount((d.items || []).length)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (section === 'chronicles') loadContent('chronicles', chroniclesTab);
@@ -66,6 +99,7 @@ export default function AdminPage({ players, adminName }) {
     const data = await res.json();
     setEternalPress(data.articles || []);
     setEternalPressLoading(false);
+    if (status === 'pending') setEpPendingCount((data.articles || []).length);
   }
 
   async function handleEternalPressAction(articleId, action) {
@@ -142,13 +176,13 @@ export default function AdminPage({ players, adminName }) {
             Players {pendingCount > 0 && <span className={styles.notifBadge}>{pendingCount}</span>}
           </button>
           <button className={`${styles.sectionBtn} ${section === 'chronicles' ? styles.sectionActive : ''}`} onClick={() => setSection('chronicles')}>
-            Chronicles
+            Chronicles {chroniclesPendingCount > 0 && <span className={styles.notifBadge}>{chroniclesPendingCount}</span>}
           </button>
           <button className={`${styles.sectionBtn} ${section === 'gallery' ? styles.sectionActive : ''}`} onClick={() => setSection('gallery')}>
-            Gallery
+            Gallery {galleryPendingCount > 0 && <span className={styles.notifBadge}>{galleryPendingCount}</span>}
           </button>
           <button className={`${styles.sectionBtn} ${section === 'eternal-press' ? styles.sectionActive : ''}`} onClick={() => setSection('eternal-press')}>
-            EternalPress
+            Eternal Press {epPendingCount > 0 && <span className={styles.notifBadge}>{epPendingCount}</span>}
           </button>
           <button className={`${styles.sectionBtn} ${section === 'roles' ? styles.sectionActive : ''}`} onClick={() => setSection('roles')}>
             Roles

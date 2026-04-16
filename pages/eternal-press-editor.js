@@ -24,7 +24,7 @@ export async function getServerSideProps({ req }) {
 
   // Fetch this reporter's own articles
   const { data: articles } = await supabase
-    .from('eternal-press_articles')
+    .from('eternal_press_articles')
     .select('id,title,category,status,created_at,published_at')
     .eq('author_id', session.id)
     .order('created_at', { ascending: false });
@@ -108,7 +108,7 @@ export default function EternalPressEditorPage({ player, articles }) {
       const data = await res.json();
       if (!res.ok) { setError(data.error); }
       else {
-        setSuccess('Your article has been submitted! The admin team will review it shortly.');
+        setSuccess('Your article has been published to The Eternal Press!');
         setForm({ title: '', category: 'General', body: '', excerpt: '', coverImage: '', issueNumber: '', issueDate: '' });
         setImageFile(null);
         setImagePreview(null);
@@ -203,9 +203,9 @@ export default function EternalPressEditorPage({ player, articles }) {
                 </div>
 
                 <button className={styles.submitBtn} type="submit" disabled={submitting || imageUploading}>
-                  {submitting ? 'Submitting…' : '✒ Submit for Review →'}
+                  {submitting ? 'Publishing…' : '✒ Publish Article →'}
                 </button>
-                <p className={styles.submitNote}>All articles are reviewed by the admin team before publishing.</p>
+                <p className={styles.submitNote}>Articles publish immediately to The Eternal Press.</p>
               </form>
             </div>
           </div>
@@ -239,7 +239,7 @@ export default function EternalPressEditorPage({ player, articles }) {
                 <li><strong>Excerpt</strong> — One or two sentences shown on the front page. Leave blank to auto-generate from your body text.</li>
                 <li><strong>Body</strong> — Write in paragraphs separated by blank lines. Write from the perspective of a DawnDream reporter — in-world, gothic, immersive.</li>
                 <li><strong>Category</strong> — Choose the most fitting one. Breaking = urgent news, Society = community events, Mystery = unexplained events.</li>
-                <li><strong>Cover Image</strong> — Optional but recommended. Upload a Second Life screenshot or atmospheric image.</li>
+                <li><strong>Cover Image</strong> — Optional but recommended. Upload a Second Life screenshot or atmospheric image. Articles publish immediately once submitted.</li>
               </ul>
             </div>
           </div>

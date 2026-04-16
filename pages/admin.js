@@ -414,7 +414,7 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
         {section === 'roles' && (
           <>
             <p className={styles.sectionDesc} style={{ marginBottom: '16px' }}>
-              Assign roles to approved players. <strong>Reporter</strong> — can write and submit EternalPress articles. <strong>Admin</strong> — full access to the admin panel.
+              Assign the <strong>Reporter</strong> role to approved players — reporters can write and publish articles to The Eternal Press.
             </p>
             <div className={styles.playerList}>
               {list.filter(p => p.status === 'approved').map(p => (
@@ -436,7 +436,7 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
                         className={styles.approveBtn}
                         onClick={() => handleSetRole(p.id, 'reporter')}
                         disabled={roleLoadingId === p.id}
-                        title="Assign Reporter role — can write EternalPress articles"
+                        title="Assign Reporter role — can write Eternal Press articles"
                       >
                         {roleLoadingId === p.id ? '...' : '✒ Make Reporter'}
                       </button>
@@ -448,15 +448,6 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
                         disabled={roleLoadingId === p.id}
                       >
                         {roleLoadingId === p.id ? '...' : 'Remove Reporter'}
-                      </button>
-                    )}
-                    {p.role !== 'admin' && (
-                      <button
-                        className={styles.banBtn}
-                        onClick={() => { if (confirm(`Make ${p.avatar_name} an admin? They will have full admin panel access.`)) handleSetRole(p.id, 'admin'); }}
-                        disabled={roleLoadingId === p.id}
-                      >
-                        {roleLoadingId === p.id ? '...' : 'Make Admin'}
                       </button>
                     )}
                   </div>

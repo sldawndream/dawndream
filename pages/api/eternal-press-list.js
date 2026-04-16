@@ -68,10 +68,7 @@ export default async function handler(req, res) {
       };
     });
 
-    // Admins see all articles on both tabs, reporters only see their own
-    if (!isAdmin) {
-      articles = articles.filter(a => a.author === authorName);
-    }
+    // All reporters and admins can see and manage all articles
 
     res.status(200).json({ articles });
   } catch (err) {

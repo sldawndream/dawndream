@@ -52,13 +52,15 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Reporter or admin role required' });
   }
 
-  const { articleId, action, authorName, ...updateData } = req.body;
+  const { articleId, action, ...updateData } = req.body;
   if (!articleId || !['delete', 'unpublish', 'publish', 'feature', 'unfeature', 'edit'].includes(action)) {
     return res.status(400).json({ error: 'Invalid request' });
   }
 
-  // Reporters can only manage their own articles — admins can manage all
-  // We trust the frontend to only show own articles to reporters
+  // Only admins can feature/unfeature
+  if ((action === 'feature' || action === 'unfeature') && player.role !== 'admin') {
+    return res.status(403).json({ error: 'Only admins can feature articles' });
+  }
 
   try {
     if (action === 'delete') {

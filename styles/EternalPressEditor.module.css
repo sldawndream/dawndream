@@ -8,7 +8,7 @@
   font-family: var(--font-display);
   font-size: 8px;
   letter-spacing: 0.3em;
-  color: #6a3030;
+  color: #9a5050;
   margin-bottom: 6px;
   text-transform: uppercase;
 }
@@ -20,7 +20,7 @@
   letter-spacing: 0.06em;
   margin-bottom: 4px;
 }
-.sub { font-size: 14px; color: #7a5a50; font-style: italic; }
+.sub { font-size: 14px; color: #a88070; font-style: italic; }
 .sub strong { color: #c0a890; }
 
 .layout {
@@ -46,7 +46,7 @@
   font-family: var(--font-display);
   font-size: 8px;
   letter-spacing: 0.22em;
-  color: #5a2828;
+  color: #8a5848;
   text-transform: uppercase;
   margin-bottom: 18px;
   padding-bottom: 10px;
@@ -58,7 +58,7 @@
 .formLabel {
   font-family: var(--font-display);
   font-size: 8px;
-  color: #5a2828;
+  color: #8a5848;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   display: block;
@@ -101,7 +101,7 @@
   white-space: pre-wrap;
 }
 .formTextarea:focus { outline: none; border-color: #5a1a24; }
-.formHint { font-size: 11px; color: #5a3028; font-style: italic; margin-top: 5px; }
+.formHint { font-size: 11px; color: #8a5848; font-style: italic; margin-top: 5px; }
 
 /* Upload area */
 .uploadArea {
@@ -143,11 +143,11 @@
   gap: 6px;
   font-family: var(--font-display);
   font-size: 9px;
-  color: #5a2828;
+  color: #8a5848;
   letter-spacing: 0.08em;
 }
-.uploadIcon { font-size: 24px; color: #3a1010; line-height: 1; }
-.uploadHint { font-size: 8px; color: #3a1010; }
+.uploadIcon { font-size: 24px; color: #9a7070; line-height: 1; }
+.uploadHint { font-size: 8px; color: #9a7070; }
 
 .submitBtn {
   width: 100%;
@@ -166,7 +166,7 @@
 }
 .submitBtn:hover { background: #3a0f1e; }
 .submitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-.submitNote { font-size: 11px; color: #5a3028; text-align: center; margin-top: 8px; font-style: italic; }
+.submitNote { font-size: 11px; color: #8a5848; text-align: center; margin-top: 8px; font-style: italic; }
 
 .successMsg {
   background: #0a1a10;
@@ -205,7 +205,7 @@
   line-height: 1.4;
 }
 .articleItemMeta { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.articleItemDate { font-size: 10px; color: #4a2820; font-style: italic; }
+.articleItemDate { font-size: 10px; color: #a87860; font-style: italic; }
 .statusBadge {
   font-family: var(--font-display);
   font-size: 8px;
@@ -218,7 +218,7 @@
 .statusPublished { background: #0a1a10; color: #60a880; border: 1px solid #1a5030; }
 .statusRejected  { background: #0e0a1a; color: #9090c0; border: 1px solid #302060; }
 
-.emptyText { font-size: 12px; color: #4a2820; font-style: italic; }
+.emptyText { font-size: 12px; color: #a87860; font-style: italic; }
 
 /* Guide list */
 .guideList {
@@ -230,7 +230,7 @@
 }
 .guideList li {
   font-size: 12px;
-  color: #7a5a50;
+  color: #a88070;
   line-height: 1.7;
   padding-left: 12px;
   border-left: 2px solid #2a0a14;
@@ -244,7 +244,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: 10px;
-  color: #4a2820;
+  color: #a87860;
   letter-spacing: 0.15em;
 }
 

@@ -1,10 +1,10 @@
 .body { max-width: 900px; margin: 0 auto; padding: 40px 32px; }
 .header { margin-bottom: 24px; }
 .title { font-family: var(--font-display); font-size: 28px; color: #f0d0b8; font-weight: 700; margin-bottom: 4px; }
-.sub { font-size: 14px; color: #a88070; font-style: italic; }
+.sub { font-size: 14px; color: #b09080; font-style: italic; }
 
 .sections { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid #2a0a14; padding-bottom: 0; }
-.sectionBtn { background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 20px; color: #a87860; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 7px; margin-bottom: -1px; }
+.sectionBtn { background: none; border: none; border-bottom: 2px solid transparent; padding: 10px 20px; color: #b08870; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 7px; margin-bottom: -1px; }
 .sectionBtn:hover { color: #c09080; }
 .sectionActive { color: #e8a090; border-bottom-color: #c0392b; }
 .badge { background: #c0392b; color: #f0d0b8; font-size: 9px; padding: 1px 6px; border-radius: 10px; font-family: var(--font-display); }
@@ -12,17 +12,17 @@
 .searchBar { position: relative; margin-bottom: 14px; }
 .searchInput { width: 100%; background: #120608; border: 1px solid #2a0a14; border-radius: 6px; padding: 11px 40px 11px 16px; color: #e0cdb8; font-family: var(--font-body); font-size: 14px; transition: border-color 0.2s; }
 .searchInput:focus { outline: none; border-color: #5a1a24; }
-.searchInput::placeholder { color: #a87860; }
-.searchClear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #8a5848; font-size: 12px; cursor: pointer; padding: 4px; }
+.searchInput::placeholder { color: #8a6050; }
+.searchClear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #9a6858; font-size: 12px; cursor: pointer; padding: 4px; }
 .searchClear:hover { color: #c09080; }
 
 .filters { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-.filterBtn { background: #1a0608; border: 1px solid #2a0a14; border-radius: 4px; padding: 6px 14px; color: #a87860; font-family: var(--font-display); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+.filterBtn { background: #1a0608; border: 1px solid #2a0a14; border-radius: 4px; padding: 6px 14px; color: #b08870; font-family: var(--font-display); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
 .filterBtn:hover { background: #2a0a14; color: #c09080; }
 .filterActive { background: #2a0a14; color: #e8a090; border-color: #5a1a24; }
 
 .playerList { display: flex; flex-direction: column; gap: 10px; }
-.empty { color: #8a5848; font-style: italic; font-size: 14px; padding: 20px 0; }
+.empty { color: #9a6858; font-style: italic; font-size: 14px; padding: 20px 0; }
 
 .playerCard { background: #120608; border: 1px solid #2a0a14; border-radius: 8px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .playerInfo { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
@@ -31,9 +31,9 @@
 .playerNameLink { font-family: var(--font-display); font-size: 14px; color: #c0392b; text-decoration: none; transition: color 0.2s; }
 .playerNameLink:hover { color: #e8a090; text-decoration: underline; }
 .playerMeta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.playerDate { font-size: 11px; color: #8a5848; font-style: italic; }
-.playerEmail { font-size: 11px; color: #8a5848; font-style: italic; }
-.playerUuid { font-family: monospace; font-size: 10px; color: #8a5848; letter-spacing: 0.02em; }
+.playerDate { font-size: 11px; color: #9a6858; font-style: italic; }
+.playerEmail { font-size: 11px; color: #9a6858; font-style: italic; }
+.playerUuid { font-family: monospace; font-size: 10px; color: #9a8080; letter-spacing: 0.02em; }
 
 .statusBadge { font-family: var(--font-display); font-size: 9px; padding: 2px 8px; border-radius: 3px; letter-spacing: 0.1em; text-transform: uppercase; }
 .pending { background: #1a0a00; color: #c07030; border: 1px solid #5a3010; }
@@ -54,17 +54,17 @@
 .banBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .contentSection { display: flex; flex-direction: column; gap: 14px; }
-.sectionDesc { font-size: 13px; color: #8a5848; font-style: italic; margin-bottom: 4px; }
+.sectionDesc { font-size: 13px; color: #9a6858; font-style: italic; margin-bottom: 4px; }
 .contentCard { background: #120608; border: 1px solid #2a0a14; border-radius: 8px; padding: 16px 18px; }
 .contentHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .contentMeta { flex: 1; min-width: 0; }
 .contentTitle { font-family: var(--font-display); font-size: 14px; color: #f0d0b8; display: block; margin-bottom: 4px; }
 .contentSub { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.contentAuthor { font-size: 12px; color: #a87860; font-style: italic; }
+.contentAuthor { font-size: 12px; color: #b08870; font-style: italic; }
 .contentCat { font-family: var(--font-display); font-size: 9px; padding: 1px 7px; border-radius: 3px; background: #1a0608; color: #c09080; border: 1px solid #3a1018; letter-spacing: 0.1em; text-transform: uppercase; }
-.contentPreview { font-size: 13px; color: #a88070; font-style: italic; line-height: 1.7; margin-bottom: 10px; }
+.contentPreview { font-size: 13px; color: #b09080; font-style: italic; line-height: 1.7; margin-bottom: 10px; }
 .storyDetails { margin-top: 6px; }
-.storySummary { font-family: var(--font-display); font-size: 9px; color: #8a5848; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
+.storySummary { font-family: var(--font-display); font-size: 9px; color: #9a6858; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; padding: 4px 0; }
 .storySummary:hover { color: #c09080; }
 .storyText { margin-top: 10px; font-size: 13px; color: #8a6858; line-height: 1.8; font-style: italic; border-left: 2px solid #2a0a14; padding-left: 14px; }
 .storyText p { margin-bottom: 0.8em; }
@@ -75,9 +75,9 @@
 .galleryImg { width: 100%; height: auto; max-height: 320px; object-fit: contain; border-bottom: 1px solid #2a0a14; display: block; background: #060204; }
 .galleryPlaceholder { width: 100%; height: 180px; background: #0d0408; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 10px; color: #2a0a14; letter-spacing: 0.15em; border-bottom: 1px solid #2a0a14; }
 .galleryFooter { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-.galleryAuthor { font-family: var(--font-display); font-size: 11px; color: #a87860; letter-spacing: 0.06em; }
+.galleryAuthor { font-family: var(--font-display); font-size: 11px; color: #b08870; letter-spacing: 0.06em; }
 
-.footer { background: var(--bg-dark); border-top: 1px solid var(--border); padding: 22px 32px; text-align: center; font-family: var(--font-display); font-size: 10px; color: #a87860; letter-spacing: 0.15em; }
+.footer { background: var(--bg-dark); border-top: 1px solid var(--border); padding: 22px 32px; text-align: center; font-family: var(--font-display); font-size: 10px; color: #8a6050; letter-spacing: 0.15em; }
 @media (max-width: 600px) {
   .body { padding: 24px 16px; }
   .playerCard { flex-direction: column; align-items: flex-start; }
@@ -86,7 +86,7 @@
 }
 
 .subTabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid #1e0a10; }
-.subTab { background: none; border: none; border-bottom: 2px solid transparent; padding: 8px 16px; color: #8a5848; font-family: var(--font-display); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-bottom: -1px; }
+.subTab { background: none; border: none; border-bottom: 2px solid transparent; padding: 8px 16px; color: #9a6858; font-family: var(--font-display); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s; margin-bottom: -1px; }
 .subTab:hover { color: #c09080; }
 .subTabActive { color: #e8a090; border-bottom-color: #7a2030; }
 

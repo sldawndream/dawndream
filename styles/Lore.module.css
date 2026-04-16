@@ -9,7 +9,7 @@
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: 0.3em;
-  color: #6a3030;
+  color: #9a5050;
   margin-bottom: 14px;
   text-transform: uppercase;
 }
@@ -64,7 +64,7 @@
   font-family: var(--font-display);
   font-size: 9px;
   letter-spacing: 0.25em;
-  color: #5a2828;
+  color: #8a5848;
   margin-bottom: 16px;
   text-transform: uppercase;
 }
@@ -91,7 +91,7 @@
 .eraYear {
   display: block;
   font-size: 10px;
-  color: #5a3028;
+  color: #8a5848;
   margin-top: 2px;
   font-family: var(--font-body);
   font-style: italic;
@@ -106,7 +106,7 @@
   font-family: var(--font-display);
   font-size: 9px;
   letter-spacing: 0.25em;
-  color: #5a2828;
+  color: #8a5848;
   margin-bottom: 30px;
   text-transform: uppercase;
 }
@@ -167,7 +167,7 @@
   font-family: var(--font-display);
   font-size: 9px;
   letter-spacing: 0.2em;
-  color: #5a2828;
+  color: #8a5848;
   margin-bottom: 4px;
   text-transform: uppercase;
 }
@@ -262,7 +262,7 @@
 
 .figureRole {
   font-size: 12px;
-  color: #6a4838;
+  color: #9a7060;
   font-style: italic;
   margin-bottom: 6px;
 }
@@ -296,7 +296,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: 10px;
-  color: #4a2820;
+  color: #a87860;
   letter-spacing: 0.15em;
 }
 

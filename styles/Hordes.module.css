@@ -8,7 +8,7 @@
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: 0.3em;
-  color: #6a3020;
+  color: #9a5030;
   margin-bottom: 14px;
   text-transform: uppercase;
 }
@@ -60,7 +60,7 @@
   font-family: var(--font-display);
   font-size: 9px;
   letter-spacing: 0.25em;
-  color: #5a3020;
+  color: #8a5830;
   margin-bottom: 24px;
   text-transform: uppercase;
 }
@@ -101,7 +101,7 @@
   justify-content: center;
   font-family: var(--font-display);
   font-size: 9px;
-  color: #3a1800;
+  color: #8a5830;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -149,7 +149,7 @@
 .rankEmpty { opacity: 0.35; }
 .hordeLore {
   font-size: 14px;
-  color: #7a5a50;
+  color: #a88070;
   font-style: italic;
   line-height: 1.6;
 }
@@ -160,7 +160,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: 10px;
-  color: #4a2820;
+  color: #a87860;
   letter-spacing: 0.15em;
 }
 @media (max-width: 768px) {

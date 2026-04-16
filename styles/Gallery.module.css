@@ -8,7 +8,7 @@
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: 0.3em;
-  color: #6a3030;
+  color: #9a5050;
   margin-bottom: 14px;
   text-transform: uppercase;
 }
@@ -44,7 +44,7 @@
   max-width: 980px;
   margin: 44px auto;
   padding: 0 32px;
-  color: #7a5a50;
+  color: #a88070;
   font-style: italic;
 }
 .slideshow {
@@ -114,7 +114,7 @@
   right: 18px;
   font-family: var(--font-display);
   font-size: 10px;
-  color: #5a3028;
+  color: #8a5848;
   letter-spacing: 0.1em;
 }
 .controls {
@@ -196,7 +196,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: 10px;
-  color: #4a2820;
+  color: #a87860;
   letter-spacing: 0.15em;
 }
 @media (max-width: 768px) {
@@ -225,7 +225,7 @@
 }
 .submitSub {
   font-size: 13px;
-  color: #7a5a50;
+  color: #a88070;
   font-style: italic;
   margin-bottom: 16px;
   line-height: 1.6;
@@ -248,7 +248,7 @@
 .formLabel {
   font-family: var(--font-display);
   font-size: 9px;
-  color: #5a2828;
+  color: #8a5848;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   margin-bottom: 5px;
@@ -283,7 +283,7 @@
 .submitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 .submitNote {
   font-size: 11px;
-  color: #5a3028;
+  color: #8a5848;
   margin-top: 8px;
   font-style: italic;
 }
@@ -317,7 +317,7 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  color: #5a3028;
+  color: #8a5848;
   font-family: var(--font-display);
   font-size: 11px;
   letter-spacing: 0.1em;
@@ -325,10 +325,10 @@
 }
 .uploadIcon {
   font-size: 28px;
-  color: #3a1018;
+  color: #8a5848;
   line-height: 1;
 }
-.uploadHint { font-size: 10px; color: #3a1018; }
+.uploadHint { font-size: 10px; color: #8a5848; }
 .uploadPreview {
   width: 100%;
   max-height: 200px;

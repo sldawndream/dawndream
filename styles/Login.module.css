@@ -46,7 +46,7 @@
   padding: 8px;
   background: none;
   border: none;
-  color: #7a5040;
+  color: #a87860;
   font-family: var(--font-display);
   font-size: 11px;
   letter-spacing: 0.12em;
@@ -58,7 +58,7 @@
 .tabActive { background: #2a0a14; color: #e8a090; }
 .subtitle {
   font-size: 14px;
-  color: #7a5a50;
+  color: #a88070;
   font-style: italic;
   text-align: center;
   margin-bottom: 20px;
@@ -68,7 +68,7 @@
 .formLabel {
   font-family: var(--font-display);
   font-size: 9px;
-  color: #5a2828;
+  color: #8a5848;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   display: block;
@@ -125,7 +125,7 @@
 }
 .note {
   font-size: 12px;
-  color: #5a3028;
+  color: #8a5848;
   text-align: center;
   margin-top: 14px;
   font-style: italic;
@@ -138,7 +138,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: 10px;
-  color: #4a2820;
+  color: #a87860;
   letter-spacing: 0.15em;
 }
 @media (max-width: 480px) {
@@ -147,7 +147,7 @@
 
 .hint {
   font-size: 11px;
-  color: #5a3028;
+  color: #8a5848;
   font-style: italic;
   margin-top: 5px;
   line-height: 1.5;

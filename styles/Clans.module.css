@@ -8,7 +8,7 @@
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: 0.3em;
-  color: #6a3030;
+  color: #9a5050;
   margin-bottom: 14px;
   text-transform: uppercase;
 }
@@ -49,7 +49,7 @@
   font-family: var(--font-display);
   font-size: 9px;
   letter-spacing: 0.25em;
-  color: #5a2828;
+  color: #8a5848;
   margin-bottom: 24px;
   text-transform: uppercase;
 }
@@ -95,7 +95,7 @@
   justify-content: center;
   font-family: var(--font-display);
   font-size: 9px;
-  color: #3a1018;
+  color: #8a5848;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -115,7 +115,7 @@
 }
 .clanFounded {
   font-size: 11px;
-  color: #5a3028;
+  color: #8a5848;
   font-family: var(--font-display);
   letter-spacing: 0.08em;
 }
@@ -138,7 +138,7 @@
 .rankEmpty { opacity: 0.35; }
 .clanLore {
   font-size: 14px;
-  color: #7a5a50;
+  color: #a88070;
   font-style: italic;
   line-height: 1.6;
 }
@@ -158,14 +158,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #5a3028;
+  color: #8a5848;
   font-size: 14px;
   transition: transform 0.2s;
 }
 .clanCard details[open] .expandIcon { transform: rotate(180deg); }
 .houseCount {
   font-size: 10px;
-  color: #5a3028;
+  color: #8a5848;
   font-family: var(--font-display);
   letter-spacing: 0.08em;
   white-space: nowrap;
@@ -179,7 +179,7 @@
   font-family: var(--font-display);
   font-size: 9px;
   letter-spacing: 0.2em;
-  color: #5a2828;
+  color: #8a5848;
   margin-bottom: 14px;
   text-transform: uppercase;
 }
@@ -213,7 +213,7 @@
 .rankLabel {
   font-family: var(--font-display);
   font-size: 9px;
-  color: #5a2828;
+  color: #8a5848;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   flex-shrink: 0;
@@ -225,7 +225,7 @@
   margin-left: 8px;
 }
 .rankNone {
-  color: #3a1a14;
+  color: #8a5848;
   font-style: italic;
 }
 .footer {
@@ -235,7 +235,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: 10px;
-  color: #4a2820;
+  color: #a87860;
   letter-spacing: 0.15em;
 }
 @media (max-width: 768px) {

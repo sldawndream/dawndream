@@ -9,7 +9,7 @@
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: 0.3em;
-  color: #6a3030;
+  color: #9a5050;
   margin-bottom: 14px;
   text-transform: uppercase;
 }
@@ -84,7 +84,7 @@
   border-color: #5a1a24;
 }
 .searchInput::placeholder {
-  color: #4a2820;
+  color: #a87860;
   font-style: italic;
 }
 .clearBtn {
@@ -92,7 +92,7 @@
   right: 12px;
   background: none;
   border: none;
-  color: #5a2828;
+  color: #8a5848;
   font-size: 13px;
   cursor: pointer;
   padding: 2px 4px;
@@ -117,7 +117,7 @@
   border: 1px solid #2a0a14;
   border-radius: 4px;
   padding: 7px 14px;
-  color: #7a5040;
+  color: #a87860;
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: 0.1em;
@@ -128,7 +128,7 @@
 .roleBtn:hover {
   background: #1e080e;
   color: #c09080;
-  border-color: #3a1018;
+  border-color: #8a5848;
 }
 .roleBtnActive {
   background: #2a0a14;
@@ -161,12 +161,12 @@
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: 0.15em;
-  color: #5a2828;
+  color: #8a5848;
   text-transform: uppercase;
   margin-bottom: 20px;
 }
 .searchTerm {
-  color: #7a4040;
+  color: #a06060;
   font-style: italic;
   text-transform: none;
   letter-spacing: 0;
@@ -263,7 +263,7 @@
 }
 .cardHandle {
   font-size: 12px;
-  color: #5a3028;
+  color: #8a5848;
   font-style: italic;
   margin-bottom: 10px;
 }
@@ -295,12 +295,12 @@
 .joinYear {
   font-family: var(--font-display);
   font-size: 9px;
-  color: #4a2820;
+  color: #a87860;
   letter-spacing: 0.06em;
 }
 .cardBio {
   font-size: 12px;
-  color: #7a5a50;
+  color: #a88070;
   font-style: italic;
   line-height: 1.65;
   text-align: center;
@@ -314,7 +314,7 @@
 .viewProfile {
   font-family: var(--font-display);
   font-size: 9px;
-  color: #5a2828;
+  color: #8a5848;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   transition: color 0.2s;
@@ -336,12 +336,12 @@
 .emptyTitle {
   font-family: var(--font-display);
   font-size: 16px;
-  color: #5a2828;
+  color: #8a5848;
   letter-spacing: 0.1em;
 }
 .emptySub {
   font-size: 14px;
-  color: #4a2820;
+  color: #a87860;
   font-style: italic;
   max-width: 360px;
   line-height: 1.7;
@@ -370,7 +370,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: 10px;
-  color: #4a2820;
+  color: #a87860;
   letter-spacing: 0.15em;
 }
 

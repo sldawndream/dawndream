@@ -1,11 +1,11 @@
 .hero { background: var(--bg-dark); border-bottom: 1px solid var(--border); padding: 52px 32px 44px; text-align: center; }
-.eyebrow { font-family: var(--font-display); font-size: 10px; letter-spacing: 0.3em; color: #6a3030; margin-bottom: 14px; text-transform: uppercase; }
+.eyebrow { font-family: var(--font-display); font-size: 10px; letter-spacing: 0.3em; color: #9a5050; margin-bottom: 14px; text-transform: uppercase; }
 .heroTitle { font-family: var(--font-display); font-size: 36px; color: var(--text-bright); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 12px; }
 .heroSub { font-size: 19px; color: var(--text-dim); font-style: italic; max-width: 520px; margin: 0 auto 20px; }
 .heroDivider { width: 120px; height: 1px; background: var(--border-accent); margin: 0 auto 20px; }
 .heroIntro { font-size: 16px; color: var(--text-mid); line-height: 1.85; max-width: 600px; margin: 0 auto; }
 .body { max-width: 980px; margin: 0 auto; padding: 44px 32px; display: grid; grid-template-columns: 1fr 320px; gap: 40px; }
-.sectionHead { font-family: var(--font-display); font-size: 9px; letter-spacing: 0.25em; color: #5a2828; margin-bottom: 24px; text-transform: uppercase; }
+.sectionHead { font-family: var(--font-display); font-size: 9px; letter-spacing: 0.25em; color: #8a5848; margin-bottom: 24px; text-transform: uppercase; }
 .storiesList { display: flex; flex-direction: column; gap: 16px; }
 .storyCard { background: #120608; border: 1px solid #2a0a14; border-radius: 10px; padding: 22px 24px; }
 .storyTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
@@ -19,21 +19,21 @@
 .catBackstory { background: #1a1000; color: #c0a030; border: 1px solid #5a4010; }
 .catOther { background: #0e0e0e; color: #888880; border: 1px solid #303030; }
 .storyMeta { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
-.storyAuthor { font-family: var(--font-display); font-size: 11px; color: #7a5040; letter-spacing: 0.08em; }
+.storyAuthor { font-family: var(--font-display); font-size: 11px; color: #a87860; letter-spacing: 0.08em; }
 .metaDot { width: 3px; height: 3px; border-radius: 50%; background: #3a1018; display: inline-block; }
-.readCount { font-family: var(--font-display); font-size: 11px; color: #7a5040; letter-spacing: 0.06em; }
+.readCount { font-family: var(--font-display); font-size: 11px; color: #a87860; letter-spacing: 0.06em; }
 .storyPreview { font-size: 15px; color: #9a7860; line-height: 1.8; font-style: italic; margin-bottom: 14px; }
 .storyPreview p { margin-bottom: 1em; }
 .storyPreview p:last-child { margin-bottom: 0; }
-.expandedReads { font-family: var(--font-display); font-size: 11px; color: #5a3028; letter-spacing: 0.08em; margin-bottom: 10px; padding: 6px 10px; background: #1a0608; border-radius: 4px; display: inline-block; }
+.expandedReads { font-family: var(--font-display); font-size: 11px; color: #8a5848; letter-spacing: 0.08em; margin-bottom: 10px; padding: 6px 10px; background: #1a0608; border-radius: 4px; display: inline-block; }
 .readMore { font-family: var(--font-display); font-size: 10px; color: #c0392b; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid #3a1018; padding: 5px 14px; border-radius: 3px; cursor: pointer; background: none; transition: background 0.2s; }
 .readMore:hover { background: #1e080e; }
 .sidebar {}
 .submitCard { background: #120608; border: 1px solid #2a0a14; border-radius: 10px; padding: 22px 24px; position: sticky; top: 20px; }
 .submitTitle { font-family: var(--font-display); font-size: 14px; color: #f0d0b8; margin-bottom: 6px; }
-.submitSub { font-size: 13px; color: #7a5a50; font-style: italic; margin-bottom: 18px; line-height: 1.6; }
+.submitSub { font-size: 13px; color: #a88070; font-style: italic; margin-bottom: 18px; line-height: 1.6; }
 .formGroup { margin-bottom: 14px; }
-.formLabel { font-family: var(--font-display); font-size: 9px; color: #5a2828; letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 5px; }
+.formLabel { font-family: var(--font-display); font-size: 9px; color: #8a5848; letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 5px; }
 .formInput { width: 100%; background: #0d0408; border: 1px solid #2a0a14; border-radius: 4px; padding: 8px 10px; color: #e0cdb8; font-family: var(--font-body); font-size: 14px; }
 .formInput:focus { outline: none; border-color: #5a1a24; }
 .formSelect { width: 100%; background: #0d0408; border: 1px solid #2a0a14; border-radius: 4px; padding: 8px 10px; color: #e0cdb8; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.06em; }
@@ -42,9 +42,9 @@
 .submitBtn { width: 100%; background: #2a0a14; border: 1px solid #7a2030; border-radius: 4px; padding: 10px; color: #e8a090; font-family: var(--font-display); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
 .submitBtn:hover { background: #3a0f1e; }
 .submitBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-.submitNote { font-size: 11px; color: #5a3028; text-align: center; margin-top: 10px; font-style: italic; line-height: 1.5; }
+.submitNote { font-size: 11px; color: #8a5848; text-align: center; margin-top: 10px; font-style: italic; line-height: 1.5; }
 .successMsg { background: #0a1a10; border: 1px solid #1a5030; border-radius: 6px; padding: 16px; text-align: center; font-size: 14px; color: #60a880; line-height: 1.7; font-style: italic; }
-.footer { background: var(--bg-dark); border-top: 1px solid var(--border); padding: 22px 32px; text-align: center; font-family: var(--font-display); font-size: 10px; color: #4a2820; letter-spacing: 0.15em; }
+.footer { background: var(--bg-dark); border-top: 1px solid var(--border); padding: 22px 32px; text-align: center; font-family: var(--font-display); font-size: 10px; color: #a87860; letter-spacing: 0.15em; }
 @media (max-width: 768px) {
   .body { grid-template-columns: 1fr; padding: 24px 16px; }
   .heroTitle { font-size: 26px; }

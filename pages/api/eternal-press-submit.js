@@ -29,7 +29,9 @@ export default async function handler(req, res) {
     cover_image: coverImage || null,
     author_id: session.id,
     author_name: authorName,
-    status: 'pending',
+    status: 'published',
+    published_at: new Date().toISOString(),
+    approved_by: authorName,
     issue_number: issueNumber ? parseInt(issueNumber) : null,
     issue_date: issueDate?.trim() || null,
   });

@@ -12,11 +12,18 @@ export default async function handler(req, res) {
   const { avatarName, password } = req.body;
   if (!avatarName || !password) return res.status(400).json({ error: 'Missing fields' });
 
+  // Case-insensitive username — normalise to lowercase for lookup
+  const normalisedName = avatarName.trim().toLowerCase();
+
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
   try {
     const passwordHash = hashPassword(password);
-    const { data: players } = await supabase.from('players').select('id, avatar_name, status, role').eq('avatar_name', avatarName).eq('password_hash', passwordHash);
+    const { data: players } = await supabase
+      .from('players')
+      .select('id, avatar_name, status, role')
+      .ilike('avatar_name', normalisedName)
+      .eq('password_hash', passwordHash);
 
     if (!players || !players.length) return res.status(401).json({ error: 'Invalid avatar name or password' });
 

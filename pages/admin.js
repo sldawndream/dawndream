@@ -436,8 +436,8 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
                     <div className={styles.playerInfo}>
                       <div className={styles.playerTop}>
                         <span className={styles.playerName}>{p.avatar_name}</span>
-                        <span className={`${styles.statusBadge} ${p.role === 'admin' ? styles.adminBadge : p.role === 'reporter' ? styles.reporterBadge : styles.approved}`}>
-                          {p.role}
+                        <span className={`${styles.statusBadge} ${(p.role === 'admin' || p.role === 'owner') ? styles.adminBadge : p.role === 'reporter' ? styles.reporterBadge : styles.approved}`}>
+                          {p.role === 'owner' ? 'admin' : p.role}
                         </span>
                       </div>
                       <div className={styles.playerMeta}>
@@ -482,9 +482,7 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
                           {roleLoadingId === p.id ? '...' : 'Remove Admin'}
                         </button>
                       )}
-                      {p.role === 'owner' && (
-                        <span className={styles.playerDate} style={{ fontStyle: 'italic', color: '#c0a030' }}>👑 Owner — cannot be changed here</span>
-                      )}
+
                     </div>
                   </div>
                 ))}

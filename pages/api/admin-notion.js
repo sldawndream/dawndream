@@ -65,7 +65,7 @@ function getImage(cover) {
 
 export default async function handler(req, res) {
   const player = await getPlayerFromRequest(req);
-  if (!player || player.role !== 'admin') return res.status(403).json({ error: 'Unauthorized' });
+  if (!player || player.role !== 'admin' && player.role !== 'owner') return res.status(403).json({ error: 'Unauthorized' });
 
   if (req.method === 'GET') {
     const { type, status } = req.query;

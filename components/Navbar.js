@@ -47,7 +47,7 @@ export default function Navbar({ activePage }) {
         {player ? (
           <div className={styles.userArea}>
             <Link href="/profile" className={styles.userName}>{player.avatarName}</Link>
-            {player.role === 'admin' && <Link href="/admin" className={styles.adminLink}>Admin</Link>}
+            {(player.role === 'admin' || player.role === 'owner') && <Link href="/admin" className={styles.adminLink}>Admin</Link>}
             <button className={styles.logoutBtn} onClick={handleLogout}>Logout</button>
           </div>
         ) : (
@@ -69,7 +69,7 @@ export default function Navbar({ activePage }) {
           {player ? (
             <>
               <Link href="/profile" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>My Profile</Link>
-              {player.role === 'admin' && <Link href="/admin" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Admin Panel</Link>}
+              {(player.role === 'admin' || player.role === 'owner') && <Link href="/admin" className={styles.mobileLink} onClick={() => setMenuOpen(false)}>Admin Panel</Link>}
               <button className={styles.mobileLogout} onClick={handleLogout}>Logout ({player.avatarName})</button>
             </>
           ) : (

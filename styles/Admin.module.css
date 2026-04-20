@@ -96,3 +96,15 @@
 .deleteBtn { background: #2a0a14; border: 1px solid #7a1020; border-radius: 4px; padding: 5px 12px; color: #c03030; font-family: var(--font-display); font-size: 10px; letter-spacing: 0.1em; cursor: pointer; transition: background 0.2s; }
 .deleteBtn:hover { background: #3a0818; }
 .deleteBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── IP History ── */
+.playerIp { font-family: monospace; font-size: 10px; color: #8a7060; letter-spacing: 0.02em; background: #0e0608; border: 1px solid #1e0a10; border-radius: 3px; padding: 1px 6px; }
+.ipBtn { background: none; border: 1px solid #1e1408; border-radius: 3px; padding: 3px 10px; color: #7a6848; font-family: var(--font-display); font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; margin-top: 6px; transition: background 0.2s; }
+.ipBtn:hover { background: #140e04; color: #a09060; }
+.ipBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ipHistory { background: #0a0806; border: 1px solid #1e1408; border-radius: 5px; padding: 10px 14px; margin-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.ipHistoryEmpty { font-size: 11px; color: #5a4828; font-style: italic; }
+.ipRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid #140a04; }
+.ipRow:last-child { border-bottom: none; }
+.ipAddress { font-family: monospace; font-size: 11px; color: #c0a870; letter-spacing: 0.04em; }
+.ipDate { font-size: 10px; color: #7a6040; font-style: italic; }

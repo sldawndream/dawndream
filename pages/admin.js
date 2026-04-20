@@ -8,7 +8,7 @@ import styles from '../styles/Admin.module.css';
 
 export async function getServerSideProps({ req }) {
   const player = await getPlayerFromRequest(req);
-  if (!player || player.role !== 'admin') {
+  if (!player || (player.role !== 'admin' && player.role !== 'owner')) {
     return { redirect: { destination: '/login', permanent: false } };
   }
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
@@ -32,7 +32,7 @@ export async function getServerSideProps({ req }) {
   };
 }
 
-export default function AdminPage({ players, adminName, initialEpPending }) {
+export default function AdminPage({ players, adminName, initialEpPending, isOwner }) {
   const [section, setSection] = useState('players');
   const [list, setList] = useState(players);
   const [loadingAction, setLoadingAction] = useState(null);
@@ -99,12 +99,10 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
     setEternalPressLoading(true);
     const res = await fetch(`/api/eternal-press-list?scope=all`);
     const data = await res.json();
-    // Filter by published status for display
-    const articles = (data.articles || []).filter(a =>
-      status === 'published' ? a.published : !a.published
-    );
+    const articles = (data.articles || []);
     setEternalPress(articles);
     setEternalPressLoading(false);
+    if (status === 'pending') setEpPendingCount((data.articles || []).length);
   }
 
   async function handleEternalPressAction(articleId, action) {
@@ -114,7 +112,7 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ articleId, action }),
     });
-    await loadEternalPress('published');
+    await loadEternalPress(eternalPressTab);
     setLoadingAction(null);
   }
 
@@ -228,7 +226,7 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
                         <span className={styles.playerName}>{player.avatar_name}</span>
                       )}
                       <span className={`${styles.statusBadge} ${styles[player.status]}`}>{player.status}</span>
-                      {player.role === 'admin' && <span className={styles.adminBadge}>Admin</span>}
+                      {(player.role === 'admin' || player.role === 'owner') && <span className={styles.adminBadge}>{isOwner && player.role === 'owner' ? '👑 Owner' : 'Admin'}</span>}
                     </div>
                     <div className={styles.playerMeta}>
                       <span className={styles.playerDate}>Registered {new Date(player.created_at).toLocaleDateString('en-GB')}</span>
@@ -375,9 +373,9 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
                     <div className={styles.contentMeta}>
                       <span className={styles.contentTitle}>{item.title}</span>
                       <div className={styles.contentSub}>
-                        <span className={styles.contentAuthor}>By {item.author}</span>
+                        <span className={styles.contentAuthor}>By {item.author_name}</span>
                         <span className={styles.contentCat}>{item.category}</span>
-                        {item.issueDate && <span className={styles.contentAuthor}>{item.issueDate}</span>}
+                        <span className={styles.contentAuthor}>{new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                         {item.featured && <span className={styles.contentCat} style={{ background: '#1a1200', color: '#c0a030', borderColor: '#5a4010' }}>★ Featured</span>}
                       </div>
                     </div>
@@ -399,7 +397,7 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
         {section === 'roles' && (
           <>
             <p className={styles.sectionDesc} style={{ marginBottom: '16px' }}>
-              Assign the <strong>Reporter</strong> role to approved players — reporters can write and publish articles to The Eternal Press.
+              Assign roles to approved players. <strong>Reporter</strong> — can write and publish to The Eternal Press.{isOwner && <> <strong>Admin</strong> — full admin panel access (owner only).</>}
             </p>
             <div className={styles.searchBar} style={{ marginBottom: '12px' }}>
               <input
@@ -463,8 +461,26 @@ export default function AdminPage({ players, adminName, initialEpPending }) {
                           {roleLoadingId === p.id ? '...' : 'Remove Reporter'}
                         </button>
                       )}
-                      {p.role === 'admin' && (
-                        <span className={styles.playerDate} style={{ fontStyle: 'italic' }}>Admin — managed via database</span>
+                      {isOwner && p.role !== 'admin' && p.role !== 'owner' && (
+                        <button
+                          className={styles.banBtn}
+                          onClick={() => { if (confirm(`Make ${p.avatar_name} an admin? They will have full admin panel access.`)) handleSetRole(p.id, 'admin'); }}
+                          disabled={roleLoadingId === p.id}
+                        >
+                          {roleLoadingId === p.id ? '...' : '⚙ Make Admin'}
+                        </button>
+                      )}
+                      {isOwner && p.role === 'admin' && (
+                        <button
+                          className={styles.rejectBtn}
+                          onClick={() => handleSetRole(p.id, 'player')}
+                          disabled={roleLoadingId === p.id}
+                        >
+                          {roleLoadingId === p.id ? '...' : 'Remove Admin'}
+                        </button>
+                      )}
+                      {p.role === 'owner' && (
+                        <span className={styles.playerDate} style={{ fontStyle: 'italic', color: '#c0a030' }}>👑 Owner — cannot be changed here</span>
                       )}
                     </div>
                   </div>

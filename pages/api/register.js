@@ -19,7 +19,12 @@ export default async function handler(req, res) {
   if (!email.includes('@')) return res.status(400).json({ error: 'Invalid email address' });
   if (!isValidUUID(slUuid)) return res.status(400).json({ error: 'Invalid Second Life UUID — check your SL profile and try again' });
 
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+  // Capture registration IP — works behind Vercel's proxy
+  const registeredIp =
+    (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
+    req.headers['x-real-ip'] ||
+    req.socket?.remoteAddress ||
+    null;
 
   try {
     const { data: existing } = await supabase.from('players').select('id').eq('avatar_name', avatarName);
@@ -39,6 +44,7 @@ export default async function handler(req, res) {
       sl_uuid: slUuid,
       status: 'pending',
       role: 'player',
+      registered_ip: registeredIp,
     });
     if (error) { console.error('Create player error:', error); return res.status(500).json({ error: 'Registration failed' }); }
 
@@ -52,6 +58,7 @@ export default async function handler(req, res) {
         <p><strong>Avatar Name:</strong> ${avatarName}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>SL UUID:</strong> ${slUuid}</p>
+        <p><strong>IP Address:</strong> ${registeredIp || 'Unknown'}</p>
         <a href="https://dawndreamsl.com/admin" style="display:inline-block;background:#2a0a14;color:#e8a090;padding:10px 20px;border-radius:4px;text-decoration:none;margin-top:16px;">Review in Admin Panel</a>
       </div>`,
     });

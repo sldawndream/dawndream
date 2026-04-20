@@ -14,7 +14,7 @@ export async function getServerSideProps({ req }) {
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
   const { data: players } = await supabase
     .from('players')
-    .select('id,avatar_name,status,role,created_at,approved_at,sl_uuid,email')
+    .select('id,avatar_name,status,role,created_at,approved_at,sl_uuid,email,registered_ip,last_login_ip,last_login_at')
     .order('created_at', { ascending: false });
 
   // Pending count for Eternal Press tab badge
@@ -28,6 +28,7 @@ export async function getServerSideProps({ req }) {
       players: players || [],
       adminName: player.avatar_name,
       initialEpPending: epPending || 0,
+      isOwner: player.role === 'owner',
     }
   };
 }
@@ -232,6 +233,8 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
                       <span className={styles.playerDate}>Registered {new Date(player.created_at).toLocaleDateString('en-GB')}</span>
                       {player.email && <span className={styles.playerEmail}>{player.email}</span>}
                       {player.sl_uuid && <span className={styles.playerUuid}>{player.sl_uuid}</span>}
+                      {isOwner && player.registered_ip && <span className={styles.playerIp}>📍 Reg IP: {player.registered_ip}</span>}
+                      {isOwner && player.last_login_ip && <span className={styles.playerIp}>🔐 Last IP: {player.last_login_ip}</span>}
                     </div>
                   </div>
                   <div className={styles.actions}>

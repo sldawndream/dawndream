@@ -157,7 +157,7 @@ export default function ProfilePage({ player }) {
             <h1 className={styles.profileName}>{displayName}</h1>
             <p className={styles.profileHandle}>@{player.avatar_name}</p>
             <div className={styles.badges}>
-              <span className={`${styles.badge} ${player.role === 'admin' ? styles.badgeAdmin : styles.badgePlayer}`}>{player.role}</span>
+              <span className={`${styles.badge} ${(player.role === 'admin' || player.role === 'owner') ? styles.badgeAdmin : styles.badgePlayer}`}>{player.role === 'owner' ? 'admin' : player.role}</span>
               <span className={styles.badgeMember}>Member since {new Date(player.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
             </div>
           </div>

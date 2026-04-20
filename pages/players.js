@@ -48,7 +48,7 @@ export default function PlayersPage({ players }) {
     }
 
     if (roleFilter !== 'All') {
-      list = list.filter(p => p.role === roleFilter);
+      list = list.filter(p => roleFilter === 'admin' ? (p.role === 'admin' || p.role === 'owner') : p.role === roleFilter);
     }
 
     list.sort((a, b) => {
@@ -64,7 +64,7 @@ export default function PlayersPage({ players }) {
     return list;
   }, [players, search, roleFilter, sort]);
 
-  const admins = players.filter(p => p.role === 'admin');
+  const admins = players.filter(p => p.role === 'admin' || p.role === 'owner');
   const totalApproved = players.length;
 
   return (
@@ -160,7 +160,7 @@ export default function PlayersPage({ players }) {
                       ) : (
                         <div className={styles.avatarPlaceholder}>{initial}</div>
                       )}
-                      {player.role === 'admin' && (
+                      {(player.role === 'admin' || player.role === 'owner') && (
                         <span className={styles.adminCrown} title="Admin">👑</span>
                       )}
                     </div>
@@ -170,8 +170,8 @@ export default function PlayersPage({ players }) {
                       <p className={styles.cardHandle}>@{player.avatar_name}</p>
 
                       <div className={styles.cardMeta}>
-                        <span className={`${styles.rolePill} ${player.role === 'admin' ? styles.rolePillAdmin : styles.rolePillPlayer}`}>
-                          {player.role}
+                        <span className={`${styles.rolePill} ${(player.role === 'admin' || player.role === 'owner') ? styles.rolePillAdmin : styles.rolePillPlayer}`}>
+                          {player.role === 'owner' ? 'admin' : player.role}
                         </span>
                         <span className={styles.joinYear}>Since {joinYear}</span>
                       </div>

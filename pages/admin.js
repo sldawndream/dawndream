@@ -445,7 +445,7 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
                       </div>
                     </div>
                     <div className={styles.actions}>
-                      {p.role !== 'reporter' && p.role !== 'admin' && (
+                      {p.role === 'player' && (
                         <button
                           className={styles.approveBtn}
                           onClick={() => handleSetRole(p.id, 'reporter')}

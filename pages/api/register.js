@@ -26,6 +26,8 @@ export default async function handler(req, res) {
     req.socket?.remoteAddress ||
     null;
 
+  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+
   try {
     const { data: existing } = await supabase.from('players').select('id').eq('avatar_name', avatarName);
     if (existing && existing.length > 0) return res.status(400).json({ error: 'Avatar name already registered' });

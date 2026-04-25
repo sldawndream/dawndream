@@ -7,7 +7,7 @@ import styles from '../styles/Login.module.css';
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState('login');
-  const [form, setForm] = useState({ avatarName: '', email: '', slUuid: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ identifier: '', avatarName: '', email: '', slUuid: '', password: '', confirmPassword: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,7 +23,7 @@ export default function LoginPage() {
       const res = await fetch(`/api/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ avatarName: form.avatarName, password: form.password, email: form.email, slUuid: form.slUuid }),
+        body: JSON.stringify(mode === 'login' ? { identifier: form.identifier, password: form.password } : { avatarName: form.avatarName, password: form.password, email: form.email, slUuid: form.slUuid }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || 'Something went wrong'); }
@@ -50,8 +50,8 @@ export default function LoginPage() {
           {!success && (
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Avatar Name</label>
-                <input className={styles.formInput} name="avatarName" value={form.avatarName} onChange={handleChange} placeholder="Your Second Life avatar name..." required />
+                <label className={styles.formLabel}>{mode === 'login' ? 'Avatar Name or Email' : 'Avatar Name'}</label>
+                <input className={styles.formInput} name={mode === 'login' ? 'identifier' : 'avatarName'} value={mode === 'login' ? form.identifier : form.avatarName} onChange={handleChange} placeholder={mode === 'login' ? 'Avatar name or email address...' : 'Your Second Life avatar name...'} required />
               </div>
               {mode === 'register' && (
                 <div className={styles.formGroup}>

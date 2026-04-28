@@ -8,41 +8,23 @@ import styles from '../styles/Admin.module.css';
 
 export async function getServerSideProps({ req }) {
   const player = await getPlayerFromRequest(req);
-  if (!player || (player.role !== 'admin' && player.role !== 'owner')) {
+  if (!player || player.role !== 'admin') {
     return { redirect: { destination: '/login', permanent: false } };
   }
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
   const { data: players } = await supabase
     .from('players')
-    .select('id,avatar_name,status,role,created_at,approved_at,sl_uuid,email,registered_ip,last_login_ip,last_login_at')
+    .select('id,avatar_name,status,role,created_at,approved_at,sl_uuid,email')
     .order('created_at', { ascending: false });
-
-  // Pending count for Eternal Press tab badge
-  const { count: epPending } = await supabase
-    .from('eternal_press_articles')
-    .select('id', { count: 'exact', head: true })
-    .eq('status', 'pending');
-
-  return {
-    props: {
-      players: players || [],
-      adminName: player.avatar_name,
-      initialEpPending: epPending || 0,
-      isOwner: player.role === 'owner',
-    }
-  };
+  return { props: { players: players || [], adminName: player.avatar_name } };
 }
 
-export default function AdminPage({ players, adminName, initialEpPending, isOwner }) {
+export default function AdminPage({ players, adminName }) {
   const [section, setSection] = useState('players');
   const [list, setList] = useState(players);
   const [loadingAction, setLoadingAction] = useState(null);
   const [filter, setFilter] = useState('pending');
   const [search, setSearch] = useState('');
-
-  const [chroniclesPendingCount, setChroniclesPendingCount] = useState(0);
-  const [galleryPendingCount, setGalleryPendingCount] = useState(0);
-  const [epPendingCount, setEpPendingCount] = useState(initialEpPending || 0);
 
   const [chroniclesTab, setChroniclesTab] = useState('pending');
   const [chronicles, setChronicles] = useState([]);
@@ -52,37 +34,14 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
   const [gallery, setGallery] = useState([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
 
-  const [eternalPressTab, setEternalPressTab] = useState('pending');
-  const [eternalPress, setEternalPress] = useState([]);
-  const [eternalPressLoading, setEternalPressLoading] = useState(false);
-  const [roleLoadingId, setRoleLoadingId] = useState(null);
-  const [rolesSearch, setRolesSearch] = useState('');
-  const [rolesFilter, setRolesFilter] = useState('all');
-
   async function loadContent(type, status) {
     if (type === 'chronicles') setChroniclesLoading(true);
     if (type === 'gallery') setGalleryLoading(true);
     const res = await fetch(`/api/admin-notion?type=${type}&status=${status}`);
     const data = await res.json();
-    if (type === 'chronicles') {
-      setChronicles(data.items || []);
-      setChroniclesLoading(false);
-      if (status === 'pending') setChroniclesPendingCount((data.items || []).length);
-    }
-    if (type === 'gallery') {
-      setGallery(data.items || []);
-      setGalleryLoading(false);
-      if (status === 'pending') setGalleryPendingCount((data.items || []).length);
-    }
+    if (type === 'chronicles') { setChronicles(data.items || []); setChroniclesLoading(false); }
+    if (type === 'gallery') { setGallery(data.items || []); setGalleryLoading(false); }
   }
-
-  // Load pending counts on mount for badge display
-  useEffect(() => {
-    fetch('/api/admin-notion?type=chronicles&status=pending')
-      .then(r => r.json()).then(d => setChroniclesPendingCount((d.items || []).length)).catch(() => {});
-    fetch('/api/admin-notion?type=gallery&status=pending')
-      .then(r => r.json()).then(d => setGalleryPendingCount((d.items || []).length)).catch(() => {});
-  }, []);
 
   useEffect(() => {
     if (section === 'chronicles') loadContent('chronicles', chroniclesTab);
@@ -91,51 +50,6 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
   useEffect(() => {
     if (section === 'gallery') loadContent('gallery', galleryTab);
   }, [section, galleryTab]);
-
-  useEffect(() => {
-    if (section === 'eternal-press') loadEternalPress('published');
-  }, [section]);
-
-  async function loadEternalPress(status) {
-    setEternalPressLoading(true);
-    const res = await fetch(`/api/eternal-press-list?scope=all`);
-    const data = await res.json();
-    const articles = (data.articles || []);
-    setEternalPress(articles);
-    setEternalPressLoading(false);
-    if (status === 'pending') setEpPendingCount((data.articles || []).length);
-  }
-
-  async function handleEternalPressAction(articleId, action) {
-    setLoadingAction(articleId + action);
-    await fetch('/api/eternal-press-manage', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ articleId, action }),
-    });
-    await loadEternalPress(eternalPressTab);
-    setLoadingAction(null);
-  }
-
-  async function handleSetRole(playerId, role) {
-    setRoleLoadingId(playerId);
-    try {
-      const res = await fetch('/api/set-role', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ playerId, role }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        alert(`Failed to update role: ${data.error}`);
-      } else {
-        setList(prev => prev.map(p => p.id === playerId ? { ...p, role } : p));
-      }
-    } catch (err) {
-      alert('Failed to update role — please try again');
-    }
-    setRoleLoadingId(null);
-  }
 
   async function handlePlayerAction(playerId, action) {
     setLoadingAction(playerId + action);
@@ -189,16 +103,10 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
             Players {pendingCount > 0 && <span className={styles.notifBadge}>{pendingCount}</span>}
           </button>
           <button className={`${styles.sectionBtn} ${section === 'chronicles' ? styles.sectionActive : ''}`} onClick={() => setSection('chronicles')}>
-            Chronicles {chroniclesPendingCount > 0 && <span className={styles.notifBadge}>{chroniclesPendingCount}</span>}
+            Chronicles
           </button>
           <button className={`${styles.sectionBtn} ${section === 'gallery' ? styles.sectionActive : ''}`} onClick={() => setSection('gallery')}>
-            Gallery {galleryPendingCount > 0 && <span className={styles.notifBadge}>{galleryPendingCount}</span>}
-          </button>
-          <button className={`${styles.sectionBtn} ${section === 'eternal-press' ? styles.sectionActive : ''}`} onClick={() => setSection('eternal-press')}>
-            Eternal Press
-          </button>
-          <button className={`${styles.sectionBtn} ${section === 'roles' ? styles.sectionActive : ''}`} onClick={() => setSection('roles')}>
-            Roles
+            Gallery
           </button>
         </div>
 
@@ -227,14 +135,12 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
                         <span className={styles.playerName}>{player.avatar_name}</span>
                       )}
                       <span className={`${styles.statusBadge} ${styles[player.status]}`}>{player.status}</span>
-                      {(player.role === 'admin' || player.role === 'owner') && <span className={styles.adminBadge}>{isOwner && player.role === 'owner' ? '👑 Owner' : 'Admin'}</span>}
+                      {player.role === 'admin' && <span className={styles.adminBadge}>Admin</span>}
                     </div>
                     <div className={styles.playerMeta}>
                       <span className={styles.playerDate}>Registered {new Date(player.created_at).toLocaleDateString('en-GB')}</span>
                       {player.email && <span className={styles.playerEmail}>{player.email}</span>}
                       {player.sl_uuid && <span className={styles.playerUuid}>{player.sl_uuid}</span>}
-                      {isOwner && player.registered_ip && <span className={styles.playerIp}>📍 Reg IP: {player.registered_ip}</span>}
-                      {isOwner && player.last_login_ip && <span className={styles.playerIp}>🔐 Last IP: {player.last_login_ip}</span>}
                     </div>
                   </div>
                   <div className={styles.actions}>
@@ -244,11 +150,17 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
                         <button className={styles.rejectBtn} onClick={() => handlePlayerAction(player.id, 'reject')} disabled={loadingAction === player.id + 'reject'}>{loadingAction === player.id + 'reject' ? '...' : 'Reject'}</button>
                       </>
                     )}
-                    {player.status === 'approved' && player.role !== 'admin' && (
-                      <button className={styles.banBtn} onClick={() => handlePlayerAction(player.id, 'ban')} disabled={loadingAction === player.id + 'ban'}>{loadingAction === player.id + 'ban' ? '...' : 'Ban'}</button>
+                    {player.status === 'approved' && player.role !== 'admin' && player.role !== 'owner' && (
+                      <button className={styles.banBtn} onClick={() => { if (confirm(`Ban ${player.avatar_name}? This will block their access.`)) handlePlayerAction(player.id, 'ban'); }} disabled={loadingAction === player.id + 'ban'}>{loadingAction === player.id + 'ban' ? '...' : 'Ban'}</button>
                     )}
-                    {(player.status === 'banned' || player.status === 'rejected') && (
-                      <button className={styles.approveBtn} onClick={() => handlePlayerAction(player.id, 'approve')} disabled={loadingAction === player.id + 'approve'}>{player.status === 'banned' ? 'Unban' : 'Approve'}</button>
+                    {player.status === 'rejected' && (
+                      <>
+                        <button className={styles.approveBtn} onClick={() => handlePlayerAction(player.id, 'approve')} disabled={loadingAction === player.id + 'approve'}>{loadingAction === player.id + 'approve' ? '...' : 'Approve'}</button>
+                        <button className={styles.banBtn} onClick={() => { if (confirm(`Ban ${player.avatar_name} permanently? This cannot be undone via the website.`)) handlePlayerAction(player.id, 'ban'); }} disabled={loadingAction === player.id + 'ban'}>{loadingAction === player.id + 'ban' ? '...' : 'Ban'}</button>
+                      </>
+                    )}
+                    {player.status === 'banned' && (
+                      <span className={styles.playerDate} style={{ color: '#c06060', fontStyle: 'italic', fontSize: '11px' }}>Permanently banned</span>
                     )}
                   </div>
                 </div>
@@ -359,140 +271,6 @@ export default function AdminPage({ players, adminName, initialEpPending, isOwne
                   </div>
                 ))}
               </div>
-            </div>
-          </>
-        )}
-        {section === 'eternal-press' && (
-          <>
-            <p className={styles.sectionDesc}>Live articles on The Eternal Press — feature to pin as the top story, or delete to remove permanently.</p>
-            <div className={styles.contentSection}>
-              {eternalPressLoading && <p className={styles.empty}>Loading...</p>}
-              {!eternalPressLoading && eternalPress.length === 0 && (
-                <p className={styles.empty}>No articles published yet.</p>
-              )}
-              {!eternalPressLoading && eternalPress.map(item => (
-                <div key={item.id} className={styles.contentCard}>
-                  <div className={styles.contentHeader}>
-                    <div className={styles.contentMeta}>
-                      <span className={styles.contentTitle}>{item.title}</span>
-                      <div className={styles.contentSub}>
-                        <span className={styles.contentAuthor}>By {item.author_name}</span>
-                        <span className={styles.contentCat}>{item.category}</span>
-                        <span className={styles.contentAuthor}>{new Date(item.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                        {item.featured && <span className={styles.contentCat} style={{ background: '#1a1200', color: '#c0a030', borderColor: '#5a4010' }}>★ Featured</span>}
-                      </div>
-                    </div>
-                    <div className={styles.actions}>
-                      {!item.featured
-                        ? <button className={styles.approveBtn} onClick={() => handleEternalPressAction(item.id, 'feature')} disabled={loadingAction === item.id + 'feature'}>{loadingAction === item.id + 'feature' ? '...' : '★ Feature'}</button>
-                        : <button className={styles.warnBtn} onClick={() => handleEternalPressAction(item.id, 'unfeature')} disabled={loadingAction === item.id + 'unfeature'}>{loadingAction === item.id + 'unfeature' ? '...' : 'Unfeature'}</button>
-                      }
-                      <button className={styles.deleteBtn} onClick={() => { if (confirm('Delete this article permanently?')) handleEternalPressAction(item.id, 'delete'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
-                    </div>
-                  </div>
-                  {item.excerpt && <p className={styles.contentPreview}>{item.excerpt}</p>}
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        {section === 'roles' && (
-          <>
-            <p className={styles.sectionDesc} style={{ marginBottom: '16px' }}>
-              Assign roles to approved players. <strong>Reporter</strong> — can write and publish to The Eternal Press.{isOwner && <> <strong>Admin</strong> — full admin panel access (owner only).</>}
-            </p>
-            <div className={styles.searchBar} style={{ marginBottom: '12px' }}>
-              <input
-                className={styles.searchInput}
-                type="text"
-                value={rolesSearch}
-                onChange={e => setRolesSearch(e.target.value)}
-                placeholder="Search by avatar name or email..."
-              />
-              {rolesSearch && <button className={styles.searchClear} onClick={() => setRolesSearch('')}>✕</button>}
-            </div>
-            <div className={styles.filters} style={{ marginBottom: '16px' }}>
-              {['all', 'player', 'reporter'].map(f => (
-                <button
-                  key={f}
-                  className={`${styles.filterBtn} ${rolesFilter === f ? styles.filterActive : ''}`}
-                  onClick={() => setRolesFilter(f)}
-                >
-                  {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}s ({list.filter(p => p.status === 'approved' && (f === 'all' || p.role === f)).length})
-                </button>
-              ))}
-            </div>
-            <div className={styles.playerList}>
-              {list
-                .filter(p => p.status === 'approved')
-                .filter(p => rolesFilter === 'all' || p.role === rolesFilter)
-                .filter(p => {
-                  const q = rolesSearch.toLowerCase().trim();
-                  return !q || p.avatar_name?.toLowerCase().includes(q) || p.email?.toLowerCase().includes(q);
-                })
-                .map(p => (
-                  <div key={p.id} className={styles.playerCard}>
-                    <div className={styles.playerInfo}>
-                      <div className={styles.playerTop}>
-                        <span className={styles.playerName}>{p.avatar_name}</span>
-                        <span className={`${styles.statusBadge} ${(p.role === 'admin' || p.role === 'owner') ? styles.adminBadge : p.role === 'reporter' ? styles.reporterBadge : styles.approved}`}>
-                          {p.role === 'owner' ? 'admin' : p.role}
-                        </span>
-                      </div>
-                      <div className={styles.playerMeta}>
-                        <span className={styles.playerEmail}>{p.email}</span>
-                      </div>
-                    </div>
-                    <div className={styles.actions}>
-                      {p.role === 'player' && (
-                        <button
-                          className={styles.approveBtn}
-                          onClick={() => handleSetRole(p.id, 'reporter')}
-                          disabled={roleLoadingId === p.id}
-                          title="Assign Reporter role — can write Eternal Press articles"
-                        >
-                          {roleLoadingId === p.id ? '...' : '✒ Make Reporter'}
-                        </button>
-                      )}
-                      {p.role === 'reporter' && (
-                        <button
-                          className={styles.rejectBtn}
-                          onClick={() => handleSetRole(p.id, 'player')}
-                          disabled={roleLoadingId === p.id}
-                        >
-                          {roleLoadingId === p.id ? '...' : 'Remove Reporter'}
-                        </button>
-                      )}
-                      {isOwner && p.role !== 'admin' && p.role !== 'owner' && (
-                        <button
-                          className={styles.banBtn}
-                          onClick={() => { if (confirm(`Make ${p.avatar_name} an admin? They will have full admin panel access.`)) handleSetRole(p.id, 'admin'); }}
-                          disabled={roleLoadingId === p.id}
-                        >
-                          {roleLoadingId === p.id ? '...' : '⚙ Make Admin'}
-                        </button>
-                      )}
-                      {isOwner && p.role === 'admin' && (
-                        <button
-                          className={styles.rejectBtn}
-                          onClick={() => handleSetRole(p.id, 'player')}
-                          disabled={roleLoadingId === p.id}
-                        >
-                          {roleLoadingId === p.id ? '...' : 'Remove Admin'}
-                        </button>
-                      )}
-
-                    </div>
-                  </div>
-                ))}
-              {list.filter(p => p.status === 'approved').filter(p => {
-                const q = rolesSearch.toLowerCase().trim();
-                return (!q || p.avatar_name?.toLowerCase().includes(q) || p.email?.toLowerCase().includes(q)) &&
-                  (rolesFilter === 'all' || p.role === rolesFilter);
-              }).length === 0 && (
-                <p className={styles.empty}>{rolesSearch ? `No players found matching "${rolesSearch}"` : 'No players in this category.'}</p>
-              )}
             </div>
           </>
         )}

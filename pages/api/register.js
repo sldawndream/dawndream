@@ -16,6 +16,20 @@ function isValidAvatarName(name) {
   return /^[a-zA-Z0-9 ._'\-]{2,80}$/.test(name);
 }
 
+// Blocked disposable/fake email domains
+const BLOCKED_EMAIL_DOMAINS = [
+  'devnull.test', 'fake.test', 'nowhere.test', 'fond.test', 'probe.com',
+  'probe.test', 'test.com', 'test.test', 'mailnull.com', 'trashmail.com',
+  'guerrillamail.com', 'tempmail.com', 'throwaway.email', 'yopmail.com',
+  'sharklasers.com', 'guerrillamailblock.com', 'grr.la', 'guerrillamail.info',
+  'spam4.me', 'dispostable.com', 'mailnesia.com', 'mailnull.com',
+];
+
+function isBlockedEmailDomain(email) {
+  const domain = email.split('@')[1]?.toLowerCase();
+  return BLOCKED_EMAIL_DOMAINS.some(d => domain === d || domain?.endsWith('.' + d));
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -31,6 +45,7 @@ export default async function handler(req, res) {
   if (!isValidAvatarName(avatarName)) return res.status(400).json({ error: 'Avatar name contains invalid characters' });
   if (password.length < 6) return res.status(400).json({ error: 'Password must be at least 6 characters' });
   if (!email.includes('@') || email.length < 5) return res.status(400).json({ error: 'Invalid email address' });
+  if (isBlockedEmailDomain(email)) return res.status(400).json({ error: 'This email domain is not accepted. Please use a real email address.' });
   if (!isValidUUID(slUuid)) return res.status(400).json({ error: 'Invalid Second Life UUID — check your SL profile and try again' });
 
   // Capture registration IP

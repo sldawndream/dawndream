@@ -171,12 +171,12 @@ export default function AdminPage({ players, adminName, isOwner }) {
                       </>
                     )}
                     {player.status === 'approved' && player.role !== 'admin' && player.role !== 'owner' && (
-                      <button className={styles.banBtn} onClick={() => { if (confirm(`Ban ${player.avatar_name}? This will block their access.`)) handlePlayerAction(player.id, 'ban'); }} disabled={loadingAction === player.id + 'ban'}>{loadingAction === player.id + 'ban' ? '...' : 'Ban'}</button>
+                      <button className={styles.banBtn} onClick={() => handlePlayerAction(player.id, 'ban')} disabled={loadingAction === player.id + 'ban'}>{loadingAction === player.id + 'ban' ? '...' : 'Ban'}</button>
                     )}
                     {player.status === 'rejected' && (
                       <>
                         <button className={styles.approveBtn} onClick={() => handlePlayerAction(player.id, 'approve')} disabled={loadingAction === player.id + 'approve'}>{loadingAction === player.id + 'approve' ? '...' : 'Approve'}</button>
-                        <button className={styles.banBtn} onClick={() => { if (confirm(`Ban ${player.avatar_name} permanently? This cannot be undone via the website.`)) handlePlayerAction(player.id, 'ban'); }} disabled={loadingAction === player.id + 'ban'}>{loadingAction === player.id + 'ban' ? '...' : 'Ban'}</button>
+                        <button className={styles.banBtn} onClick={() => handlePlayerAction(player.id, 'ban')} disabled={loadingAction === player.id + 'ban'}>{loadingAction === player.id + 'ban' ? '...' : 'Ban'}</button>
                       </>
                     )}
                     {player.status === 'banned' && (

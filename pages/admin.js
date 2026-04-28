@@ -8,19 +8,22 @@ import styles from '../styles/Admin.module.css';
 
 export async function getServerSideProps({ req }) {
   const player = await getPlayerFromRequest(req);
-  if (!player || player.role !== 'admin') {
+  if (!player || (player.role !== 'admin' && player.role !== 'owner')) {
     return { redirect: { destination: '/login', permanent: false } };
   }
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
   const { data: players } = await supabase
     .from('players')
-    .select('id,avatar_name,status,role,created_at,approved_at,sl_uuid,email')
+    .select('id,avatar_name,status,role,created_at,approved_at,sl_uuid,email,registered_ip,last_login_ip,last_login_at')
     .order('created_at', { ascending: false });
-  return { props: { players: players || [], adminName: player.avatar_name } };
+  return { props: { players: players || [], adminName: player.avatar_name, isOwner: player.role === 'owner' } };
 }
 
-export default function AdminPage({ players, adminName }) {
+export default function AdminPage({ players, adminName, isOwner }) {
   const [section, setSection] = useState('players');
+  const [rolesSearch, setRolesSearch] = useState('');
+  const [rolesFilter, setRolesFilter] = useState('all');
+  const [roleLoadingId, setRoleLoadingId] = useState(null);
   const [list, setList] = useState(players);
   const [loadingAction, setLoadingAction] = useState(null);
   const [filter, setFilter] = useState('pending');
@@ -50,6 +53,21 @@ export default function AdminPage({ players, adminName }) {
   useEffect(() => {
     if (section === 'gallery') loadContent('gallery', galleryTab);
   }, [section, galleryTab]);
+
+  async function handleSetRole(playerId, role) {
+    setRoleLoadingId(playerId);
+    try {
+      const res = await fetch('/api/set-role', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ playerId, role }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(`Failed to update role: ${data.error}`); }
+      else { setList(prev => prev.map(p => p.id === playerId ? { ...p, role } : p)); }
+    } catch { alert('Failed to update role'); }
+    setRoleLoadingId(null);
+  }
 
   async function handlePlayerAction(playerId, action) {
     setLoadingAction(playerId + action);
@@ -141,6 +159,8 @@ export default function AdminPage({ players, adminName }) {
                       <span className={styles.playerDate}>Registered {new Date(player.created_at).toLocaleDateString('en-GB')}</span>
                       {player.email && <span className={styles.playerEmail}>{player.email}</span>}
                       {player.sl_uuid && <span className={styles.playerUuid}>{player.sl_uuid}</span>}
+                      {isOwner && player.registered_ip && <span className={styles.playerIp}>📍 Reg IP: {player.registered_ip}</span>}
+                      {isOwner && player.last_login_ip && <span className={styles.playerIp}>🔐 Last IP: {player.last_login_ip}</span>}
                     </div>
                   </div>
                   <div className={styles.actions}>
@@ -271,6 +291,65 @@ export default function AdminPage({ players, adminName }) {
                   </div>
                 ))}
               </div>
+            </div>
+          </>
+        )}
+        {section === 'roles' && (
+          <>
+            <p className={styles.sectionDesc} style={{ marginBottom: '16px' }}>
+              Assign the <strong>Reporter</strong> role to approved players.{isOwner && <> <strong>Admin</strong> — full panel access (owner only).</>}
+            </p>
+            <div className={styles.searchBar} style={{ marginBottom: '12px', position: 'relative' }}>
+              <input className={styles.searchInput} type="text" value={rolesSearch} onChange={e => setRolesSearch(e.target.value)} placeholder="Search by avatar name or email..." />
+              {rolesSearch && <button className={styles.searchClear} onClick={() => setRolesSearch('')} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#9a6858', cursor: 'pointer' }}>✕</button>}
+            </div>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+              {['all', 'player', 'reporter'].map(f => (
+                <button key={f} className={`${styles.filterBtn} ${rolesFilter === f ? styles.filterActive : ''}`} onClick={() => setRolesFilter(f)}>
+                  {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1) + 's'} ({list.filter(p => p.status === 'approved' && (f === 'all' || p.role === f)).length})
+                </button>
+              ))}
+            </div>
+            <div className={styles.playerList}>
+              {list
+                .filter(p => p.status === 'approved')
+                .filter(p => rolesFilter === 'all' || p.role === rolesFilter)
+                .filter(p => { const q = rolesSearch.toLowerCase().trim(); return !q || p.avatar_name?.toLowerCase().includes(q) || p.email?.toLowerCase().includes(q); })
+                .map(p => (
+                  <div key={p.id} className={styles.playerCard}>
+                    <div className={styles.playerInfo}>
+                      <div className={styles.playerTop}>
+                        <span className={styles.playerName}>{p.avatar_name}</span>
+                        <span className={`${styles.statusBadge} ${(p.role === 'admin' || p.role === 'owner') ? styles.adminBadge : p.role === 'reporter' ? styles.reporterBadge : styles.approved}`}>
+                          {p.role === 'owner' ? 'admin' : p.role}
+                        </span>
+                      </div>
+                      <div className={styles.playerMeta}><span className={styles.playerEmail}>{p.email}</span></div>
+                    </div>
+                    <div className={styles.actions}>
+                      {p.role === 'player' && (
+                        <button className={styles.approveBtn} onClick={() => handleSetRole(p.id, 'reporter')} disabled={roleLoadingId === p.id} title="Assign Reporter role">
+                          {roleLoadingId === p.id ? '...' : '✒ Make Reporter'}
+                        </button>
+                      )}
+                      {p.role === 'reporter' && (
+                        <button className={styles.rejectBtn} onClick={() => handleSetRole(p.id, 'player')} disabled={roleLoadingId === p.id}>
+                          {roleLoadingId === p.id ? '...' : 'Remove Reporter'}
+                        </button>
+                      )}
+                      {isOwner && p.role !== 'admin' && p.role !== 'owner' && (
+                        <button className={styles.banBtn} onClick={() => { if (confirm(`Make ${p.avatar_name} an admin?`)) handleSetRole(p.id, 'admin'); }} disabled={roleLoadingId === p.id}>
+                          {roleLoadingId === p.id ? '...' : '⚙ Make Admin'}
+                        </button>
+                      )}
+                      {isOwner && p.role === 'admin' && (
+                        <button className={styles.rejectBtn} onClick={() => handleSetRole(p.id, 'player')} disabled={roleLoadingId === p.id}>
+                          {roleLoadingId === p.id ? '...' : 'Remove Admin'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
             </div>
           </>
         )}

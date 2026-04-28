@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { serialize } from 'cookie';
 import { createClient } from '@supabase/supabase-js';
+import { sanitise, sanitiseEmail } from '../../lib/sanitise';
 
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password + process.env.PASSWORD_SALT).digest('hex');
@@ -12,13 +13,19 @@ export default async function handler(req, res) {
   const { identifier, password } = req.body;
   if (!identifier || !password) return res.status(400).json({ error: 'Missing fields' });
 
+  // Sanitise identifier — could be avatar name or email
+  const raw = identifier.trim().toLowerCase().slice(0, 254);
+  const isEmail = raw.includes('@');
+  const normalised = isEmail ? sanitiseEmail(raw) : sanitise(raw);
+
+  if (!normalised) return res.status(400).json({ error: 'Invalid credentials' });
+
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
   try {
     const passwordHash = hashPassword(password);
-    const normalised = identifier.trim().toLowerCase();
 
-    // Try matching by avatar name OR email — both case-insensitive
+    // Match by avatar name OR email — both case-insensitive
     const { data: players } = await supabase
       .from('players')
       .select('id, avatar_name, status, role')
@@ -35,14 +42,15 @@ export default async function handler(req, res) {
     const token = crypto.randomBytes(32).toString('hex');
     await supabase.from('player_sessions').insert({ player_id: player.id, token });
 
-    // Update last login IP
+    // Capture login IP
     const loginIp =
       (req.headers['x-forwarded-for'] || '').split(',')[0].trim() ||
       req.headers['x-real-ip'] ||
-      req.socket?.remoteAddress ||
       null;
     if (loginIp) {
-      await supabase.from('players').update({ last_login_ip: loginIp, last_login_at: new Date().toISOString() }).eq('id', player.id);
+      await supabase.from('players')
+        .update({ last_login_ip: loginIp, last_login_at: new Date().toISOString() })
+        .eq('id', player.id);
     }
 
     res.setHeader('Set-Cookie', serialize('dd_session', token, {
@@ -53,7 +61,7 @@ export default async function handler(req, res) {
       path: '/',
     }));
 
-    res.status(200).json({ success: true, player: { id: player.id, avatarName: player.avatar_name, role: player.role } });
+    return res.status(200).json({ success: true, player: { id: player.id, avatarName: player.avatar_name, role: player.role } });
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });

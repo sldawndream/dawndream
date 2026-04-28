@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 // ── Blocked IPs — add any IP here to block site-wide access ──
 const BLOCKED_IPS = [
   '45.13.6.185',
+  '198.44.159.88',
   // Add more IPs below as needed:
   // '1.2.3.4',
 ];

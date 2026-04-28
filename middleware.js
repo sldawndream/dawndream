@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 const BLOCKED_IPS = [
   '45.13.6.185',
   '198.44.159.88',
+  '149.34.248.72',
   // Add more IPs below as needed:
   // '1.2.3.4',
 ];

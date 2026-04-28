@@ -19,14 +19,19 @@ function isValidAvatarName(name) {
 // Blocked disposable/fake email domains
 const BLOCKED_EMAIL_DOMAINS = [
   'devnull.test', 'fake.test', 'nowhere.test', 'fond.test', 'probe.com',
-  'probe.test', 'test.com', 'test.test', 'mailnull.com', 'trashmail.com',
-  'guerrillamail.com', 'tempmail.com', 'throwaway.email', 'yopmail.com',
-  'sharklasers.com', 'guerrillamailblock.com', 'grr.la', 'guerrillamail.info',
-  'spam4.me', 'dispostable.com', 'mailnesia.com', 'mailnull.com',
+  'void.test', 'probe.test', 'null.test', 'test.test', 'noreply.test',
+  'example.test', 'invalid.test', 'localhost.test', 'spam.test', 'bot.test',
+  'mailnull.com', 'trashmail.com', 'guerrillamail.com', 'tempmail.com',
+  'throwaway.email', 'yopmail.com', 'sharklasers.com', 'spam4.me',
+  'dispostable.com', 'mailnesia.com', 'guerrillamail.info', 'grr.la',
 ];
 
 function isBlockedEmailDomain(email) {
   const domain = email.split('@')[1]?.toLowerCase();
+  if (!domain) return true;
+  // Block entire fake TLDs — no real email uses these
+  if (domain.endsWith('.test') || domain.endsWith('.invalid') ||
+      domain.endsWith('.localhost') || domain.endsWith('.example')) return true;
   return BLOCKED_EMAIL_DOMAINS.some(d => domain === d || domain?.endsWith('.' + d));
 }
 

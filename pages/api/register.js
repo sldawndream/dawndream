@@ -63,16 +63,14 @@ export default async function handler(req, res) {
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
   try {
-    // One account per IP — check if this IP already registered in the last 24 hours
+    // One account per IP — permanently
     if (registeredIp) {
-      const since = new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString();
       const { data: ipCheck } = await supabase
         .from('players')
         .select('id')
-        .eq('registered_ip', registeredIp)
-        .gte('created_at', since);
+        .eq('registered_ip', registeredIp);
       if (ipCheck && ipCheck.length > 0) {
-        return res.status(429).json({ error: 'An account has already been registered from your connection recently. Please try again later.' });
+        return res.status(429).json({ error: 'An account has already been registered from your connection. Only one account per connection is allowed.' });
       }
     }
 

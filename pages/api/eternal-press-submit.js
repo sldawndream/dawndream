@@ -24,7 +24,8 @@ export default async function handler(req, res) {
     .eq('id', session.id);
 
   const player = players?.[0];
-  if (!player || (player.role !== 'reporter' && player.role !== 'admin')) {
+  // Allow reporter, admin AND owner
+  if (!player || (player.role !== 'reporter' && player.role !== 'admin' && player.role !== 'owner')) {
     return res.status(403).json({ error: 'Reporter or admin role required' });
   }
 

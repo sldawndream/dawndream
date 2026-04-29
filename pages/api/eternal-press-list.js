@@ -13,12 +13,12 @@ export default async function handler(req, res) {
   const { data: players } = await supabase.from('players').select('role,avatar_name,display_name').eq('id', session.id);
   const player = players?.[0];
 
-  if (!player || (player.role !== 'reporter' && player.role !== 'admin')) {
+  if (!player || (player.role !== 'reporter' && player.role !== 'admin' && player.role !== 'owner')) {
     return res.status(403).json({ error: 'Reporter or admin role required' });
   }
 
   const authorName = player.display_name || player.avatar_name;
-  const isAdmin = player.role === 'admin';
+  const isAdmin = player.role === 'admin' || player.role === 'owner';
   const { scope } = req.query; // 'mine' or 'all'
 
   try {
@@ -68,7 +68,10 @@ export default async function handler(req, res) {
       };
     });
 
-    // All reporters and admins can see and manage all articles
+    // Reporters only see their own articles, admins see all when scope=all
+    if (!isAdmin || scope !== 'all') {
+      articles = articles.filter(a => a.author === authorName);
+    }
 
     res.status(200).json({ articles });
   } catch (err) {

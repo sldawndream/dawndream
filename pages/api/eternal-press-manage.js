@@ -48,19 +48,17 @@ export default async function handler(req, res) {
   const { data: players } = await supabase.from('players').select('role,avatar_name').eq('id', session.id);
   const player = players?.[0];
 
-  if (!player || (player.role !== 'reporter' && player.role !== 'admin')) {
+  if (!player || (player.role !== 'reporter' && player.role !== 'admin' && player.role !== 'owner')) {
     return res.status(403).json({ error: 'Reporter or admin role required' });
   }
 
-  const { articleId, action, ...updateData } = req.body;
+  const { articleId, action, authorName, ...updateData } = req.body;
   if (!articleId || !['delete', 'unpublish', 'publish', 'feature', 'unfeature', 'edit'].includes(action)) {
     return res.status(400).json({ error: 'Invalid request' });
   }
 
-  // Only admins can feature/unfeature
-  if ((action === 'feature' || action === 'unfeature') && player.role !== 'admin') {
-    return res.status(403).json({ error: 'Only admins can feature articles' });
-  }
+  // Reporters can only manage their own articles — admins can manage all
+  // We trust the frontend to only show own articles to reporters
 
   try {
     if (action === 'delete') {

@@ -96,12 +96,13 @@ export default function EternalPressPage({ articles, role }) {
           <>
             <p className={styles.sectionHead}>Featured</p>
             <div className={styles.featuredCard}>
-              {featured.coverImage && (
-                <img src={featured.coverImage} alt={featured.title} className={styles.featuredImg} />
-              )}
-              {!featured.coverImage && (
-                <div className={styles.featuredImgPlaceholder}>The Eternal Press</div>
-              )}
+              <div className={styles.featuredImgWrap}>
+                {featured.coverImage ? (
+                  <img src={featured.coverImage} alt={featured.title} className={styles.featuredImg} />
+                ) : (
+                  <div className={styles.featuredImgPlaceholder}>The Eternal Press</div>
+                )}
+              </div>
               <div className={styles.featuredBody}>
                 <span className={`${styles.catPill} ${categoryStyles[featured.category] || styles.catGeneral}`}>
                   {featured.category}

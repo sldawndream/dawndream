@@ -14,7 +14,7 @@ export async function getServerSideProps({ req }) {
 
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
   const { data: articles } = await supabase
-    .from('eternal-press_articles')
+    .from('eternal_press_articles')
     .select('id,title,category,excerpt,body,cover_image,author_name,featured,issue_number,issue_date,published_at')
     .eq('status', 'published')
     .order('published_at', { ascending: false });

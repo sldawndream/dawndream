@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import { getPlayerFromRequest } from '../lib/auth';
 import { createClient } from '@supabase/supabase-js';
+import { getEternalPressArticles } from '../lib/eternal-press';
 import styles from '../styles/EternalPress.module.css';
 
 export async function getServerSideProps({ req }) {
@@ -13,11 +14,6 @@ export async function getServerSideProps({ req }) {
   }
 
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-  const { data: articles } = await supabase
-    .from('eternal_press_articles')
-    .select('id,title,category,excerpt,body,cover_image,author_name,featured,issue_number,issue_date,published_at')
-    .eq('status', 'published')
-    .order('published_at', { ascending: false });
 
   // Get current player role
   const { data: players } = await supabase
@@ -94,10 +90,10 @@ export default function EternalPressPage({ articles, role }) {
           <>
             <p className={styles.sectionHead}>Featured</p>
             <div className={styles.featuredCard}>
-              {featured.cover_image && (
-                <img src={featured.cover_image} alt={featured.title} className={styles.featuredImg} />
+              {featured.coverImage && (
+                <img src={featured.coverImage} alt={featured.title} className={styles.featuredImg} />
               )}
-              {!featured.cover_image && (
+              {!featured.coverImage && (
                 <div className={styles.featuredImgPlaceholder}>The Eternal Press</div>
               )}
               <div className={styles.featuredBody}>
@@ -106,9 +102,9 @@ export default function EternalPressPage({ articles, role }) {
                 </span>
                 <h2 className={styles.featuredTitle}>{featured.title}</h2>
                 <div className={styles.articleMeta}>
-                  <span>By {featured.author_name}</span>
+                  <span>By {featured.author}</span>
                   <span className={styles.metaDot} />
-                  <span>{featured.published_at ? new Date(featured.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}</span>
+                  <span>{featured.issueDate ? new Date(featured.issueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : ''}</span>
                 </div>
                 <p className={styles.articleExcerpt}>{featured.excerpt || featured.body.slice(0, 200) + '…'}</p>
                 {expanded === featured.id ? (
@@ -147,8 +143,8 @@ export default function EternalPressPage({ articles, role }) {
             <div className={styles.grid}>
               {filtered.map(article => (
                 <div key={article.id} className={styles.articleCard}>
-                  {article.cover_image && (
-                    <img src={article.cover_image} alt={article.title} className={styles.cardImg} />
+                  {article.coverImage && (
+                    <img src={article.coverImage} alt={article.title} className={styles.cardImg} />
                   )}
                   <div className={styles.cardBody}>
                     <span className={`${styles.catPill} ${categoryStyles[article.category] || styles.catGeneral}`}>
@@ -156,9 +152,9 @@ export default function EternalPressPage({ articles, role }) {
                     </span>
                     <h3 className={styles.cardTitle}>{article.title}</h3>
                     <div className={styles.articleMeta}>
-                      <span>By {article.author_name}</span>
+                      <span>By {article.author}</span>
                       <span className={styles.metaDot} />
-                      <span>{article.published_at ? new Date(article.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' }) : ''}</span>
+                      <span>{article.issueDate ? new Date(article.issueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' }) : ''}</span>
                     </div>
                     <p className={styles.cardExcerpt}>{article.excerpt || article.body.slice(0, 120) + '…'}</p>
 

@@ -13,7 +13,8 @@ export async function getServerSideProps({ req }) {
   const { data: players } = await supabase.from('players').select('id,avatar_name,display_name,role').eq('id', session.id);
   const player = players?.[0];
 
-  if (!player || (player.role !== 'reporter' && player.role !== 'admin')) {
+  // Allow reporter, admin AND owner
+  if (!player || (player.role !== 'reporter' && player.role !== 'admin' && player.role !== 'owner')) {
     return { redirect: { destination: '/eternal-press', permanent: false } };
   }
 
@@ -21,11 +22,10 @@ export async function getServerSideProps({ req }) {
 }
 
 const CATEGORIES = ['Breaking', 'War', 'Politics', 'Society', 'Mystery', 'Announcement', 'General'];
-
 const emptyForm = { title: '', category: 'General', body: '', excerpt: '', coverImage: '', issueNumber: '', issueDate: '' };
 
 export default function EternalPressEditorPage({ player }) {
-  const isAdmin = player.role === 'admin';
+  const isAdmin = player.role === 'admin' || player.role === 'owner';
   const displayName = player.display_name || player.avatar_name;
 
   const [tab, setTab] = useState('write');
@@ -102,7 +102,6 @@ export default function EternalPressEditorPage({ player }) {
     try {
       const coverImage = await uploadImage();
       if (editingId) {
-        // Edit existing article
         const res = await fetch('/api/eternal-press-manage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -112,13 +111,11 @@ export default function EternalPressEditorPage({ player }) {
         if (!res.ok) { setError(data.error); }
         else {
           setSuccess('Article updated successfully!');
-          setEditingId(null);
-          setForm(emptyForm);
+          setEditingId(null); setForm(emptyForm);
           setImageFile(null); setImagePreview(null);
           loadArticles('mine');
         }
       } else {
-        // New article
         const res = await fetch('/api/eternal-press-submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -128,8 +125,7 @@ export default function EternalPressEditorPage({ player }) {
         if (!res.ok) { setError(data.error); }
         else {
           setSuccess('Your article has been published to The Eternal Press!');
-          setForm(emptyForm);
-          setImageFile(null); setImagePreview(null);
+          setForm(emptyForm); setImageFile(null); setImagePreview(null);
         }
       }
     } catch { setError('Action failed — please try again'); }
@@ -138,12 +134,9 @@ export default function EternalPressEditorPage({ player }) {
 
   function startEdit(article) {
     setForm({
-      title: article.title || '',
-      category: article.category || 'General',
-      body: article.body || '',
-      excerpt: article.excerpt || '',
-      coverImage: article.coverImage || '',
-      issueNumber: article.issueNumber || '',
+      title: article.title || '', category: article.category || 'General',
+      body: article.body || '', excerpt: article.excerpt || '',
+      coverImage: article.coverImage || '', issueNumber: article.issueNumber || '',
       issueDate: article.issueDate || '',
     });
     setEditingId(article.id);
@@ -154,14 +147,13 @@ export default function EternalPressEditorPage({ player }) {
   }
 
   function cancelEdit() {
-    setEditingId(null);
-    setForm(emptyForm);
+    setEditingId(null); setForm(emptyForm);
     setImageFile(null); setImagePreview(null);
     setError(''); setSuccess('');
   }
 
   async function handleAction(articleId, action, scope) {
-    if (action === 'delete' && !confirm('Delete this article permanently? This cannot be undone.')) return;
+    if (action === 'delete' && !confirm('Delete this article permanently?')) return;
     setActionLoading(articleId + action);
     try {
       const res = await fetch('/api/eternal-press-manage', {
@@ -183,7 +175,7 @@ export default function EternalPressEditorPage({ player }) {
             <div className={styles.manageCardMeta}>
               <span className={styles.manageCardAuthor}>By {article.author}</span>
               <span className={styles.manageMetaDot} />
-              <span className={`${styles.managePill} ${article.category === 'Breaking' ? styles.catBreaking : styles.catGeneral}`}>{article.category}</span>
+              <span className={`${styles.managePill} ${styles.catGeneral}`}>{article.category}</span>
               <span className={styles.manageMetaDot} />
               <span className={`${styles.manageStatus} ${article.published ? styles.managePublished : styles.manageUnpublished}`}>
                 {article.published ? 'Published' : 'Unpublished'}
@@ -194,8 +186,7 @@ export default function EternalPressEditorPage({ player }) {
           </div>
         </div>
         <div className={styles.manageActions}>
-          <button className={styles.editBtn} onClick={() => startEdit(article)}
-            disabled={actionLoading === article.id + 'edit'}>✒ Edit</button>
+          <button className={styles.editBtn} onClick={() => startEdit(article)}>✒ Edit</button>
           {article.published ? (
             <button className={styles.unpublishBtn} onClick={() => handleAction(article.id, 'unpublish', scope)}
               disabled={actionLoading === article.id + 'unpublish'}>
@@ -233,7 +224,6 @@ export default function EternalPressEditorPage({ player }) {
     <>
       <Head><title>The Eternal Press Editor — DawnDream</title></Head>
       <Navbar activePage="eternal-press" />
-
       <div className={styles.page}>
         <div className={styles.header}>
           <div>
@@ -242,14 +232,12 @@ export default function EternalPressEditorPage({ player }) {
             <p className={styles.sub}>Writing as <strong>{displayName}</strong> · {isAdmin ? 'Admin' : 'Reporter'}</p>
           </div>
         </div>
-
-        {/* Tabs */}
         <div className={styles.tabs}>
           <button className={`${styles.tabBtn} ${tab === 'write' ? styles.tabActive : ''}`} onClick={() => { setTab('write'); cancelEdit(); }}>
             ✒ {editingId ? 'Editing Article' : 'Write New'}
           </button>
           <button className={`${styles.tabBtn} ${tab === 'mine' ? styles.tabActive : ''}`} onClick={() => setTab('mine')}>
-            Manage Articles
+            {isAdmin ? 'Manage Articles' : 'My Articles'}
           </button>
           {isAdmin && (
             <button className={`${styles.tabBtn} ${tab === 'all' ? styles.tabActive : ''}`} onClick={() => setTab('all')}>
@@ -258,24 +246,17 @@ export default function EternalPressEditorPage({ player }) {
           )}
         </div>
 
-        {/* Write / Edit tab */}
         {tab === 'write' && (
           <div className={styles.layout}>
             <div className={styles.formCol}>
               <div className={styles.card}>
                 <p className={styles.cardTitle}>
                   {editingId ? 'Edit Article' : 'Write New Article'}
-                  {editingId && (
-                    <button className={styles.cancelEditBtn} onClick={cancelEdit}>✕ Cancel edit</button>
-                  )}
+                  {editingId && <button className={styles.cancelEditBtn} onClick={cancelEdit}>✕ Cancel edit</button>}
                 </p>
                 {success && <div className={styles.successMsg}>{success}</div>}
                 {error && <div className={styles.errorMsg}>{error}</div>}
-                {editingId && (
-                  <div className={styles.editingBanner}>
-                    ✒ You are editing an existing article. Save changes to update it on The Eternal Press.
-                  </div>
-                )}
+                {editingId && <div className={styles.editingBanner}>✒ You are editing an existing article.</div>}
                 <form onSubmit={handleSubmit}>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Headline *</label>
@@ -299,12 +280,12 @@ export default function EternalPressEditorPage({ player }) {
                   </div>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Excerpt</label>
-                    <textarea className={styles.formTextarea} name="excerpt" value={form.excerpt} onChange={handleChange} placeholder="A short summary shown on the front page (optional)..." rows={2} />
+                    <textarea className={styles.formTextarea} name="excerpt" value={form.excerpt} onChange={handleChange} placeholder="Short summary for the front page..." rows={2} />
                   </div>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Article Body *</label>
-                    <textarea className={styles.formTextarea} name="body" value={form.body} onChange={handleChange} placeholder="Write your full article here. Use blank lines to separate paragraphs..." rows={16} required />
-                    <p className={styles.formHint}>{form.body.length} characters · ~{Math.ceil(form.body.split(' ').filter(Boolean).length / 200)} min read</p>
+                    <textarea className={styles.formTextarea} name="body" value={form.body} onChange={handleChange} placeholder="Write your full article here..." rows={16} required />
+                    <p className={styles.formHint}>{form.body.length} characters</p>
                   </div>
                   <div className={styles.formGroup}>
                     <label className={styles.formLabel}>Cover Image</label>
@@ -320,62 +301,50 @@ export default function EternalPressEditorPage({ player }) {
                       )}
                     </div>
                     <input ref={fileRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
-                    {imageFile && !imageUploading && <p className={styles.formHint}>📎 {imageFile.name} — uploads when you save</p>}
-                    {imageUploading && <p className={styles.formHint} style={{ color: '#c0a030' }}>⏳ Uploading image…</p>}
+                    {imageFile && !imageUploading && <p className={styles.formHint}>📎 {imageFile.name}</p>}
+                    {imageUploading && <p className={styles.formHint} style={{ color: '#c0a030' }}>⏳ Uploading…</p>}
                   </div>
                   <button className={styles.submitBtn} type="submit" disabled={submitting || imageUploading}>
                     {submitting ? (editingId ? 'Saving…' : 'Publishing…') : (editingId ? '✒ Save Changes →' : '✒ Publish Article →')}
                   </button>
-                  <p className={styles.submitNote}>{editingId ? 'Changes will update immediately on The Eternal Press.' : 'Articles publish immediately to The Eternal Press.'}</p>
+                  <p className={styles.submitNote}>{editingId ? 'Changes update immediately.' : 'Articles publish immediately to The Eternal Press.'}</p>
                 </form>
               </div>
             </div>
-
             <div className={styles.sideCol}>
               <div className={styles.card}>
                 <p className={styles.cardTitle}>Writing Guide</p>
                 <ul className={styles.guideList}>
                   <li><strong>Headline</strong> — Keep it dramatic and specific.</li>
-                  <li><strong>Excerpt</strong> — One or two sentences for the front page. Leave blank to auto-generate.</li>
-                  <li><strong>Body</strong> — Paragraphs separated by blank lines. Write in-world, gothic, immersive.</li>
-                  <li><strong>Category</strong> — Breaking = urgent news, Society = community events, Mystery = unexplained events.</li>
-                  <li><strong>Cover Image</strong> — Optional. Upload a Second Life screenshot or atmospheric image.</li>
+                  <li><strong>Excerpt</strong> — One or two sentences for the front page.</li>
+                  <li><strong>Body</strong> — Paragraphs separated by blank lines.</li>
+                  <li><strong>Category</strong> — Breaking = urgent, Society = community events.</li>
+                  <li><strong>Cover Image</strong> — Optional SL screenshot or atmospheric image.</li>
                 </ul>
               </div>
             </div>
           </div>
         )}
 
-        {/* My Articles tab */}
         {tab === 'mine' && (
           <div className={styles.manageSection}>
-            <p className={styles.manageSectionDesc}>
-              All Eternal Press articles — edit, publish, unpublish or delete any of them.
-            </p>
-            {articlesLoading && <p className={styles.manageEmpty}>Loading your articles…</p>}
-            {!articlesLoading && myArticles.length === 0 && (
-              <p className={styles.manageEmpty}>You haven't written any articles yet. Switch to Write New to get started.</p>
-            )}
+            <p className={styles.manageSectionDesc}>All Eternal Press articles — edit, publish, unpublish or delete.</p>
+            {articlesLoading && <p className={styles.manageEmpty}>Loading…</p>}
+            {!articlesLoading && myArticles.length === 0 && <p className={styles.manageEmpty}>No articles yet.</p>}
             {!articlesLoading && myArticles.map(a => <ArticleCard key={a.id} article={a} scope="mine" />)}
           </div>
         )}
 
-        {/* All Articles tab — admin only */}
         {tab === 'all' && isAdmin && (
           <div className={styles.manageSection}>
-            <p className={styles.manageSectionDesc}>All articles across all reporters. Feature, unpublish or delete any article.</p>
-            {articlesLoading && <p className={styles.manageEmpty}>Loading all articles…</p>}
-            {!articlesLoading && allArticles.length === 0 && (
-              <p className={styles.manageEmpty}>No articles found.</p>
-            )}
+            <p className={styles.manageSectionDesc}>All articles across all reporters.</p>
+            {articlesLoading && <p className={styles.manageEmpty}>Loading…</p>}
+            {!articlesLoading && allArticles.length === 0 && <p className={styles.manageEmpty}>No articles found.</p>}
             {!articlesLoading && allArticles.map(a => <ArticleCard key={a.id} article={a} scope="all" />)}
           </div>
         )}
       </div>
-
-      <footer className={styles.footer}>
-        The Eternal Press &nbsp;·&nbsp; DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG
-      </footer>
+      <footer className={styles.footer}>The Eternal Press &nbsp;·&nbsp; DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG</footer>
     </>
   );
 }

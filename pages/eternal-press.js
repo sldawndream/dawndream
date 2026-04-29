@@ -23,7 +23,13 @@ export async function getServerSideProps({ req }) {
 
   const role = players?.[0]?.role || 'player';
 
-  return { props: { articles: articles || [], role } };
+  try {
+    const articles = await getEternalPressArticles();
+    return { props: { articles: articles || [], role } };
+  } catch (err) {
+    console.error('Eternal Press fetch error:', err);
+    return { props: { articles: [], role } };
+  }
 }
 
 const CATEGORIES = ['All', 'Breaking', 'War', 'Politics', 'Society', 'Mystery', 'Announcement', 'General'];

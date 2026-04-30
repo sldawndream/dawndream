@@ -32,7 +32,10 @@ export default function AuthGuard({ children }) {
           <h2 className={styles.overlayTitle}>Members Only</h2>
           <p className={styles.overlaySub}>This section is restricted to approved DawnDream members.</p>
           <Link href="/login" className={styles.loginBtn}>Login →</Link>
-          <p className={styles.overlayNote}>Not a member? <Link href="/login" className={styles.registerLink}>Request access</Link></p>
+          <p className={styles.overlayNote}>
+            Not a member?{' '}
+            <Link href="/register" className={styles.registerLink}>Request access</Link>
+          </p>
         </div>
       </div>
     </div>

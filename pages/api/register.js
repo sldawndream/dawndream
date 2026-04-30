@@ -1,10 +1,25 @@
 import crypto from 'crypto';
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
-import { sanitise, sanitiseEmail, sanitiseUUID } from '../../lib/sanitise';
 
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password + process.env.PASSWORD_SALT).digest('hex');
+}
+
+function sanitise(str) {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/<[^>]*>/g, '').replace(/javascript:/gi, '').replace(/\$regex/gi, '').trim().slice(0, 500);
+}
+
+function sanitiseEmail(str) {
+  if (!str || typeof str !== 'string') return '';
+  return str.replace(/[^a-zA-Z0-9@._+\-]/g, '').trim().slice(0, 254);
+}
+
+function sanitiseUUID(str) {
+  if (!str || typeof str !== 'string') return '';
+  const match = str.trim().match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  return match ? match[0] : '';
 }
 
 function isValidUUID(uuid) {
@@ -15,68 +30,32 @@ function isValidAvatarName(name) {
   return /^[a-zA-Z0-9 ._'\-]{2,80}$/.test(name);
 }
 
-const BLOCKED_EMAIL_DOMAINS = [
-  'devnull.test', 'fake.test', 'nowhere.test', 'fond.test', 'void.test',
-  'probe.com', 'probe.test', 'null.test', 'noreply.test', 'example.test',
-  'invalid.test', 'localhost.test', 'spam.test', 'bot.test',
-  'mailnull.com', 'trashmail.com', 'guerrillamail.com', 'tempmail.com',
-  'throwaway.email', 'yopmail.com', 'sharklasers.com', 'spam4.me',
-  'dispostable.com', 'mailnesia.com', 'guerrillamail.info', 'grr.la',
-];
-
 function isBlockedEmailDomain(email) {
   const domain = email.split('@')[1]?.toLowerCase();
   if (!domain) return true;
   if (domain.endsWith('.test') || domain.endsWith('.invalid') ||
       domain.endsWith('.localhost') || domain.endsWith('.example')) return true;
-  return BLOCKED_EMAIL_DOMAINS.some(d => domain === d || domain?.endsWith('.' + d));
+  const blocked = ['mailnull.com', 'trashmail.com', 'guerrillamail.com', 'tempmail.com',
+    'throwaway.email', 'yopmail.com', 'sharklasers.com', 'spam4.me',
+    'dispostable.com', 'mailnesia.com', 'guerrillamail.info', 'grr.la'];
+  return blocked.some(d => domain === d || domain.endsWith('.' + d));
 }
 
-// Auto-ban IP in Cloudflare when duplicate registration detected
 async function banIpInCloudflare(ip) {
   try {
-    const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
     const zoneId = process.env.CLOUDFLARE_ZONE_ID;
     const token = process.env.CLOUDFLARE_API_TOKEN;
-    if (!accountId || !zoneId || !token) return;
-
-    // Get current Block Attack IPs rule
-    const rulesRes = await fetch(
-      `https://api.cloudflare.com/client/v4/zones/${zoneId}/firewall/rules`,
-      { headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' } }
-    );
-    const rulesData = await rulesRes.json();
-    const blockRule = rulesData.result?.find(r => r.description === 'Block Attack IPs' || r.filter?.expression?.includes('ip.src eq'));
-
-    if (blockRule) {
-      // Update existing rule to add new IP
-      const currentExpr = blockRule.filter.expression;
-      const newExpr = `${currentExpr} or (ip.src eq ${ip})`;
-
-      await fetch(
-        `https://api.cloudflare.com/client/v4/zones/${zoneId}/filters/${blockRule.filter.id}`,
-        {
-          method: 'PUT',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: blockRule.filter.id, expression: newExpr }),
-        }
-      );
-    } else {
-      // Create new IP access rule to block this IP
-      await fetch(
-        `https://api.cloudflare.com/client/v4/zones/${zoneId}/firewall/access_rules/rules`,
-        {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: 'block',
-            configuration: { target: 'ip', value: ip },
-            notes: `Auto-banned: duplicate registration attempt from ${ip}`,
-          }),
-        }
-      );
-    }
-    console.log(`Auto-banned IP in Cloudflare: ${ip}`);
+    if (!zoneId || !token) return;
+    await fetch(`https://api.cloudflare.com/client/v4/zones/${zoneId}/firewall/access_rules/rules`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: 'block',
+        configuration: { target: 'ip', value: ip },
+        notes: `Auto-banned: duplicate registration from ${ip}`,
+      }),
+    });
+    console.log(`Auto-banned IP: ${ip}`);
   } catch (err) {
     console.error('Cloudflare auto-ban error:', err.message);
   }
@@ -107,14 +86,14 @@ export default async function handler(req, res) {
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
   try {
-    // One account per IP — permanently. Auto-ban in Cloudflare on duplicate.
+    // Block duplicate IPs — only if they already have a pending or approved account
     if (registeredIp) {
       const { data: ipCheck } = await supabase
         .from('players')
         .select('id')
-        .eq('registered_ip', registeredIp);
+        .eq('registered_ip', registeredIp)
+        .in('status', ['pending', 'approved']);
       if (ipCheck && ipCheck.length > 0) {
-        // Auto-ban this IP in Cloudflare
         await banIpInCloudflare(registeredIp);
         return res.status(429).json({ error: 'An account has already been registered from your connection. Only one account per connection is allowed.' });
       }
@@ -142,12 +121,13 @@ export default async function handler(req, res) {
     if (error) { console.error('Create player error:', error); return res.status(500).json({ error: 'Registration failed' }); }
 
     const resend = new Resend(process.env.RESEND_API_KEY);
+
     await resend.emails.send({
       from: 'DawnDream <noreply@dawndreamsl.com>',
       to: process.env.ADMIN_EMAIL,
       subject: 'New DawnDream Registration — Pending Approval',
       html: `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0a0408;color:#e0cdb8;padding:32px;border-radius:8px;">
-        <h2 style="color:#c0392b;font-family:serif;">New Registration</h2>
+        <h2 style="color:#c0392b;">New Registration</h2>
         <p><strong>Avatar Name:</strong> ${avatarName}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>SL UUID:</strong> ${slUuid}</p>
@@ -161,7 +141,7 @@ export default async function handler(req, res) {
       to: email,
       subject: 'DawnDream — Registration Received',
       html: `<div style="font-family:sans-serif;max-width:500px;margin:0 auto;background:#0a0408;color:#e0cdb8;padding:32px;border-radius:8px;">
-        <h2 style="color:#c0392b;font-family:serif;">Welcome to DawnDream</h2>
+        <h2 style="color:#c0392b;">Welcome to DawnDream</h2>
         <p>Hello <strong>${avatarName}</strong>,</p>
         <p>Your registration has been received and is pending approval by our admin team.</p>
         <p style="color:#7a5a50;font-style:italic;margin-top:24px;">The eternal night awaits.</p>

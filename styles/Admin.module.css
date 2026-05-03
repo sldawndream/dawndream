@@ -108,3 +108,158 @@
 .ipRow:last-child { border-bottom: none; }
 .ipAddress { font-family: monospace; font-size: 11px; color: #c0a870; letter-spacing: 0.04em; }
 .ipDate { font-size: 10px; color: #7a6040; font-style: italic; }
+
+/* ── Gallery multi-select toolbar ── */
+.galleryToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: #0d0408;
+  border: 1px solid #2a0a14;
+  border-radius: 7px;
+}
+.galleryToolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.selectModeBtn {
+  background: #1a0608;
+  border: 1px solid #3a1018;
+  border-radius: 4px;
+  padding: 6px 14px;
+  color: #c09080;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.selectModeBtn:hover { background: #2a0a14; color: #e8a090; }
+.selectModeActive { background: #2a0a14; border-color: #5a1a24; color: #e8a090; }
+.selectAllBtn {
+  background: none;
+  border: 1px solid #2a0a14;
+  border-radius: 4px;
+  padding: 5px 12px;
+  color: #9a7060;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.selectAllBtn:hover { background: #1a0608; color: #c09080; }
+.selectedCount {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: #e8a090;
+  letter-spacing: 0.1em;
+  background: #2a0a14;
+  border: 1px solid #5a1a24;
+  border-radius: 3px;
+  padding: 3px 10px;
+}
+
+/* Bulk action buttons */
+.bulkActions { display: flex; gap: 8px; flex-wrap: wrap; }
+.bulkApproveBtn {
+  background: #0a1a10;
+  border: 1px solid #1a5030;
+  border-radius: 4px;
+  padding: 6px 16px;
+  color: #60a880;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.bulkApproveBtn:hover { background: #0f2a18; }
+.bulkApproveBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.bulkRejectBtn {
+  background: #0e0a1a;
+  border: 1px solid #302060;
+  border-radius: 4px;
+  padding: 6px 16px;
+  color: #9090c0;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.bulkRejectBtn:hover { background: #1a1030; }
+.bulkRejectBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.bulkWarnBtn {
+  background: #1a0a00;
+  border: 1px solid #5a3010;
+  border-radius: 4px;
+  padding: 6px 16px;
+  color: #c07030;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.bulkWarnBtn:hover { background: #2a1000; }
+.bulkWarnBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.bulkDeleteBtn {
+  background: #2a0a14;
+  border: 1px solid #7a1020;
+  border-radius: 4px;
+  padding: 6px 16px;
+  color: #c03030;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.bulkDeleteBtn:hover { background: #3a0818; }
+.bulkDeleteBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Gallery card selection states */
+.galleryCardSelectable {
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  position: relative;
+}
+.galleryCardSelectable:hover { border-color: #5a1a24; }
+.galleryCardSelected {
+  border-color: #c0392b !important;
+  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.25);
+}
+
+/* Checkbox overlay */
+.galleryCheckbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+}
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  background: rgba(10, 3, 6, 0.85);
+  border: 2px solid #5a1a24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #60a880;
+  transition: all 0.15s;
+  backdrop-filter: blur(2px);
+}
+.checkboxChecked {
+  background: #0a1a10;
+  border-color: #60a880;
+}

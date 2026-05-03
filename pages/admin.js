@@ -20,22 +20,30 @@ export async function getServerSideProps({ req }) {
 }
 
 export default function AdminPage({ players, adminName, isOwner }) {
-  const [section, setSection] = useState('players');
-  const [rolesSearch, setRolesSearch] = useState('');
-  const [rolesFilter, setRolesFilter] = useState('all');
+  const [section, setSection]           = useState('players');
+  const [rolesSearch, setRolesSearch]   = useState('');
+  const [rolesFilter, setRolesFilter]   = useState('all');
   const [roleLoadingId, setRoleLoadingId] = useState(null);
-  const [list, setList] = useState(players);
+  const [list, setList]                 = useState(players);
   const [loadingAction, setLoadingAction] = useState(null);
-  const [filter, setFilter] = useState('pending');
-  const [search, setSearch] = useState('');
+  const [filter, setFilter]             = useState('pending');
+  const [search, setSearch]             = useState('');
 
   const [chroniclesTab, setChroniclesTab] = useState('pending');
-  const [chronicles, setChronicles] = useState([]);
+  const [chronicles, setChronicles]       = useState([]);
   const [chroniclesLoading, setChroniclesLoading] = useState(false);
 
-  const [galleryTab, setGalleryTab] = useState('pending');
-  const [gallery, setGallery] = useState([]);
+  const [galleryTab, setGalleryTab]         = useState('pending');
+  const [gallery, setGallery]               = useState([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
+
+  // ── Gallery multi-select state ──
+  const [selected, setSelected]         = useState(new Set());
+  const [bulkLoading, setBulkLoading]   = useState(false);
+  const [selectMode, setSelectMode]     = useState(false);
+
+  // Reset selection when tab or section changes
+  useEffect(() => { setSelected(new Set()); setSelectMode(false); }, [galleryTab, section]);
 
   async function loadContent(type, status) {
     if (type === 'chronicles') setChroniclesLoading(true);
@@ -43,7 +51,7 @@ export default function AdminPage({ players, adminName, isOwner }) {
     const res = await fetch(`/api/admin-notion?type=${type}&status=${status}`);
     const data = await res.json();
     if (type === 'chronicles') { setChronicles(data.items || []); setChroniclesLoading(false); }
-    if (type === 'gallery') { setGallery(data.items || []); setGalleryLoading(false); }
+    if (type === 'gallery')    { setGallery(data.items || []);    setGalleryLoading(false); }
   }
 
   useEffect(() => {
@@ -53,6 +61,80 @@ export default function AdminPage({ players, adminName, isOwner }) {
   useEffect(() => {
     if (section === 'gallery') loadContent('gallery', galleryTab);
   }, [section, galleryTab]);
+
+  // ── Selection helpers ──
+  function toggleSelect(id) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (selected.size === gallery.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(gallery.map(g => g.id)));
+    }
+  }
+
+  // ── Bulk action ──
+  async function handleBulkAction(action) {
+    if (selected.size === 0) return;
+
+    const label = action === 'approve' ? 'approve' :
+                  action === 'reject'  ? 'reject'  :
+                  action === 'unpublish' ? 'unpublish' : 'delete';
+
+    const confirmed = action === 'delete' || action === 'reject'
+      ? confirm(`${label.charAt(0).toUpperCase() + label.slice(1)} ${selected.size} photo${selected.size > 1 ? 's' : ''}? This cannot be undone.`)
+      : true;
+
+    if (!confirmed) return;
+
+    setBulkLoading(true);
+    const pageIds = Array.from(selected);
+
+    try {
+      const res = await fetch('/api/admin-notion-bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageIds, action }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        // Remove acted-upon items from the list
+        if (['approve', 'reject', 'delete', 'unpublish'].includes(action)) {
+          setGallery(prev => prev.filter(g => !selected.has(g.id)));
+        }
+        setSelected(new Set());
+        setSelectMode(false);
+        if (data.failed > 0) {
+          alert(`Done — but ${data.failed} item${data.failed > 1 ? 's' : ''} failed. Refresh to check.`);
+        }
+      } else {
+        alert(data.error || 'Bulk action failed');
+      }
+    } catch {
+      alert('Something went wrong — please try again');
+    }
+    setBulkLoading(false);
+  }
+
+  // ── Single item action ──
+  async function handleNotionAction(pageId, action, type) {
+    setLoadingAction(pageId + action);
+    await fetch('/api/admin-notion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pageId, action }),
+    });
+    if (type === 'chronicles') setChronicles(prev => prev.filter(c => c.id !== pageId));
+    if (type === 'gallery')    setGallery(prev => prev.filter(g => g.id !== pageId));
+    setLoadingAction(null);
+  }
 
   async function handleSetRole(playerId, role) {
     setRoleLoadingId(playerId);
@@ -82,18 +164,6 @@ export default function AdminPage({ players, adminName, isOwner }) {
     setLoadingAction(null);
   }
 
-  async function handleNotionAction(pageId, action, type) {
-    setLoadingAction(pageId + action);
-    await fetch('/api/admin-notion', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ pageId, action }),
-    });
-    if (type === 'chronicles') setChronicles(prev => prev.filter(c => c.id !== pageId));
-    if (type === 'gallery') setGallery(prev => prev.filter(g => g.id !== pageId));
-    setLoadingAction(null);
-  }
-
   const filtered = list.filter(p => {
     const matchesFilter = filter === 'all' ? true : p.status === filter;
     const q = search.toLowerCase().trim();
@@ -105,6 +175,7 @@ export default function AdminPage({ players, adminName, isOwner }) {
   });
 
   const pendingCount = list.filter(p => p.status === 'pending').length;
+  const allSelected  = gallery.length > 0 && selected.size === gallery.length;
 
   return (
     <>
@@ -128,6 +199,7 @@ export default function AdminPage({ players, adminName, isOwner }) {
           </button>
         </div>
 
+        {/* ── PLAYERS ── */}
         {section === 'players' && (
           <>
             <div className={styles.searchBar}>
@@ -189,15 +261,12 @@ export default function AdminPage({ players, adminName, isOwner }) {
           </>
         )}
 
+        {/* ── CHRONICLES ── */}
         {section === 'chronicles' && (
           <>
             <div className={styles.subTabs}>
-              <button className={`${styles.subTab} ${chroniclesTab === 'pending' ? styles.subTabActive : ''}`} onClick={() => setChroniclesTab('pending')}>
-                Pending Review
-              </button>
-              <button className={`${styles.subTab} ${chroniclesTab === 'published' ? styles.subTabActive : ''}`} onClick={() => setChroniclesTab('published')}>
-                Published
-              </button>
+              <button className={`${styles.subTab} ${chroniclesTab === 'pending' ? styles.subTabActive : ''}`} onClick={() => setChroniclesTab('pending')}>Pending Review</button>
+              <button className={`${styles.subTab} ${chroniclesTab === 'published' ? styles.subTabActive : ''}`} onClick={() => setChroniclesTab('published')}>Published</button>
             </div>
             <div className={styles.contentSection}>
               {chroniclesTab === 'pending' && <p className={styles.sectionDesc}>Chronicles submitted by players — review and publish or reject.</p>}
@@ -226,7 +295,7 @@ export default function AdminPage({ players, adminName, isOwner }) {
                       {chroniclesTab === 'published' && (
                         <>
                           <button className={styles.warnBtn} onClick={() => handleNotionAction(item.id, 'unpublish', 'chronicles')} disabled={loadingAction === item.id + 'unpublish'}>{loadingAction === item.id + 'unpublish' ? '...' : 'Unpublish'}</button>
-                          <button className={styles.deleteBtn} onClick={() => { if(confirm('Delete this chronicle permanently?')) handleNotionAction(item.id, 'delete', 'chronicles'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
+                          <button className={styles.deleteBtn} onClick={() => { if (confirm('Delete this chronicle permanently?')) handleNotionAction(item.id, 'delete', 'chronicles'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
                         </>
                       )}
                     </div>
@@ -246,16 +315,83 @@ export default function AdminPage({ players, adminName, isOwner }) {
           </>
         )}
 
+        {/* ── GALLERY ── */}
         {section === 'gallery' && (
           <>
             <div className={styles.subTabs}>
-              <button className={`${styles.subTab} ${galleryTab === 'pending' ? styles.subTabActive : ''}`} onClick={() => setGalleryTab('pending')}>
-                Pending Review
-              </button>
-              <button className={`${styles.subTab} ${galleryTab === 'published' ? styles.subTabActive : ''}`} onClick={() => setGalleryTab('published')}>
-                Published
-              </button>
+              <button className={`${styles.subTab} ${galleryTab === 'pending' ? styles.subTabActive : ''}`} onClick={() => setGalleryTab('pending')}>Pending Review</button>
+              <button className={`${styles.subTab} ${galleryTab === 'published' ? styles.subTabActive : ''}`} onClick={() => setGalleryTab('published')}>Published</button>
             </div>
+
+            {/* Toolbar */}
+            {!galleryLoading && gallery.length > 0 && (
+              <div className={styles.galleryToolbar}>
+                <div className={styles.galleryToolbarLeft}>
+                  <button
+                    className={`${styles.selectModeBtn} ${selectMode ? styles.selectModeActive : ''}`}
+                    onClick={() => { setSelectMode(m => !m); setSelected(new Set()); }}
+                  >
+                    {selectMode ? '✕ Cancel selection' : '☑ Select photos'}
+                  </button>
+
+                  {selectMode && (
+                    <>
+                      <button className={styles.selectAllBtn} onClick={toggleSelectAll}>
+                        {allSelected ? 'Deselect all' : `Select all (${gallery.length})`}
+                      </button>
+                      {selected.size > 0 && (
+                        <span className={styles.selectedCount}>
+                          {selected.size} selected
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                {/* Bulk action buttons — only show when items are selected */}
+                {selectMode && selected.size > 0 && (
+                  <div className={styles.bulkActions}>
+                    {galleryTab === 'pending' && (
+                      <>
+                        <button
+                          className={styles.bulkApproveBtn}
+                          onClick={() => handleBulkAction('approve')}
+                          disabled={bulkLoading}
+                        >
+                          {bulkLoading ? '...' : `✓ Approve ${selected.size}`}
+                        </button>
+                        <button
+                          className={styles.bulkRejectBtn}
+                          onClick={() => handleBulkAction('reject')}
+                          disabled={bulkLoading}
+                        >
+                          {bulkLoading ? '...' : `✕ Reject ${selected.size}`}
+                        </button>
+                      </>
+                    )}
+                    {galleryTab === 'published' && (
+                      <>
+                        <button
+                          className={styles.bulkWarnBtn}
+                          onClick={() => handleBulkAction('unpublish')}
+                          disabled={bulkLoading}
+                        >
+                          {bulkLoading ? '...' : `Unpublish ${selected.size}`}
+                        </button>
+                        <button
+                          className={styles.bulkDeleteBtn}
+                          onClick={() => handleBulkAction('delete')}
+                          disabled={bulkLoading}
+                        >
+                          {bulkLoading ? '...' : `🗑 Delete ${selected.size}`}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className={styles.contentSection}>
               {galleryTab === 'pending' && <p className={styles.sectionDesc}>Photos submitted by players — approve to add to the gallery or reject to remove.</p>}
               {galleryTab === 'published' && <p className={styles.sectionDesc}>Currently live gallery photos — unpublish to hide or delete to remove permanently.</p>}
@@ -264,36 +400,58 @@ export default function AdminPage({ players, adminName, isOwner }) {
                 <p className={styles.empty}>{galleryTab === 'pending' ? 'No photos pending review!' : 'No published photos yet.'}</p>
               )}
               <div className={styles.galleryGrid}>
-                {!galleryLoading && gallery.map(item => (
-                  <div key={item.id} className={styles.galleryCard}>
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={`By ${item.author}`} className={styles.galleryImg} />
-                    ) : (
-                      <div className={styles.galleryPlaceholder}>No image</div>
-                    )}
-                    <div className={styles.galleryFooter}>
-                      <span className={styles.galleryAuthor}>By {item.author}</span>
-                      <div className={styles.actions}>
-                        {galleryTab === 'pending' && (
-                          <>
-                            <button className={styles.approveBtn} onClick={() => handleNotionAction(item.id, 'approve', 'gallery')} disabled={loadingAction === item.id + 'approve'}>{loadingAction === item.id + 'approve' ? '...' : 'Publish'}</button>
-                            <button className={styles.rejectBtn} onClick={() => handleNotionAction(item.id, 'reject', 'gallery')} disabled={loadingAction === item.id + 'reject'}>{loadingAction === item.id + 'reject' ? '...' : 'Reject'}</button>
-                          </>
-                        )}
-                        {galleryTab === 'published' && (
-                          <>
-                            <button className={styles.warnBtn} onClick={() => handleNotionAction(item.id, 'unpublish', 'gallery')} disabled={loadingAction === item.id + 'unpublish'}>{loadingAction === item.id + 'unpublish' ? '...' : 'Unpublish'}</button>
-                            <button className={styles.deleteBtn} onClick={() => { if(confirm('Delete this photo permanently?')) handleNotionAction(item.id, 'delete', 'gallery'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
-                          </>
+                {!galleryLoading && gallery.map(item => {
+                  const isSelected = selected.has(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      className={`${styles.galleryCard} ${selectMode ? styles.galleryCardSelectable : ''} ${isSelected ? styles.galleryCardSelected : ''}`}
+                      onClick={() => selectMode && toggleSelect(item.id)}
+                    >
+                      {/* Selection checkbox overlay */}
+                      {selectMode && (
+                        <div className={styles.galleryCheckbox}>
+                          <div className={`${styles.checkbox} ${isSelected ? styles.checkboxChecked : ''}`}>
+                            {isSelected && <span>✓</span>}
+                          </div>
+                        </div>
+                      )}
+
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={`By ${item.author}`} className={styles.galleryImg} />
+                      ) : (
+                        <div className={styles.galleryPlaceholder}>No image</div>
+                      )}
+
+                      <div className={styles.galleryFooter}>
+                        <span className={styles.galleryAuthor}>By {item.author}</span>
+                        {/* Per-card actions — hidden in select mode */}
+                        {!selectMode && (
+                          <div className={styles.actions}>
+                            {galleryTab === 'pending' && (
+                              <>
+                                <button className={styles.approveBtn} onClick={() => handleNotionAction(item.id, 'approve', 'gallery')} disabled={loadingAction === item.id + 'approve'}>{loadingAction === item.id + 'approve' ? '...' : 'Approve'}</button>
+                                <button className={styles.rejectBtn} onClick={() => handleNotionAction(item.id, 'reject', 'gallery')} disabled={loadingAction === item.id + 'reject'}>{loadingAction === item.id + 'reject' ? '...' : 'Reject'}</button>
+                              </>
+                            )}
+                            {galleryTab === 'published' && (
+                              <>
+                                <button className={styles.warnBtn} onClick={() => handleNotionAction(item.id, 'unpublish', 'gallery')} disabled={loadingAction === item.id + 'unpublish'}>{loadingAction === item.id + 'unpublish' ? '...' : 'Unpublish'}</button>
+                                <button className={styles.deleteBtn} onClick={() => { if (confirm('Delete this photo permanently?')) handleNotionAction(item.id, 'delete', 'gallery'); }} disabled={loadingAction === item.id + 'delete'}>{loadingAction === item.id + 'delete' ? '...' : 'Delete'}</button>
+                              </>
+                            )}
+                          </div>
                         )}
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </>
         )}
+
+        {/* ── ROLES ── */}
         {section === 'roles' && (
           <>
             <p className={styles.sectionDesc} style={{ marginBottom: '16px' }}>

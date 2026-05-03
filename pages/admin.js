@@ -40,6 +40,7 @@ export default function AdminPage({ players, adminName, isOwner }) {
   // ── Gallery multi-select state ──
   const [selected, setSelected]         = useState(new Set());
   const [bulkLoading, setBulkLoading]   = useState(false);
+  const [bulkProgress, setBulkProgress] = useState('');
   const [selectMode, setSelectMode]     = useState(false);
 
   // Reset selection when tab or section changes
@@ -95,6 +96,7 @@ export default function AdminPage({ players, adminName, isOwner }) {
 
     setBulkLoading(true);
     const pageIds = Array.from(selected);
+    setBulkProgress(`Processing 0 of ${pageIds.length}...`);
 
     try {
       const res = await fetch('/api/admin-notion-bulk', {
@@ -105,19 +107,20 @@ export default function AdminPage({ players, adminName, isOwner }) {
       const data = await res.json();
 
       if (res.ok) {
-        // Remove acted-upon items from the list
-        if (['approve', 'reject', 'delete', 'unpublish'].includes(action)) {
-          setGallery(prev => prev.filter(g => !selected.has(g.id)));
-        }
+        setBulkProgress(`Done — ${data.succeeded} processed${data.failed > 0 ? `, ${data.failed} failed` : ''}`);
+        setGallery(prev => prev.filter(g => !selected.has(g.id)));
         setSelected(new Set());
         setSelectMode(false);
+        setTimeout(() => setBulkProgress(''), 3000);
         if (data.failed > 0) {
           alert(`Done — but ${data.failed} item${data.failed > 1 ? 's' : ''} failed. Refresh to check.`);
         }
       } else {
+        setBulkProgress('');
         alert(data.error || 'Bulk action failed');
       }
     } catch {
+      setBulkProgress('');
       alert('Something went wrong — please try again');
     }
     setBulkLoading(false);
@@ -351,6 +354,11 @@ export default function AdminPage({ players, adminName, isOwner }) {
                 {/* Bulk action buttons — only show when items are selected */}
                 {selectMode && selected.size > 0 && (
                   <div className={styles.bulkActions}>
+                    {bulkLoading && (
+                      <span className={styles.bulkProgress}>
+                        Processing {selected.size} photo{selected.size > 1 ? 's' : ''}… please wait
+                      </span>
+                    )}
                     {galleryTab === 'pending' && (
                       <>
                         <button
@@ -358,14 +366,14 @@ export default function AdminPage({ players, adminName, isOwner }) {
                           onClick={() => handleBulkAction('approve')}
                           disabled={bulkLoading}
                         >
-                          {bulkLoading ? '...' : `✓ Approve ${selected.size}`}
+                          {bulkLoading ? '…' : `✓ Approve ${selected.size}`}
                         </button>
                         <button
                           className={styles.bulkRejectBtn}
                           onClick={() => handleBulkAction('reject')}
                           disabled={bulkLoading}
                         >
-                          {bulkLoading ? '...' : `✕ Reject ${selected.size}`}
+                          {bulkLoading ? '…' : `✕ Reject ${selected.size}`}
                         </button>
                       </>
                     )}
@@ -376,14 +384,14 @@ export default function AdminPage({ players, adminName, isOwner }) {
                           onClick={() => handleBulkAction('unpublish')}
                           disabled={bulkLoading}
                         >
-                          {bulkLoading ? '...' : `Unpublish ${selected.size}`}
+                          {bulkLoading ? '…' : `Unpublish ${selected.size}`}
                         </button>
                         <button
                           className={styles.bulkDeleteBtn}
                           onClick={() => handleBulkAction('delete')}
                           disabled={bulkLoading}
                         >
-                          {bulkLoading ? '...' : `🗑 Delete ${selected.size}`}
+                          {bulkLoading ? '…' : `🗑 Delete ${selected.size}`}
                         </button>
                       </>
                     )}

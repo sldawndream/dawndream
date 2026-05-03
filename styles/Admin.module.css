@@ -263,3 +263,17 @@
   background: #0a1a10;
   border-color: #60a880;
 }
+
+/* Bulk progress indicator */
+.bulkProgress {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: #c09080;
+  letter-spacing: 0.1em;
+  font-style: italic;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}

@@ -23,6 +23,7 @@ export default function Navbar({ activePage }) {
     { href: '/chronicles', label: 'Chronicles', page: 'chronicles' },
     { href: '/events', label: 'Events', page: 'events' },
     { href: '/gallery', label: 'Gallery', page: 'gallery' },
+    { href: '/sim', label: 'The Sim', page: 'sim' },
     { href: '/players', label: 'The Coven', page: 'players' },
     { href: '/eternal-press', label: 'The Eternal Press', page: 'eternal-press' },
   ];

@@ -17,7 +17,7 @@ export default function Navbar({ activePage }) {
 
   const links = [
     { href: '/', label: 'Lore & History', page: 'lore' },
-    { href: '/clans', label: 'Clans & Houses', page: 'clans' },
+    { href: '/clans', label: 'Clans', page: 'clans' },
     { href: '/hordes', label: 'Hordes', page: 'hordes' },
     { href: '/bloodlines', label: 'Bloodlines', page: 'bloodlines' },
     { href: '/chronicles', label: 'Chronicles', page: 'chronicles' },

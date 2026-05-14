@@ -287,3 +287,91 @@
   .panelName { font-size: 20px; }
   .visitBar { padding: 24px; }
 }
+
+/* ── Admin banner ── */
+.adminBanner {
+  background: #1a0a06;
+  border-bottom: 1px solid #5a2010;
+  padding: 10px 44px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: #c07030;
+  text-align: center;
+}
+
+/* ── Under construction ── */
+.underConstruction {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  background: var(--bg-deep);
+}
+.ucCard {
+  text-align: center;
+  max-width: 480px;
+  padding: 52px 40px;
+  background: #0d0410;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.ucDrop {
+  width: 10px;
+  height: 10px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: var(--red);
+  margin: 0 auto 24px;
+  opacity: 0.6;
+}
+.ucPre {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  color: #3a1418;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.ucTitle {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+}
+.ucRule {
+  width: 40px;
+  height: 1px;
+  background: var(--border-mid);
+  margin: 0 auto 20px;
+}
+.ucDesc {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: #6a4838;
+  font-style: italic;
+  line-height: 1.9;
+  margin-bottom: 28px;
+}
+.ucBtn {
+  display: inline-block;
+  background: #1a0810;
+  border: 1px solid #5a1a24;
+  border-radius: 4px;
+  padding: 11px 24px;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.ucBtn:hover {
+  background: var(--red-dark);
+  border-color: var(--red-dim);
+  color: #e8a090;
+}

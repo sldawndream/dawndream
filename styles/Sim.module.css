@@ -1,26 +1,19 @@
 /* ── Hero ── */
 .hero {
   position: relative;
-  height: 400px;
+  height: 280px;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 52px;
-}
-.heroBg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.52;
-  filter: saturate(1.1) brightness(0.85);
+  background: linear-gradient(160deg, #0a0418 0%, #130820 40%, #0a0412 100%);
+  border-bottom: 1px solid var(--border);
 }
 .heroVignette {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 40%, transparent 15%, rgba(3,1,6,0.72) 100%);
+  background: radial-gradient(ellipse at 50% 120%, rgba(120,20,40,0.08) 0%, transparent 70%);
 }
 .heroContent {
   position: relative;

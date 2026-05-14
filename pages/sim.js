@@ -1,5 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import Navbar from '../components/Navbar';
 import styles from '../styles/Sim.module.css';
 
@@ -42,7 +44,7 @@ const locations = [
   },
   {
     num: 'VII',
-    name: 'The Warden\'s Bridge',
+    name: "The Warden's Bridge",
     desc: 'Two stone guardians stand at the iron gate — hooded, silent, eternal. None pass without purpose.',
     url: 'https://res.cloudinary.com/dsrincyog/image/upload/v1778722461/ChatGPT_Image_May_3_2026_03_58_23_PM_gwozwc.png',
   },
@@ -93,32 +95,83 @@ const locations = [
 const SL_URL = 'secondlife://DawnDream/128/128/22';
 
 export default function SimPage() {
+  const router  = useRouter();
+  const [player, setPlayer]   = useState(undefined); // undefined = loading
   const [current, setCurrent] = useState(0);
   const [fading, setFading]   = useState(false);
+
+  useEffect(() => {
+    fetch('/api/session')
+      .then(r => r.json())
+      .then(data => setPlayer(data.player || null))
+      .catch(() => setPlayer(null));
+  }, []);
 
   function select(i) {
     if (i === current) return;
     setFading(true);
-    setTimeout(() => {
-      setCurrent(i);
-      setFading(false);
-    }, 350);
+    setTimeout(() => { setCurrent(i); setFading(false); }, 350);
   }
 
-  // Keyboard navigation
   useEffect(() => {
     function onKey(e) {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-        select((current + 1) % locations.length);
-      }
-      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-        select((current - 1 + locations.length) % locations.length);
-      }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') select((current + 1) % locations.length);
+      if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  select((current - 1 + locations.length) % locations.length);
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [current]);
 
+  // ── Loading state ──
+  if (player === undefined) {
+    return (
+      <>
+        <Head><title>The Sim — DawnDream</title></Head>
+        <Navbar activePage="sim" />
+        <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '11px', color: '#3a1418', letterSpacing: '0.2em' }}>
+            LOADING...
+          </p>
+        </div>
+      </>
+    );
+  }
+
+  // ── Not logged in → redirect to login ──
+  if (!player) {
+    if (typeof window !== 'undefined') router.push('/login');
+    return null;
+  }
+
+  const isAdmin = player.role === 'admin' || player.role === 'owner';
+
+  // ── Logged in but not admin → Under Construction ──
+  if (!isAdmin) {
+    return (
+      <>
+        <Head><title>The Sim — DawnDream</title></Head>
+        <Navbar activePage="sim" />
+        <div className={styles.underConstruction}>
+          <div className={styles.ucCard}>
+            <div className={styles.ucDrop} />
+            <p className={styles.ucPre}>The Lands of DawnDream</p>
+            <h1 className={styles.ucTitle}>Under Construction</h1>
+            <div className={styles.ucRule} />
+            <p className={styles.ucDesc}>
+              The council is still laying the stones of this place.<br />
+              Return when the torches are lit — the grounds will open soon.
+            </p>
+            <Link href="/" className={styles.ucBtn}>Return to the Coven →</Link>
+          </div>
+        </div>
+        <footer className={styles.footer}>
+          DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream
+        </footer>
+      </>
+    );
+  }
+
+  // ── Admin → full page ──
   const loc = locations[current];
 
   return (
@@ -129,29 +182,26 @@ export default function SimPage() {
       </Head>
       <Navbar activePage="sim" />
 
+      {/* Admin-only banner */}
+      <div className={styles.adminBanner}>
+        ⚙ Admin preview — this page is under construction and not yet visible to players
+      </div>
+
       {/* ── Hero ── */}
       <section className={styles.hero}>
-        <img
-          src={locations[3].url}
-          alt="DawnDream Sim"
-          className={styles.heroBg}
-        />
+        <img src={locations[10].url} alt="DawnDream Sim" className={styles.heroBg} />
         <div className={styles.heroVignette} />
         <div className={styles.heroContent}>
           <p className={styles.heroPre}>Second Life · Gothic Vampire RPG</p>
           <h1 className={styles.heroTitle}>
             The Lands of <span className={styles.heroRed}>DawnDream</span>
           </h1>
-          <p className={styles.heroSub}>
-            Walk the eternal grounds — fourteen locations, one endless night.
-          </p>
+          <p className={styles.heroSub}>Walk the eternal grounds — fourteen locations, one endless night.</p>
         </div>
       </section>
 
       {/* ── Tour ── */}
       <div className={styles.tour}>
-
-        {/* Sidebar */}
         <nav className={styles.sidebar}>
           <p className={styles.sidebarHead}>Locations</p>
           {locations.map((l, i) => (
@@ -167,7 +217,6 @@ export default function SimPage() {
           ))}
         </nav>
 
-        {/* Panel */}
         <div className={styles.panel}>
           {locations.map((l, i) => (
             <img
@@ -185,7 +234,6 @@ export default function SimPage() {
             <p className={styles.panelDesc}>{loc.desc}</p>
           </div>
         </div>
-
       </div>
 
       {/* ── Visit bar ── */}
@@ -194,9 +242,7 @@ export default function SimPage() {
           <p className={styles.visitTitle}>Visit DawnDream in Second Life</p>
           <p className={styles.visitSub}>Open to all approved members — the gates are always open under the moon.</p>
         </div>
-        <a href={SL_URL} className={styles.visitBtn}>
-          Teleport to DawnDream →
-        </a>
+        <a href={SL_URL} className={styles.visitBtn}>Teleport to DawnDream →</a>
       </div>
 
       <footer className={styles.footer}>

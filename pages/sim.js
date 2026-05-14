@@ -189,7 +189,6 @@ export default function SimPage() {
 
       {/* ── Hero ── */}
       <section className={styles.hero}>
-        <img src={locations[10].url} alt="DawnDream Sim" className={styles.heroBg} />
         <div className={styles.heroVignette} />
         <div className={styles.heroContent}>
           <p className={styles.heroPre}>Second Life · Gothic Vampire RPG</p>

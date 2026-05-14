@@ -92,7 +92,7 @@ const locations = [
   },
 ];
 
-const SL_URL = 'secondlife://DawnDream/128/128/22';
+const SL_URL = 'http://maps.secondlife.com/secondlife/Los%20Santoz/73/104/31';
 
 export default function SimPage() {
   const router  = useRouter();

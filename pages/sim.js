@@ -187,17 +187,14 @@ export default function SimPage() {
         ⚙ Admin preview — this page is under construction and not yet visible to players
       </div>
 
-      {/* ── Hero ── */}
-      <section className={styles.hero}>
-        <div className={styles.heroVignette} />
-        <div className={styles.heroContent}>
-          <p className={styles.heroPre}>Second Life · Gothic Vampire RPG</p>
-          <h1 className={styles.heroTitle}>
-            The Lands of <span className={styles.heroRed}>DawnDream</span>
-          </h1>
-          <p className={styles.heroSub}>Walk the eternal grounds — fourteen locations, one endless night.</p>
-        </div>
-      </section>
+      {/* ── Title ── */}
+      <div className={styles.pageTitle}>
+        <p className={styles.heroPre}>Second Life · Gothic Vampire RPG</p>
+        <h1 className={styles.heroTitle}>
+          The Lands of <span className={styles.heroRed}>DawnDream</span>
+        </h1>
+        <p className={styles.heroSub}>Walk the eternal grounds — fourteen locations, one endless night.</p>
+      </div>
 
       {/* ── Tour ── */}
       <div className={styles.tour}>

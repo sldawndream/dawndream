@@ -1,22 +1,8 @@
-/* ── Hero ── */
-.hero {
-  position: relative;
-  height: 280px;
-  overflow: hidden;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 52px;
-  background: linear-gradient(160deg, #0a0418 0%, #130820 40%, #0a0412 100%);
+/* ── Page title ── */
+.pageTitle {
+  background: var(--bg-deep);
   border-bottom: 1px solid var(--border);
-}
-.heroVignette {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 120%, rgba(120,20,40,0.08) 0%, transparent 70%);
-}
-.heroContent {
-  position: relative;
+  padding: 48px 44px 40px;
   text-align: center;
 }
 .heroPre {

@@ -20,7 +20,7 @@
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: .5em;
-  color: #7a4838;
+  color: #c0a090;
   text-transform: uppercase;
   margin-bottom: 28px;
 }
@@ -43,7 +43,7 @@
   font-family: var(--font-display);
   font-size: 11px;
   letter-spacing: .35em;
-  color: #7a4838;
+  color: #c0a090;
   text-transform: uppercase;
   margin-bottom: 28px;
 }
@@ -56,19 +56,19 @@
 }
 .coverDividerLine {
   width: 80px; height: 1px;
-  background: #3a1018;
+  background: #7a3828;
 }
 .coverDividerGem {
   width: 6px; height: 6px;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
   background: #c0392b;
-  opacity: .7;
+  opacity: 1;
 }
 .coverTagline {
   position: relative;
-  font-size: 16px;
-  color: #9a6858;
+  font-size: 18px;
+  color: #d0a888;
   font-style: italic;
   line-height: 2.1;
   max-width: 400px;
@@ -83,11 +83,11 @@
   flex-wrap: wrap;
 }
 .btnPrimary {
-  background: #2a0a14;
-  border: 1px solid #7a2030;
+  background: #3a0a18;
+  border: 1px solid #c0392b;
   border-radius: 4px;
   padding: 13px 34px;
-  color: #e8a090;
+  color: #f0c0a8;
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: .2em;
@@ -97,13 +97,13 @@
   text-decoration: none;
   display: inline-block;
 }
-.btnPrimary:hover { background: #3a0f1e; }
+.btnPrimary:hover { background: #5a0f20; }
 .btnSecondaryAlt {
   background: none;
-  border: 1px solid #3a1018;
+  border: 1px solid #7a3828;
   border-radius: 4px;
   padding: 13px 24px;
-  color: #6a3828;
+  color: #c09080;
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: .2em;
@@ -115,10 +115,10 @@
 }
 .btnSecondaryAlt {
   background: none;
-  border: 1px solid #3a1018;
+  border: 1px solid #7a3828;
   border-radius: 4px;
   padding: 13px 24px;
-  color: #6a3828;
+  color: #c09080;
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: .2em;
@@ -128,13 +128,13 @@
   text-decoration: none;
   display: inline-block;
 }
-.btnSecondaryAlt:hover { border-color: #5a1a24; color: #c09080; }
+.btnSecondaryAlt:hover { border-color: #c0392b; color: #f0c0a8; }
 .btnSecondary {
   background: none;
-  border: 1px solid #2a0a14;
+  border: 1px solid #7a3828;
   border-radius: 4px;
   padding: 13px 28px;
-  color: #4a2820;
+  color: #c09080;
   font-family: var(--font-display);
   font-size: 10px;
   letter-spacing: .2em;
@@ -144,7 +144,7 @@
   text-decoration: none;
   display: inline-block;
 }
-.btnSecondary:hover { border-color: #5a1a24; color: #9a6858; }
+.btnSecondary:hover { border-color: #c0392b; color: #f0c0a8; }
 
 /* ── Stats strip ── */
 .strip {

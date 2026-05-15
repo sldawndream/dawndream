@@ -38,6 +38,10 @@
 /* ── Grid ── */
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 
+@media (min-width: 900px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 /* ── Cards ── */
 .card { background: #0f0508; border: 1px solid #2a0a14; border-radius: 10px; padding: 22px 22px 20px; position: relative; overflow: hidden; transition: border-color 0.2s; }
 .card:hover { border-color: #4a1020; }

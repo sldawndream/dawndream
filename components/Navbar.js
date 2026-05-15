@@ -37,7 +37,7 @@ export default function Navbar({ activePage }) {
 
   return (
     <header className={styles.header}>
-      <div className={styles.logo}><span className={styles.drop}></span>DAWNDREAM</div>
+      <Link href="/" className={styles.logo}><span className={styles.drop}></span>DAWNDREAM</Link>
       <nav className={styles.nav}>
         {links.map(link => (
           <Link key={link.page} href={link.href} className={`${styles.navLink} ${!activePage && link.page === 'lore' || activePage === link.page ? styles.active : ''}`}>

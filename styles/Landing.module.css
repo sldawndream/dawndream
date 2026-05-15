@@ -1,0 +1,300 @@
+/* ── Hero Cover ── */
+.cover {
+  position: relative;
+  min-height: 780px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 40px 70px;
+  overflow: hidden;
+  border-bottom: 1px solid #1a0810;
+  background: #05020a;
+}
+.coverGlow {
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: rgba(150,15,25,0.06);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.coverRing {
+  position: absolute;
+  width: 560px; height: 560px;
+  border-radius: 50%;
+  border: 1px solid #110608;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.coverRing2 {
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  border: 1px solid #0c0406;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.coverOrnament {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .5em;
+  color: #2a0a10;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.coverOrnament::before,
+.coverOrnament::after {
+  content: '✦';
+  margin: 0 10px;
+  color: #1e0808;
+}
+.coverLogo {
+  position: relative;
+  width: 380px;
+  height: 380px;
+  object-fit: contain;
+  margin: 0 auto 28px;
+  display: block;
+  filter: drop-shadow(0 0 60px rgba(180,20,30,0.22));
+}
+.coverSubtitle {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: .35em;
+  color: #2a1010;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.coverDivider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 auto 32px;
+}
+.coverDividerLine {
+  width: 80px; height: 1px;
+  background: #1a0810;
+}
+.coverDividerGem {
+  width: 6px; height: 6px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  background: #c0392b;
+  opacity: .5;
+}
+.coverTagline {
+  position: relative;
+  font-size: 15px;
+  color: #4a2820;
+  font-style: italic;
+  line-height: 2.1;
+  max-width: 400px;
+  margin: 0 auto 48px;
+}
+.coverBtns {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.btnPrimary {
+  background: #2a0a14;
+  border: 1px solid #7a2030;
+  border-radius: 4px;
+  padding: 13px 34px;
+  color: #e8a090;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s;
+  text-decoration: none;
+  display: inline-block;
+}
+.btnPrimary:hover { background: #3a0f1e; }
+.btnSecondary {
+  background: none;
+  border: 1px solid #2a0a14;
+  border-radius: 4px;
+  padding: 13px 28px;
+  color: #4a2820;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+  text-decoration: none;
+  display: inline-block;
+}
+.btnSecondary:hover { border-color: #5a1a24; color: #9a6858; }
+
+/* ── Stats strip ── */
+.strip {
+  border-top: 1px solid #1a0810;
+  border-bottom: 1px solid #1a0810;
+  background: #07030a;
+  padding: 18px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+.stripItem { text-align: center; }
+.stripNum {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: #c0392b;
+  font-weight: 700;
+}
+.stripSoon {
+  font-family: var(--font-display);
+  font-size: 11px;
+  color: #3a1018;
+  font-style: italic;
+  letter-spacing: .06em;
+}
+.stripLabel {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .2em;
+  color: #2a1014;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+.stripDiv { width: 1px; height: 28px; background: #1a0810; }
+
+/* ── Section cards ── */
+.sections {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 52px 32px;
+}
+.sectionsHead {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .3em;
+  color: #2a1014;
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  text-align: center;
+}
+.sectionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: #1a0810;
+  border: 1px solid #1a0810;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.sc {
+  background: #07030a;
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: background .2s;
+  text-decoration: none;
+  display: block;
+}
+.sc:hover { background: #0c0410; }
+.scPre {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .22em;
+  color: #2a1014;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.scTitle {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: #d0a080;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: .04em;
+}
+.scDesc {
+  font-size: 12px;
+  color: #3a1e14;
+  font-style: italic;
+  line-height: 1.75;
+}
+.scArrow {
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: #2a1010;
+  margin-top: 12px;
+  display: block;
+  letter-spacing: .08em;
+  transition: color .2s;
+}
+.sc:hover .scArrow { color: #7a4030; }
+
+/* ── Bottom quote ── */
+.bottom {
+  background: #07030a;
+  border-top: 1px solid #1a0810;
+  padding: 52px 40px;
+  text-align: center;
+}
+.bottomPre {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .35em;
+  color: #2a1014;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.bottomQuote {
+  font-size: 15px;
+  color: #3a2018;
+  font-style: italic;
+  line-height: 1.9;
+  max-width: 500px;
+  margin: 0 auto 16px;
+}
+.bottomCite {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .2em;
+  color: #1e0c10;
+  text-transform: uppercase;
+}
+
+/* ── Footer ── */
+.footer {
+  border-top: 1px solid #0e060e;
+  background: #05020a;
+  padding: 18px 40px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: .18em;
+  color: #1a0c10;
+  text-transform: uppercase;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .coverLogo { width: 260px; height: 260px; }
+  .cover { min-height: 640px; padding: 48px 24px 56px; }
+  .sectionGrid { grid-template-columns: 1fr 1fr; }
+  .sections { padding: 36px 20px; }
+  .strip { gap: 20px; padding: 16px 24px; }
+}
+@media (max-width: 480px) {
+  .coverLogo { width: 200px; height: 200px; }
+  .sectionGrid { grid-template-columns: 1fr; }
+}

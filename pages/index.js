@@ -1,132 +1,138 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import Link from 'next/link';
 import Navbar from '../components/Navbar';
-import { getLoreEntries, getEras, getLycanLoreEntries, getLycanEras } from '../lib/notion';
-import styles from '../styles/Lore.module.css';
+import styles from '../styles/Landing.module.css';
 
-export async function getServerSideProps() {
-  try {
-    const [entries, eras, lycanEntries, lycanEras] = await Promise.all([
-      getLoreEntries(),
-      getEras(),
-      getLycanLoreEntries(),
-      getLycanEras(),
-    ]);
-    return { props: { entries, eras, lycanEntries, lycanEras } };
-  } catch (err) {
-    console.error('Notion fetch error:', err);
-    return { props: { entries: [], eras: [], lycanEntries: [], lycanEras: [] } };
-  }
-}
+const LOGO_URL = 'https://res.cloudinary.com/dsrincyog/image/upload/v1778809656/image_2026-05-15_024732856_pif7xh.png';
+const SL_URL   = 'http://maps.secondlife.com/secondlife/Los%20Santoz/73/104/31';
 
-function TimelineContent({ entries, eras, isLycan }) {
-  return (
-    <>
-      <div className={styles.body}>
-        <aside className={styles.sidebar}>
-          <p className={styles.sidebarTitle}>{isLycan ? 'Eras of the Pack' : 'Eras of History'}</p>
-          {eras.map((era) => (
-            <a key={era.id} href={`#${era.id}`} className={`${styles.eraLink} ${isLycan ? styles.eraLinkLycan : ''}`}>
-              {era.label}
-              <span className={styles.eraYear}>{era.year}</span>
-            </a>
-          ))}
-        </aside>
-
-        <main className={styles.content}>
-          <p className={styles.sectionHead}>{isLycan ? 'Timeline of the Pack' : 'Timeline of the Bloodlines'}</p>
-          {entries.length === 0 && (
-            <p style={{ color: isLycan ? '#1a4a6a' : '#7a5a50', fontStyle: 'italic' }}>
-              No lore entries yet — add them in your Notion database!
-            </p>
-          )}
-          <div className={`${styles.timeline} ${isLycan ? styles.timelineLycan : ''}`}>
-            {entries.map((entry, i) => (
-              <div key={entry.id}>
-                <article id={entry.eraId} className={styles.entry}>
-                  <div className={`${styles.dot} ${entry.major ? (isLycan ? styles.dotMajorLycan : styles.dotMajor) : ''} ${isLycan ? styles.dotLycan : ''}`}>
-                    <div className={styles.dotInner} />
-                  </div>
-                  {entry.coverImage && (
-                    <img src={entry.coverImage} alt={entry.title} className={styles.coverImage} />
-                  )}
-                  <p className={styles.entryEra}>{entry.era}</p>
-                  <p className={`${styles.entryYear} ${isLycan ? styles.entryYearLycan : ''}`}>{entry.year}</p>
-                  <div className={styles.tags}>
-                    {entry.tag && <span className={`${styles.tag} ${styles[entry.tagStyle]}`}>{entry.tag}</span>}
-                    {entry.tag2 && <span className={`${styles.tag} ${styles[entry.tag2Style]}`}>{entry.tag2}</span>}
-                  </div>
-                  <h2 className={styles.entryTitle}>{entry.title}</h2>
-                  <div className={styles.entryBody}>
-                    {entry.body.split('\n').filter(Boolean).map((para, j) => (
-                      <p key={j}>{para}</p>
-                    ))}
-                  </div>
-                  {entry.quote && (
-                    <blockquote className={`${styles.quote} ${isLycan ? styles.quoteLycan : ''}`}>
-                      {entry.quote}
-                      {entry.quoteAuthor && <cite>{entry.quoteAuthor}</cite>}
-                    </blockquote>
-                  )}
-                </article>
-                {i < entries.length - 1 && <div className={styles.separator} />}
-              </div>
-            ))}
-          </div>
-        </main>
-      </div>
-    </>
-  );
-}
-
-export default function LorePage({ entries, eras, lycanEntries, lycanEras }) {
-  const [race, setRace] = useState('vampire');
-  const isLycan = race === 'lycan';
-
+export default function LandingPage() {
   return (
     <>
       <Head>
-        <title>Lore & History — DawnDream</title>
-        <meta name="description" content="The chronicles of DawnDream — origins, wars, and bloodlines." />
+        <title>DawnDream — Vampire & Lycan RPG · Second Life</title>
+        <meta name="description" content="DawnDream — the gothic vampire and lycan RPG for Second Life. The eternal night does not sleep." />
       </Head>
+      <Navbar activePage="home" />
 
-      <Navbar activePage="lore" />
+      {/* ── Hero Cover ── */}
+      <section className={styles.cover}>
+        <div className={styles.coverGlow} />
+        <div className={styles.coverRing} />
+        <div className={styles.coverRing2} />
 
-      {/* ── Race switcher ── */}
-      <div className={styles.raceBar}>
-        <button
-          className={`${styles.raceBtn} ${!isLycan ? styles.raceBtnVampActive : ''}`}
-          onClick={() => setRace('vampire')}
-        >
-          <span className={styles.raceBtnLabel}>Vampire</span>
-          <span className={styles.raceBtnSub}>Children of the Night</span>
-        </button>
-        <button
-          className={`${styles.raceBtn} ${isLycan ? styles.raceBtnLycanActive : ''}`}
-          onClick={() => setRace('lycan')}
-        >
-          <span className={`${styles.raceBtnLabel} ${styles.raceBtnLabelLycan}`}>Lycan</span>
-          <span className={`${styles.raceBtnSub} ${styles.raceBtnSubLycan}`}>Children of the Moon</span>
-        </button>
-      </div>
+        <p className={styles.coverOrnament}>The Eternal Covenant</p>
 
-      {/* ── Hero ── */}
-      <section className={`${styles.hero} ${isLycan ? styles.heroLycan : ''}`}>
-        <p className={styles.eyebrow}>{isLycan ? 'The Ancient Pack Scrolls' : 'The Sacred Texts of DawnDream'}</p>
-        <h1 className={styles.heroTitle}>{isLycan ? 'Origins of the Wolf-Blooded' : 'Origins of the DawnDream'}</h1>
-        <p className={styles.heroSub}>{isLycan ? 'Before the first howl — the moon chose its children long before the vampires built their throne.' : 'From the first darkness, they were born — and the world has never been the same.'}</p>
-        <div className={`${styles.heroDivider} ${isLycan ? styles.heroDividerLycan : ''}`} />
-        <p className={styles.heroIntro}>{isLycan ? 'What follows are the recorded chronicles of the wolf-blooded — the first change, the pack laws, the great hunts, and the bloodlines that shape every lycan who walks beneath the eternal moon.' : 'What follows are the recorded chronicles of DawnDream — the ancient covenant, the great wars, the betrayals, and the bloodlines that shape every soul who walks beneath the eternal night.'}</p>
+        <img
+          src={LOGO_URL}
+          alt="DawnDream"
+          className={styles.coverLogo}
+        />
+
+        <p className={styles.coverSubtitle}>Vampire &amp; Lycan RPG &nbsp;·&nbsp; Second Life</p>
+
+        <div className={styles.coverDivider}>
+          <div className={styles.coverDividerLine} />
+          <div className={styles.coverDividerGem} />
+          <div className={styles.coverDividerLine} />
+        </div>
+
+        <p className={styles.coverTagline}>
+          The eternal night does not sleep.<br />
+          The blood does not forget.<br />
+          The moon does not forgive.
+        </p>
+
+        <div className={styles.coverBtns}>
+          <Link href="/register" className={styles.btnPrimary}>
+            Request Access →
+          </Link>
+          <a href={SL_URL} className={styles.btnSecondary} target="_blank" rel="noreferrer">
+            Explore the World
+          </a>
+        </div>
       </section>
 
-      <TimelineContent
-        entries={isLycan ? lycanEntries : entries}
-        eras={isLycan ? lycanEras : eras}
-        isLycan={isLycan}
-      />
+      {/* ── Stats strip ── */}
+      <div className={styles.strip}>
+        <div className={styles.stripItem}>
+          <div className={styles.stripSoon}>Coming Soon</div>
+          <div className={styles.stripLabel}>Members</div>
+        </div>
+        <div className={styles.stripDiv} />
+        <div className={styles.stripItem}>
+          <div className={styles.stripNum}>2</div>
+          <div className={styles.stripLabel}>Races</div>
+        </div>
+        <div className={styles.stripDiv} />
+        <div className={styles.stripItem}>
+          <div className={styles.stripNum}>18</div>
+          <div className={styles.stripLabel}>Vampire Ages</div>
+        </div>
+        <div className={styles.stripDiv} />
+        <div className={styles.stripItem}>
+          <div className={styles.stripNum}>17</div>
+          <div className={styles.stripLabel}>Lycan Ages</div>
+        </div>
+        <div className={styles.stripDiv} />
+        <div className={styles.stripItem}>
+          <div className={styles.stripNum}>∞</div>
+          <div className={styles.stripLabel}>Always Night</div>
+        </div>
+      </div>
+
+      {/* ── Section cards ── */}
+      <div className={styles.sections}>
+        <p className={styles.sectionsHead}>Explore DawnDream</p>
+        <div className={styles.sectionGrid}>
+          <Link href="/" className={styles.sc}>
+            <p className={styles.scPre}>The Blood</p>
+            <p className={styles.scTitle}>Vampire Lore</p>
+            <p className={styles.scDesc}>Centuries of covenant, war and betrayal — the full history of the eternal kindred.</p>
+            <span className={styles.scArrow}>Read the Chronicles →</span>
+          </Link>
+          <Link href="/" className={styles.sc}>
+            <p className={styles.scPre}>The Moon</p>
+            <p className={styles.scTitle}>Lycan Lore</p>
+            <p className={styles.scDesc}>Before the throne was built, the moon chose its children — their story is older than blood.</p>
+            <span className={styles.scArrow}>Read the Pack Scrolls →</span>
+          </Link>
+          <Link href="/clans" className={styles.sc}>
+            <p className={styles.scPre}>The Factions</p>
+            <p className={styles.scTitle}>Clans & Hordes</p>
+            <p className={styles.scDesc}>The great factions of DawnDream — sworn to the throne or defiant against it.</p>
+            <span className={styles.scArrow}>Meet the Factions →</span>
+          </Link>
+          <Link href="/gallery" className={styles.sc}>
+            <p className={styles.scPre}>The Gallery</p>
+            <p className={styles.scTitle}>Member Art</p>
+            <p className={styles.scDesc}>Photographs and portraits from the eternal grounds — submitted by members of the coven.</p>
+            <span className={styles.scArrow}>Enter the Gallery →</span>
+          </Link>
+          <Link href="/sim" className={styles.sc}>
+            <p className={styles.scPre}>The Grounds</p>
+            <p className={styles.scTitle}>The Sim</p>
+            <p className={styles.scDesc}>Explore the eternal lands of DawnDream — fourteen locations, one endless night.</p>
+            <span className={styles.scArrow}>Visit the Sim →</span>
+          </Link>
+          <Link href="/eternal-press" className={styles.sc}>
+            <p className={styles.scPre}>The Press</p>
+            <p className={styles.scTitle}>Eternal Press</p>
+            <p className={styles.scDesc}>Stories, reports and chronicles written by the members of DawnDream themselves.</p>
+            <span className={styles.scArrow}>Read the Press →</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Bottom quote ── */}
+      <div className={styles.bottom}>
+        <p className={styles.bottomPre}>The Sacred Texts of DawnDream</p>
+        <p className={styles.bottomQuote}>"In the age before memory, the first blood was spilled beneath a moonless sky — and the world has never been the same since that night."</p>
+        <p className={styles.bottomCite}>— House Crimsonveil, Year 0</p>
+      </div>
 
       <footer className={styles.footer}>
-        DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All lore © DawnDream
+        DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream
       </footer>
     </>
   );

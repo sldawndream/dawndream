@@ -63,7 +63,7 @@ export default function LandingPage() {
               </>
             )}
             <a href={SL_URL} className={styles.btnSecondary} target="_blank" rel="noreferrer">
-              Explore the World
+              Visit the DawnDream Sim
             </a>
           </div>
         )}

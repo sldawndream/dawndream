@@ -16,7 +16,7 @@ export default function Navbar({ activePage }) {
   }, [router.pathname]);
 
   const links = [
-    { href: '/', label: 'Lore & History', page: 'lore' },
+    { href: '/lore', label: 'Lore & History', page: 'lore' },
     { href: '/age-groups', label: 'Age Groups', page: 'age-groups' },
     { href: '/clans', label: 'Clans', page: 'clans' },
     { href: '/hordes', label: 'Hordes', page: 'hordes' },

@@ -207,3 +207,25 @@
   }
   .clanInfo { padding: 18px 20px; }
 }
+
+/* ── Lore collapsible ── */
+.loreDetails {
+  margin-top: 4px;
+}
+.loreDetails summary::-webkit-details-marker { display: none; }
+.loreDetails summary { list-style: none; }
+.loreSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #6a3828;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+.loreSummary:hover { color: #c09080; }
+.loreDetails[open] .loreSummary { color: #c09080; }

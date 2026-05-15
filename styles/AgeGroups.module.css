@@ -53,8 +53,8 @@
 .cardNumLycan { color: #0a2a42; }
 .cardName { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: #f0d0b8; margin-bottom: 4px; letter-spacing: 0.04em; }
 .cardNameLycan { color: #b8d8f0; }
-.cardNights { font-size: 12px; font-style: italic; color: #5a2820; margin-bottom: 12px; letter-spacing: 0.04em; }
-.cardNightsLycan { color: #1a4a6a; }
+.cardNights { font-size: 13px; font-weight: 700; color: #c09080; margin-bottom: 12px; letter-spacing: 0.06em; }
+.cardNightsLycan { color: #5ab0d8; }
 .cardDesc { font-size: 13px; color: #5a3828; line-height: 1.7; font-style: italic; }
 .cardDescLycan { color: #1a3a58; }
 

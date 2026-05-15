@@ -1,12 +1,23 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import styles from '../styles/Landing.module.css';
 
-const LOGO_URL = 'https://res.cloudinary.com/dsrincyog/image/upload/v1778809656/image_2026-05-15_024732856_pif7xh.png';
+const LOGO_URL = 'https://res.cloudinary.com/dsrincyog/image/upload/v1778810339/ChatGPT_Image_May_15_2026_02_58_43_AM_ogepa9.png';
 const SL_URL   = 'http://maps.secondlife.com/secondlife/Los%20Santoz/73/104/31';
 
 export default function LandingPage() {
+  const [player, setPlayer] = useState(undefined);
+
+  useEffect(() => {
+    fetch('/api/session')
+      .then(r => r.json())
+      .then(data => setPlayer(data.player || null))
+      .catch(() => setPlayer(null));
+  }, []);
+
+  const isLoggedIn = !!player;
   return (
     <>
       <Head>
@@ -43,14 +54,19 @@ export default function LandingPage() {
           The moon does not forgive.
         </p>
 
-        <div className={styles.coverBtns}>
-          <Link href="/register" className={styles.btnPrimary}>
-            Request Access →
-          </Link>
-          <a href={SL_URL} className={styles.btnSecondary} target="_blank" rel="noreferrer">
-            Explore the World
-          </a>
-        </div>
+        {player !== undefined && (
+          <div className={styles.coverBtns}>
+            {!isLoggedIn && (
+              <>
+                <Link href="/register" className={styles.btnPrimary}>Request Access →</Link>
+                <Link href="/login" className={styles.btnSecondaryAlt}>Login</Link>
+              </>
+            )}
+            <a href={SL_URL} className={styles.btnSecondary} target="_blank" rel="noreferrer">
+              Explore the World
+            </a>
+          </div>
+        )}
       </section>
 
       {/* ── Stats strip ── */}

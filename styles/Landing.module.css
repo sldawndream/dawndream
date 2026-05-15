@@ -56,12 +56,12 @@
 }
 .coverLogo {
   position: relative;
-  width: 380px;
-  height: 380px;
+  width: 480px;
+  height: 480px;
   object-fit: contain;
   margin: 0 auto 28px;
   display: block;
-  filter: drop-shadow(0 0 60px rgba(180,20,30,0.22));
+  filter: drop-shadow(0 0 80px rgba(180,20,30,0.28));
 }
 .coverSubtitle {
   position: relative;
@@ -123,7 +123,22 @@
   display: inline-block;
 }
 .btnPrimary:hover { background: #3a0f1e; }
-.btnSecondary {
+.btnSecondaryAlt {
+  background: none;
+  border: 1px solid #3a1018;
+  border-radius: 4px;
+  padding: 13px 24px;
+  color: #6a3828;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .2s;
+  text-decoration: none;
+  display: inline-block;
+}
+.btnSecondaryAlt:hover { border-color: #5a1a24; color: #c09080; }
   background: none;
   border: 1px solid #2a0a14;
   border-radius: 4px;
@@ -288,13 +303,13 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  .coverLogo { width: 260px; height: 260px; }
+  .coverLogo { width: 300px; height: 300px; }
   .cover { min-height: 640px; padding: 48px 24px 56px; }
   .sectionGrid { grid-template-columns: 1fr 1fr; }
   .sections { padding: 36px 20px; }
   .strip { gap: 20px; padding: 16px 24px; }
 }
 @media (max-width: 480px) {
-  .coverLogo { width: 200px; height: 200px; }
+  .coverLogo { width: 240px; height: 240px; }
   .sectionGrid { grid-template-columns: 1fr; }
 }

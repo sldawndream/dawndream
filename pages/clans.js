@@ -55,7 +55,12 @@ export default function ClansPage({ clans }) {
                     <span className={`${styles.rankPill} ${styles.rankBg} ${!clan.bloodGeneral ? styles.rankEmpty : ''}`}>Blood General: {clan.bloodGeneral || 'None'}</span>
                     <span className={`${styles.rankPill} ${styles.rankWc} ${!clan.warCaptain ? styles.rankEmpty : ''}`}>War Captain: {clan.warCaptain || 'None'}</span>
                   </div>
-                  {clan.lore && <p className={styles.clanLore}>{clan.lore}</p>}
+                  {clan.lore && (
+                    <details className={styles.loreDetails}>
+                      <summary className={styles.loreSummary}>Read lore ▾</summary>
+                      <p className={styles.clanLore}>{clan.lore}</p>
+                    </details>
+                  )}
                 </div>
               </div>
             ))}

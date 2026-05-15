@@ -320,3 +320,84 @@
   .figureRow { grid-template-columns: 1fr; }
   .heroTitle { font-size: 26px; }
 }
+
+/* ── Race switcher ── */
+.raceBar {
+  display: flex;
+  border-bottom: 1px solid #1a0810;
+}
+.raceBtn {
+  flex: 1;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  border-bottom: 3px solid transparent;
+  transition: background 0.2s;
+}
+.raceBtn:hover { background: #0d0410; }
+.raceBtnVampActive {
+  background: #120608;
+  border-bottom-color: #c0392b;
+}
+.raceBtnLycanActive {
+  background: #05101a;
+  border-bottom-color: #4a90c0;
+}
+.raceBtnLabel {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #2a1014;
+  transition: color 0.2s;
+}
+.raceBtnVampActive .raceBtnLabel { color: #c0392b; }
+.raceBtnLycanActive .raceBtnLabel { color: #4a90c0; }
+.raceBtnLabelLycan { color: #1a3a5a; }
+.raceBtnLycanActive .raceBtnLabelLycan { color: #4a90c0; }
+.raceBtnSub {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #1a0a10;
+}
+.raceBtnVampActive .raceBtnSub { color: #5a2820; }
+.raceBtnLycanActive .raceBtnSub { color: #1a3a5a; }
+.raceBtnSubLycan { color: #0e2030; }
+
+/* ── Lycan hero ── */
+.heroLycan {
+  background: #030d1a;
+  border-bottom-color: #0a2a4a;
+}
+.heroLycan .eyebrow { color: #2a5a7a; }
+.heroLycan .heroTitle { color: #b8d8f0; }
+.heroLycan .heroSub { color: #1a4a6a; }
+.heroLycan .heroIntro { color: #1a3a50; }
+.heroDividerLycan { background: #0a3a5a; }
+
+/* ── Lycan sidebar ── */
+.eraLinkLycan { color: #2a5a7a; border-left-color: transparent; }
+.eraLinkLycan:hover { color: #4a90c0; background: #05101a; border-left-color: #2a6090; }
+
+/* ── Lycan timeline ── */
+.timelineLycan::before { background: #0a2a4a; }
+.dotLycan { border-color: #1a4a7a; background: #040e1a; }
+.dotMajorLycan { border-color: #4a90c0; background: #05101a; }
+.dotLycan .dotInner { background: #2a6090; }
+.dotMajorLycan .dotInner { background: #4a90c0; }
+.entryYearLycan { color: #4a90c0; }
+.quoteLycan { border-left-color: #0a3a5a; color: #2a6080; }
+.quoteLycan cite { color: #1a4a6a; }
+
+/* ── Lycan tags ── */
+.pack     { background: #051828; color: #6aa8c8; border: 1px solid #0a3a5a; }
+.hunt     { background: #051a0a; color: #60a870; border: 1px solid #1a5030; }
+.moonrite { background: #0a0518; color: #9080c0; border: 1px solid #302060; }
+.war      { background: #1a0a00; color: #c07030; border: 1px solid #5a3010; }

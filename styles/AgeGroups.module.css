@@ -1,0 +1,68 @@
+/* ── Race switcher ── */
+.raceBar { display: flex; border-bottom: 1px solid #1a0810; }
+.raceBtn { flex: 1; padding: 16px 20px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; transition: background 0.2s; }
+.raceBtn:hover { background: #0d0410; }
+.raceBtnVampActive { background: #120608; border-bottom-color: #c0392b; }
+.raceBtnLycanActive { background: #05101a; border-bottom-color: #4a90c0; }
+.raceBtnLabel { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 700; color: #2a1014; transition: color 0.2s; }
+.raceBtnVampActive .raceBtnLabel { color: #c0392b; }
+.raceBtnLycanActive .raceBtnLabel { color: #4a90c0; }
+.raceBtnLabelLycan { color: #1a3a5a; }
+.raceBtnLycanActive .raceBtnLabelLycan { color: #4a90c0; }
+.raceBtnSub { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #1a0a10; }
+.raceBtnVampActive .raceBtnSub { color: #5a2820; }
+.raceBtnLycanActive .raceBtnSub { color: #1a3a5a; }
+.raceBtnSubLycan { color: #0e2030; }
+
+/* ── Hero ── */
+.hero { background: var(--bg-dark); border-bottom: 1px solid var(--border); padding: 52px 32px 40px; text-align: center; }
+.heroLycan { background: #030d1a; border-bottom-color: #0a2a4a; }
+.eyebrow { font-family: var(--font-display); font-size: 10px; letter-spacing: 0.3em; color: #a07860; margin-bottom: 14px; text-transform: uppercase; }
+.heroLycan .eyebrow { color: #2a5a7a; }
+.heroTitle { font-family: var(--font-display); font-size: 34px; color: var(--text-bright); font-weight: 700; letter-spacing: 0.08em; margin-bottom: 12px; }
+.heroLycan .heroTitle { color: #b8d8f0; }
+.heroSub { font-size: 17px; color: var(--text-dim); font-style: italic; max-width: 520px; margin: 0 auto 20px; }
+.heroLycan .heroSub { color: #1a4a6a; }
+.heroDivider { width: 120px; height: 1px; background: var(--border-accent); margin: 0 auto; }
+.heroDividerLycan { background: #0a3a5a; }
+
+/* ── Strip ── */
+.strip { background: #0e0c00; border-top: 1px solid #5a4800; border-bottom: 1px solid #5a4800; padding: 10px 32px; text-align: center; font-family: var(--font-display); font-size: 11px; color: #c0a030; letter-spacing: 0.12em; }
+.stripLycan { background: #030d1a; border-top-color: #0a2a4a; border-bottom-color: #0a2a4a; color: #4a90c0; }
+
+/* ── Body ── */
+.body { max-width: 980px; margin: 0 auto; padding: 44px 32px; }
+.sectionHead { font-family: var(--font-display); font-size: 9px; letter-spacing: 0.25em; color: #5a2820; margin-bottom: 28px; text-transform: uppercase; }
+.sectionHeadLycan { color: #1a4a6a; }
+
+/* ── Grid ── */
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+/* ── Cards ── */
+.card { background: #0f0508; border: 1px solid #2a0a14; border-radius: 10px; padding: 22px 22px 20px; position: relative; overflow: hidden; transition: border-color 0.2s; }
+.card:hover { border-color: #4a1020; }
+.cardLycan { background: #040e1c; border-color: #0a2a42; }
+.cardLycan:hover { border-color: #0a3a5a; }
+.cardAccent { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #c0392b; }
+.cardAccentLycan { background: #4a90c0; }
+.cardNum { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.2em; color: #3a1018; margin-bottom: 10px; }
+.cardNumLycan { color: #0a2a42; }
+.cardName { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: #f0d0b8; margin-bottom: 4px; letter-spacing: 0.04em; }
+.cardNameLycan { color: #b8d8f0; }
+.cardNights { font-size: 12px; font-style: italic; color: #5a2820; margin-bottom: 12px; letter-spacing: 0.04em; }
+.cardNightsLycan { color: #1a4a6a; }
+.cardDesc { font-size: 13px; color: #5a3828; line-height: 1.7; font-style: italic; }
+.cardDescLycan { color: #1a3a58; }
+
+/* ── Footer ── */
+.footer { background: var(--bg-dark); border-top: 1px solid var(--border); padding: 22px 32px; text-align: center; font-family: var(--font-display); font-size: 10px; color: #8a6050; letter-spacing: 0.15em; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr 1fr; }
+  .body { padding: 28px 16px; }
+  .heroTitle { font-size: 26px; }
+}
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr; }
+}

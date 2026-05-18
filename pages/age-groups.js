@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
-import AuthGuard from '../components/AuthGuard';
 import styles from '../styles/AgeGroups.module.css';
 
 const vampireAges = [
@@ -57,7 +56,6 @@ export default function AgeGroupsPage() {
         <meta name="description" content="The age groups of DawnDream — vampire and lycan alike." />
       </Head>
       <Navbar activePage="age-groups" />
-      <AuthGuard>
 
         {/* ── Race switcher ── */}
         <div className={styles.raceBar}>
@@ -117,7 +115,6 @@ export default function AgeGroupsPage() {
         <footer className={styles.footer}>
           DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream
         </footer>
-      </AuthGuard>
     </>
   );
 }

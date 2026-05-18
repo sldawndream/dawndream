@@ -2,15 +2,11 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
-import { getPlayerFromRequest } from '../lib/auth';
 import { createClient } from '@supabase/supabase-js';
 import { getEternalPressArticles } from '../lib/eternal-press';
 import styles from '../styles/EternalPress.module.css';
 
 export async function getServerSideProps({ req }) {
-  const session = await getPlayerFromRequest(req);
-  if (!session) {
-    return { redirect: { destination: '/login?next=/eternal-press', permanent: false } };
   }
 
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);

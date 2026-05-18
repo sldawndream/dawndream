@@ -1,6 +1,6 @@
 import Head from 'next/head';
+import Link from 'next/link';
 import Navbar from '../components/Navbar';
-import AuthGuard from '../components/AuthGuard';
 import { getClans } from '../lib/clans';
 import styles from '../styles/Clans.module.css';
 
@@ -21,7 +21,6 @@ export default function ClansPage({ clans }) {
         <meta name="description" content="The great clans of DawnDream." />
       </Head>
       <Navbar activePage="clans" />
-      <AuthGuard>
         <section className={styles.hero}>
           <p className={styles.eyebrow}>Sworn to the Eternal Throne</p>
           <h1 className={styles.heroTitle}>Clans</h1>
@@ -70,7 +69,6 @@ export default function ClansPage({ clans }) {
         <footer className={styles.footer}>
           DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream
         </footer>
-      </AuthGuard>
     </>
   );
 }

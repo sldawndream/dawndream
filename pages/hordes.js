@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
-import AuthGuard from '../components/AuthGuard';
 import { getHordes } from '../lib/hordes';
 import styles from '../styles/Hordes.module.css';
 
@@ -21,7 +20,6 @@ export default function HordesPage({ hordes }) {
         <meta name="description" content="Rebel hordes outside the Eternal Throne." />
       </Head>
       <Navbar activePage="hordes" />
-      <AuthGuard>
         <section className={styles.hero}>
           <p className={styles.eyebrow}>Outside the Eternal Throne</p>
           <h1 className={styles.heroTitle}>Hordes</h1>
@@ -56,7 +54,6 @@ export default function HordesPage({ hordes }) {
           </div>
         </div>
         <footer className={styles.footer}>DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream</footer>
-      </AuthGuard>
     </>
   );
 }

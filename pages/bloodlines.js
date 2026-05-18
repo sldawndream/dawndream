@@ -1,6 +1,5 @@
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
-import AuthGuard from '../components/AuthGuard';
 import { getBloodlines } from '../lib/bloodlines';
 import styles from '../styles/Bloodlines.module.css';
 
@@ -21,7 +20,6 @@ export default function BloodlinesPage({ bloodlines }) {
         <meta name="description" content="The ancient bloodlines of DawnDream." />
       </Head>
       <Navbar activePage="bloodlines" />
-      <AuthGuard>
         <section className={styles.hero}>
           <p className={styles.eyebrow}>The Ancient Bloodlines</p>
           <h1 className={styles.heroTitle}>Bloodlines</h1>
@@ -61,7 +59,6 @@ export default function BloodlinesPage({ bloodlines }) {
           </div>
         </div>
         <footer className={styles.footer}>DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream</footer>
-      </AuthGuard>
     </>
   );
 }

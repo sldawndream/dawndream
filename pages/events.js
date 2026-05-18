@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
-import AuthGuard from '../components/AuthGuard';
 import { getEvents } from '../lib/events';
 import styles from '../styles/Events.module.css';
 
@@ -49,7 +48,6 @@ export default function EventsPage({ events }) {
         <meta name="description" content="DawnDream events." />
       </Head>
       <Navbar activePage="events" />
-      <AuthGuard>
         <section className={styles.hero}>
           <p className={styles.eyebrow}>The Eternal Calendar</p>
           <h1 className={styles.heroTitle}>Events</h1>
@@ -128,7 +126,6 @@ export default function EventsPage({ events }) {
           {events.length === 0 && <p style={{ color: '#7a5a50', fontStyle: 'italic' }}>No events yet.</p>}
         </div>
         <footer className={styles.footer}>DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream</footer>
-      </AuthGuard>
     </>
   );
 }

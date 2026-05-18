@@ -2,22 +2,24 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState } from 'react';
 import Navbar from '../components/Navbar';
+import { getPlayerFromRequest } from '../lib/auth';
 import { createClient } from '@supabase/supabase-js';
 import { getEternalPressArticles } from '../lib/eternal-press';
 import styles from '../styles/EternalPress.module.css';
 
 export async function getServerSideProps({ req }) {
+  const session = await getPlayerFromRequest(req);
+
+  // No redirect — page is public. Role determines edit permissions.
+  let role = 'player';
+  if (session) {
+    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
+    const { data: players } = await supabase
+      .from('players')
+      .select('role')
+      .eq('id', session.id);
+    role = players?.[0]?.role || 'player';
   }
-
-  const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
-
-  // Get current player role
-  const { data: players } = await supabase
-    .from('players')
-    .select('role')
-    .eq('id', session.id);
-
-  const role = players?.[0]?.role || 'player';
 
   try {
     const articles = await getEternalPressArticles();

@@ -1,19 +1,30 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import Navbar from '../components/Navbar';
 import { getClans } from '../lib/clans';
+import { getPlayerFromRequest } from '../lib/auth';
 import styles from '../styles/Clans.module.css';
 
-export async function getServerSideProps() {
+export async function getServerSideProps({ req }) {
   try {
+    const player = await getPlayerFromRequest(req);
+    const isLoggedIn = !!player;
     const clans = await getClans();
-    return { props: { clans } };
+
+    // Strip rank names server-side for non-logged-in users
+    const sanitised = clans.map(clan => ({
+      ...clan,
+      highCommander: isLoggedIn ? clan.highCommander : null,
+      bloodGeneral:  isLoggedIn ? clan.bloodGeneral  : null,
+      warCaptain:    isLoggedIn ? clan.warCaptain    : null,
+    }));
+
+    return { props: { clans: sanitised, isLoggedIn } };
   } catch (err) {
-    return { props: { clans: [] } };
+    return { props: { clans: [], isLoggedIn: false } };
   }
 }
 
-export default function ClansPage({ clans }) {
+export default function ClansPage({ clans, isLoggedIn }) {
   return (
     <>
       <Head>
@@ -21,54 +32,83 @@ export default function ClansPage({ clans }) {
         <meta name="description" content="The great clans of DawnDream." />
       </Head>
       <Navbar activePage="clans" />
-        <section className={styles.hero}>
-          <p className={styles.eyebrow}>Sworn to the Eternal Throne</p>
-          <h1 className={styles.heroTitle}>Clans</h1>
-          <p className={styles.heroSub}>Bound by ancient oath, united beneath a singular and eternal will.</p>
-          <div className={styles.heroDivider} />
-          <p className={styles.heroIntro}>The Clans stand bound by ancient oath to the Eternal Throne, their loyalty etched in blood and time itself. Unlike the scattered Horde, they do not wander in defiance, but rise in unity beneath a singular will. Each Clan upholds a sacred order, living not in chaos, but in discipline forged through centuries of dominion. The great laws of the Throne are not questioned — they are revered, enforced, and carried through generations like an unbroken covenant. Where others rebel and fade, the Clans endure, eternal in purpose, guardians of a legacy that neither fear nor rebellion can unravel.</p>
-        </section>
 
-        <div className={styles.throneBar}>
-          ✦ These factions stand in absolute allegiance to the Eternal Throne — recognised, protected, and bound by the ancient covenant.
-        </div>
+      <section className={styles.hero}>
+        <p className={styles.eyebrow}>Sworn to the Eternal Throne</p>
+        <h1 className={styles.heroTitle}>Clans</h1>
+        <p className={styles.heroSub}>Bound by ancient oath, united beneath a singular and eternal will.</p>
+        <div className={styles.heroDivider} />
+        <p className={styles.heroIntro}>The Clans stand bound by ancient oath to the Eternal Throne, their loyalty etched in blood and time itself. Unlike the scattered Horde, they do not wander in defiance, but rise in unity beneath a singular will. Each Clan upholds a sacred order, living not in chaos, but in discipline forged through centuries of dominion. The great laws of the Throne are not questioned — they are revered, enforced, and carried through generations like an unbroken covenant. Where others rebel and fade, the Clans endure, eternal in purpose, guardians of a legacy that neither fear nor rebellion can unravel.</p>
+      </section>
 
-        <div className={styles.body}>
-          <p className={styles.sectionHead}>Active Clans of DawnDream</p>
-          {clans.length === 0 && <p style={{ color: '#7a5a50', fontStyle: 'italic' }}>No clans yet.</p>}
-          <div className={styles.clansGrid}>
-            {clans.map((clan) => (
-              <div key={clan.id} className={styles.clanCard}>
-                {clan.bannerImage ? (
-                  <img src={clan.bannerImage} alt={clan.name} className={styles.clanBanner} />
-                ) : (
-                  <div className={styles.clanBannerPlaceholder}>Banner</div>
-                )}
-                <div className={styles.clanInfo}>
-                  <div className={styles.clanTop}>
-                    <span className={styles.clanName}>{clan.name}</span>
-                    {clan.founded && <span className={styles.clanFounded}>Founded {clan.founded}</span>}
-                  </div>
-                  <div className={styles.clanRanks}>
-                    <span className={`${styles.rankPill} ${styles.rankHc} ${!clan.highCommander ? styles.rankEmpty : ''}`}>⚔ High Commander: {clan.highCommander || 'None'}</span>
-                    <span className={`${styles.rankPill} ${styles.rankBg} ${!clan.bloodGeneral ? styles.rankEmpty : ''}`}>Blood General: {clan.bloodGeneral || 'None'}</span>
-                    <span className={`${styles.rankPill} ${styles.rankWc} ${!clan.warCaptain ? styles.rankEmpty : ''}`}>War Captain: {clan.warCaptain || 'None'}</span>
-                  </div>
-                  {clan.lore && (
-                    <details className={styles.loreDetails}>
-                      <summary className={styles.loreSummary}>Read lore ▾</summary>
-                      <p className={styles.clanLore}>{clan.lore}</p>
-                    </details>
+      <div className={styles.throneBar}>
+        ✦ These factions stand in absolute allegiance to the Eternal Throne — recognised, protected, and bound by the ancient covenant.
+      </div>
+
+      <div className={styles.body}>
+        <p className={styles.sectionHead}>Active Clans of DawnDream</p>
+
+        {!isLoggedIn && (
+          <p className={styles.rankNotice}>
+            🔒 <a href="/login" style={{ color: '#c0392b', textDecoration: 'none' }}>Login</a> or <a href="/register" style={{ color: '#c0392b', textDecoration: 'none' }}>register</a> to see clan leadership.
+          </p>
+        )}
+
+        {clans.length === 0 && (
+          <p style={{ color: '#7a5a50', fontStyle: 'italic' }}>No clans yet.</p>
+        )}
+
+        <div className={styles.clansGrid}>
+          {clans.map((clan) => (
+            <div key={clan.id} className={styles.clanCard}>
+              {clan.bannerImage ? (
+                <img src={clan.bannerImage} alt={clan.name} className={styles.clanBanner} />
+              ) : (
+                <div className={styles.clanBannerPlaceholder}>Banner</div>
+              )}
+              <div className={styles.clanInfo}>
+                <div className={styles.clanTop}>
+                  <span className={styles.clanName}>{clan.name}</span>
+                  {clan.founded && (
+                    <span className={styles.clanFounded}>Founded {clan.founded}</span>
                   )}
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        <footer className={styles.footer}>
-          DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream
-        </footer>
+                <div className={styles.clanRanks}>
+                  {isLoggedIn ? (
+                    <>
+                      <span className={`${styles.rankPill} ${styles.rankHc} ${!clan.highCommander ? styles.rankEmpty : ''}`}>
+                        ⚔ High Commander: {clan.highCommander || 'None'}
+                      </span>
+                      <span className={`${styles.rankPill} ${styles.rankBg} ${!clan.bloodGeneral ? styles.rankEmpty : ''}`}>
+                        Blood General: {clan.bloodGeneral || 'None'}
+                      </span>
+                      <span className={`${styles.rankPill} ${styles.rankWc} ${!clan.warCaptain ? styles.rankEmpty : ''}`}>
+                        War Captain: {clan.warCaptain || 'None'}
+                      </span>
+                    </>
+                  ) : (
+                    <span className={styles.rankLocked}>
+                      🔒 Login to view leadership
+                    </span>
+                  )}
+                </div>
+
+                {clan.lore && (
+                  <details className={styles.loreDetails}>
+                    <summary className={styles.loreSummary}>Read lore ▾</summary>
+                    <p className={styles.clanLore}>{clan.lore}</p>
+                  </details>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <footer className={styles.footer}>
+        DawnDream Vampire System &nbsp;·&nbsp; Second Life RPG &nbsp;·&nbsp; All rights © DawnDream
+      </footer>
     </>
   );
 }
